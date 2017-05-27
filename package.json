@@ -1,0 +1,18 @@
+{
+  "name": "snyk-python-plugin",
+  "version": "0.0.0-placeholder",
+  "description": "Snyk CLI Python plugin",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "tap `find ./test -name '*.test.js'`",
+    "lint": "jscs `find ./lib -name '*.js'` -v && jscs `find ./test -name '*.js'` -v"
+  },
+  "author": "snyk.io",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "jscs": "^3.0.7",
+    "semantic-release": "^6.3.6",
+    "sinon": "^2.3.2",
+    "tap": "^10.3.2"
+  }
+}
