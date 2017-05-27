@@ -44,8 +44,9 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
         return root_package
 
     def create_dir_as_root():
-        dir_as_root = { NAME: os.path.basename(os.path.dirname(os.path.abspath(req_file_path))), VERSION: DIR_VERSION,
-                       FROM: [os.path.basename(os.path.dirname(os.path.abspath(req_file_path)))], DEPENDENCIES: {},
+        name = os.path.basename(os.path.dirname(os.path.abspath(req_file_path)))
+        dir_as_root = { NAME: name, VERSION: DIR_VERSION,
+                       FROM: [name + VERSION_SEPARATOR + DIR_VERSION], DEPENDENCIES: {},
                        PACKAGE_FORMAT_VERSION: 'pip:0.0.1'}
         return dir_as_root
 

@@ -25,8 +25,8 @@ test('inspect', function (t) {
       t.ok(pkg, 'package');
       t.equal(pkg.name, 'pip-app', 'name');
       t.equal(pkg.version, '0.0.0', 'version');
-      t.equal(pkg.full, 'pip-app@0.0.0', 'version');
-      t.equal(pkg.from, ['pip-app@0.0.0'], 'from self');
+      // t.equal(pkg.full, 'pip-app@0.0.0', 'full'); // do we need this?
+      t.same(pkg.from, ['pip-app@0.0.0'], 'from self');
       t.end();
     });
 
