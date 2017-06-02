@@ -2,10 +2,16 @@
   "name": "snyk-python-plugin",
   "version": "0.0.0-placeholder",
   "description": "Snyk CLI Python plugin",
+  "homepage": "https://github.com/snyk/snyk-python-plugin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snyk/snyk-python-plugin"
+  },
   "main": "lib/index.js",
   "scripts": {
     "test": "tap `find ./test -name '*.test.js'`",
-    "lint": "jscs `find ./lib -name '*.js'` -v && jscs `find ./test -name '*.js'` -v"
+    "lint": "jscs `find ./lib -name '*.js'` -v && jscs `find ./test -name '*.js'` -v",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "author": "snyk.io",
   "license": "Apache-2.0",
