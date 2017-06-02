@@ -5,7 +5,9 @@ var subProcess = require('../lib/sub-process');
 
 test('install requirements (may take a while)', function (t) {
   chdirWorkspaces('pip-app');
-  return subProcess.execute('pip', ['install', '-r', 'requirements.txt'])
+  return subProcess.execute('pip',
+    ['install', '-r', 'requirements.txt', '--disable-pip-version-check']
+  )
   .then(function () {
     t.pass('installed pip packages');
   })
@@ -19,7 +21,15 @@ test('inspect', function (t) {
 
   return plugin.inspect('.', 'requirements.txt')
   .then(function (result) {
+    var plugin = result.plugin;
     var pkg = result.package;
+
+    t.test('plugin', function (t) {
+      t.ok(plugin, 'plugin');
+      t.equal(plugin.name, 'snyk-python-plugin', 'name');
+      t.match(plugin.runtime, 'Python', 'runtime');
+      t.end();
+    });
 
     t.test('package', function (t) {
       t.ok(pkg, 'package');
@@ -39,7 +49,7 @@ test('inspect', function (t) {
           'django@1.6.1',
         ],
       }, 'django looks ok');
-      t.same(pkg.dependencies.jinja2, {
+      t.match(pkg.dependencies.jinja2, {
         name: 'jinja2',
         version: '2.7.2',
         from: [
@@ -51,10 +61,10 @@ test('inspect', function (t) {
             from: [
               'pip-app@0.0.0',
               'jinja2@2.7.2',
-              'markupsafe@0.18',
+              /markupsafe@.+$/,
             ],
             name: 'markupsafe',
-            version: '0.18',
+            version: /.+$/,
           },
         },
       }, 'jinja2 looks ok');
