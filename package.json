@@ -1,6 +1,5 @@
 {
   "name": "snyk-python-plugin",
-  "version": "0.0.0-placeholder",
   "description": "Snyk CLI Python plugin",
   "homepage": "https://github.com/snyk/snyk-python-plugin",
   "repository": {
