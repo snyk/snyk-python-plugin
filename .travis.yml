@@ -21,9 +21,10 @@ jobs:
   include:
     - stage: npm release
       node_js: "6"
+      script: skip
       before_script: # Don't need virtualenv for release, so skip it
-      script: echo "after all!"
+      after_success:
+        - npm run semantic-release
 branches:
   except:
     - "/^v\\d+\\.\\d+\\.\\d+$/"
-    - /^released-/
