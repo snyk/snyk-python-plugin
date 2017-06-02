@@ -24,7 +24,7 @@ jobs:
       script: skip
       before_script: # Don't need virtualenv for release, so skip it
       after_success:
-        - npm run semantic-release
+        - TRAVIS_JOB_NUMBER=WORKAROUND.1 npm run semantic-release
 branches:
   only:
     - master
