@@ -1,5 +1,7 @@
 var test = require('tap').test;
 var path = require('path');
+var sinon = require('sinon');
+
 var plugin = require('../lib');
 var subProcess = require('../lib/sub-process');
 
@@ -86,6 +88,23 @@ test('deps not installed', function (t) {
   });
 });
 
-function chdirWorkspaces(subdir) {
-  process.chdir(path.resolve(__dirname, 'workspaces', subdir));
+test('uses provided exec command', function (t) {
+  var command = 'echo';
+  var execute = sinon.stub(subProcess, 'execute');
+  execute.onFirstCall().returns(Promise.resolve('abc'));
+  execute.onSecondCall().returns(Promise.resolve('{}'));
+  t.teardown(execute.restore);
+
+  return plugin.inspect('.', 'requirements.txt', null, {
+    command: command,
+  })
+  .then(function () {
+    t.ok(execute.calledTwice, 'execute called twice');
+    t.equal(execute.firstCall.args[0], command, 'uses command');
+    t.equal(execute.secondCall.args[0], command, 'uses command');
+  });
+});
+
+function chdirWorkspaces(dir) {
+  process.chdir(path.resolve(__dirname, 'workspaces', dir));
 }
