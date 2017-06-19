@@ -95,7 +95,7 @@ test('uses provided exec command', function (t) {
   execute.onSecondCall().returns(Promise.resolve('{}'));
   t.teardown(execute.restore);
 
-  return plugin.inspect('.', 'requirements.txt', null, {
+  return plugin.inspect('.', 'requirements.txt', {
     command: command,
   })
   .then(function () {
