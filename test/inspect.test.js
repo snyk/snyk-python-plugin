@@ -107,9 +107,7 @@ test('uses provided exec command', function (t) {
 
 test('package name differs from requirement', function (t) {
   chdirWorkspaces('pip-app-deps-with-dashes');
-  return subProcess.execute('pip',
-    ['install', '-r', 'requirements.txt', '--disable-pip-version-check']
-  )
+  return pipInstall()
   .then(function () {
     return plugin.inspect('.', 'requirements.txt')
     .then(function (result) {
@@ -140,9 +138,7 @@ test('package name differs from requirement', function (t) {
 
 test('package depends on platform', function (t) {
   chdirWorkspaces('pip-app-deps-conditional');
-  return subProcess.execute('pip',
-    ['install', '-r', 'requirements.txt', '--disable-pip-version-check']
-  )
+  return pipInstall()
   .then(function () {
     return plugin.inspect('.', 'requirements.txt')
     .then(function (result) {
@@ -163,6 +159,35 @@ test('package depends on platform', function (t) {
     t.fail(error);
   });
 });
+
+test('editables ignored', function (t) {
+  chdirWorkspaces('pip-app-deps-editable');
+  return pipInstall()
+  .then(function () {
+    return plugin.inspect('.', 'requirements.txt')
+    .then(function (result) {
+      var pkg = result.package;
+      t.notOk(pkg.dependencies['django-munigeo'], 'editable dep ignored');
+      t.same(pkg.dependencies['posix-ipc'], {
+        from: [
+          'pip-app-deps-editable@0.0.0',
+          'posix-ipc@1.0.0',
+        ],
+        name: 'posix-ipc',
+        version: '1.0.0',
+      }, 'posix-ipc looks ok');
+      t.end();
+    });
+  })
+  .catch(function (error) {
+    t.fail(error);
+  });
+});
+
+function pipInstall() {
+  return subProcess.execute('pip',
+    ['install', '-r', 'requirements.txt', '--disable-pip-version-check']);
+}
 
 function chdirWorkspaces(dir) {
   process.chdir(path.resolve(__dirname, 'workspaces', dir));
