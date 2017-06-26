@@ -138,6 +138,32 @@ test('package name differs from requirement', function (t) {
   });
 });
 
+test('package depends on platform', function (t) {
+  chdirWorkspaces('pip-app-deps-conditional');
+  return subProcess.execute('pip',
+    ['install', '-r', 'requirements.txt', '--disable-pip-version-check']
+  )
+  .then(function () {
+    return plugin.inspect('.', 'requirements.txt')
+    .then(function (result) {
+      var pkg = result.package;
+      t.notOk(pkg.dependencies.pypiwin32, 'win32 dep ignored');
+      t.same(pkg.dependencies['posix-ipc'], {
+        from: [
+          'pip-app-deps-conditional@0.0.0',
+          'posix-ipc@1.0.0',
+        ],
+        name: 'posix-ipc',
+        version: '1.0.0',
+      }, 'posix-ipc looks ok');
+      t.end();
+    });
+  })
+  .catch(function (error) {
+    t.fail(error);
+  });
+});
+
 function chdirWorkspaces(dir) {
   process.chdir(path.resolve(__dirname, 'workspaces', dir));
 }
