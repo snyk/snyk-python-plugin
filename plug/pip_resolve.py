@@ -79,9 +79,13 @@ def matches_environment(requirement):
             return match[0].lower() == sys_platform
     return True
 
+def is_testable(requirement):
+    return requirement.editable == False and requirement.vcs == None
+
 def get_requirements_list(requirements_file):
     req_list = list(requirements.parse(requirements_file))
     req_list = filter(matches_environment, req_list)
+    req_list = filter(is_testable, req_list)
     required = [req.name.replace('_', '-') for req in req_list]
     return required
 

@@ -1,0 +1,2 @@
+-e git+https://github.com/City-of-Helsinki/munigeo#egg=django-munigeo
+posix_ipc==1.0.0
