@@ -6,6 +6,7 @@ import requirements
 import pip
 import pkg_resources
 import utils
+import re
 
 
 def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_path):
@@ -63,8 +64,24 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
         dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
     return dir_as_root
 
+sys_platform_re = re.compile('sys_platform\s*==\s*[\'"](.+)[\'"]')
+sys_platform = sys.platform.lower()
+
+def matches_environment(requirement):
+    """Filter out requirements that should not be installed
+    in this environment. Only sys_platform is inspected right now.
+    This should be expanded to include other environment markers.
+    See: https://www.python.org/dev/peps/pep-0508/#environment-markers
+    """
+    if 'sys_platform' in requirement.line:
+        match = sys_platform_re.findall(requirement.line)
+        if len(match) > 0:
+            return match[0].lower() == sys_platform
+    return True
+
 def get_requirements_list(requirements_file):
     req_list = list(requirements.parse(requirements_file))
+    req_list = filter(matches_environment, req_list)
     required = [req.name.replace('_', '-') for req in req_list]
     return required
 
