@@ -63,6 +63,10 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
         dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
     return dir_as_root
 
+def get_requirements_list(requirements_file):
+    req_list = list(requirements.parse(requirements_file))
+    required = [req.name.replace('_', '-') for req in req_list]
+    return required
 
 def create_dependencies_tree_by_req_file_path(requirements_file_path):
     # get all installed packages
@@ -76,14 +80,13 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path):
 
     # open the requirements.txt file and create dependencies tree out of it
     with open(requirements_file_path, 'r') as requirements_file:
-        req_list = list(requirements.parse(requirements_file))
-        required = [req.name for req in req_list]
+        required = get_requirements_list(requirements_file)
         installed = [p for p in dist_index]
         for r in required:
             if r.lower() not in installed:
-                sys.exit('Required package missing')
+                sys.exit('Required package missing: ' + r.lower())
         package_tree = create_tree_of_packages_dependencies(
-            dist_tree, [req.name for req in req_list], requirements_file_path)
+            dist_tree, required, requirements_file_path)
     print(json.dumps(package_tree))
 
 
