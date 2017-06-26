@@ -105,6 +105,39 @@ test('uses provided exec command', function (t) {
   });
 });
 
+test('package name differs from requirement', function (t) {
+  chdirWorkspaces('pip-app-deps-with-dashes');
+  return subProcess.execute('pip',
+    ['install', '-r', 'requirements.txt', '--disable-pip-version-check']
+  )
+  .then(function () {
+    return plugin.inspect('.', 'requirements.txt')
+    .then(function (result) {
+      var pkg = result.package;
+      t.same(pkg.dependencies['dj-database-url'], {
+        from: [
+          'pip-app-deps-with-dashes@0.0.0',
+          'dj-database-url@0.4.2',
+        ],
+        name: 'dj-database-url',
+        version: '0.4.2',
+      }, 'dj-database-url looks ok');
+      t.same(pkg.dependencies['posix-ipc'], {
+        from: [
+          'pip-app-deps-with-dashes@0.0.0',
+          'posix-ipc@1.0.0',
+        ],
+        name: 'posix-ipc',
+        version: '1.0.0',
+      }, 'posix-ipc looks ok');
+      t.end();
+    });
+  })
+  .catch(function (error) {
+    t.fail(error);
+  });
+});
+
 function chdirWorkspaces(dir) {
   process.chdir(path.resolve(__dirname, 'workspaces', dir));
 }

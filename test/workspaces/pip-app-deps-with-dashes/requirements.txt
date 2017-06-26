@@ -1,0 +1,2 @@
+dj_database_url==0.4.2
+posix_ipc==1.0.0
