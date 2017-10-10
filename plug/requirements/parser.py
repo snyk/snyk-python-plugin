@@ -30,6 +30,9 @@ def parse(reqstr):
         elif not line or line.startswith('#'):
             # comments are lines that start with # only
             continue
+        elif line.startswith('--trusted-host'):
+            # unsupported
+            continue
         elif line.startswith('-r') or line.startswith('--requirement'):
             _, new_filename = line.split()
             new_file_path = os.path.join(os.path.dirname(filename or '.'),

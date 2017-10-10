@@ -184,6 +184,21 @@ test('editables ignored', function (t) {
   });
 });
 
+test('trusted host ignored', function (t) {
+  chdirWorkspaces('pip-app-trusted-host');
+  return pipInstall()
+  .then(function () {
+    return plugin.inspect('.', 'requirements.txt')
+    .then(function (result) {
+      t.ok(result.package.dependencies, 'does not error');
+      t.end();
+    });
+  })
+  .catch(function (error) {
+    t.fail(error);
+  });
+});
+
 function pipInstall() {
   return subProcess.execute('pip',
     ['install', '-r', 'requirements.txt', '--disable-pip-version-check']);
