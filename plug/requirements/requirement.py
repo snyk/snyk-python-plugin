@@ -16,7 +16,7 @@ VCS_REGEX = re.compile(
     r'((?P<login>[^/@]+)@)?'
     r'(?P<path>[^#@]+)'
     r'(@(?P<revision>[^#]+))?'
-    r'(#egg=(?P<name>[^&]+))?$'
+    r'(#egg=(?P<name>[^&]+)(&subdirectory=([^&]+))?)?$'
 )
 
 # This matches just about everyting
