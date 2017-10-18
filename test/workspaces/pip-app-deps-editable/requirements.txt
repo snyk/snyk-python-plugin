@@ -1,2 +1,3 @@
--e git+https://github.com/City-of-Helsinki/munigeo#egg=django-munigeo
+-e git+https://github.com/snyk-fixtures/python-pypi-package-simple#egg=simple
+-e git+https://github.com/snyk-fixtures/python-pypi-package-sample-subdir#egg=sample&subdirectory=subdir
 posix_ipc==1.0.0

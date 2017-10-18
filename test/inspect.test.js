@@ -167,34 +167,11 @@ test('editables ignored', function (t) {
     return plugin.inspect('.', 'requirements.txt')
     .then(function (result) {
       var pkg = result.package;
-      t.notOk(pkg.dependencies['django-munigeo'], 'editable dep ignored');
+      t.notOk(pkg.dependencies['simple'], 'editable dep ignored');
+      t.notOk(pkg.dependencies['sample'], 'editable subdir dep ignored');
       t.same(pkg.dependencies['posix-ipc'], {
         from: [
           'pip-app-deps-editable@0.0.0',
-          'posix-ipc@1.0.0',
-        ],
-        name: 'posix-ipc',
-        version: '1.0.0',
-      }, 'posix-ipc looks ok');
-      t.end();
-    });
-  })
-  .catch(function (error) {
-    t.fail(error);
-  });
-});
-
-test('editables with subdirectory ignored', function (t) {
-  chdirWorkspaces('pip-app-deps-editable-subdirectory');
-  return pipInstall()
-  .then(function () {
-    return plugin.inspect('.', 'requirements.txt')
-    .then(function (result) {
-      var pkg = result.package;
-      t.notOk(pkg.dependencies['django-munigeo'], 'editable dep ignored');
-      t.same(pkg.dependencies['posix-ipc'], {
-        from: [
-          'pip-app-deps-editable-subdirectory@0.0.0',
           'posix-ipc@1.0.0',
         ],
         name: 'posix-ipc',
