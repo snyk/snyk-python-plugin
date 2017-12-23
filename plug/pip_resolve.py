@@ -40,8 +40,9 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
                              [child_dist.key + VERSION_SEPARATOR +
                               child_dist.installed_version]}
             create_children_recursive(child_package, key_tree)
-            root_package[DEPENDENCIES] = {
-                child_dist.project_name: child_package}
+            if DEPENDENCIES not in root_package:
+                root_package[DEPENDENCIES] = {}
+            root_package[DEPENDENCIES][child_dist.project_name] = child_package
         return root_package
 
     def create_dir_as_root():
