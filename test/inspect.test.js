@@ -51,6 +51,7 @@ test('inspect', function (t) {
           'django@1.6.1',
         ],
       }, 'django looks ok');
+
       t.match(pkg.dependencies.jinja2, {
         name: 'jinja2',
         version: '2.7.2',
@@ -70,6 +71,36 @@ test('inspect', function (t) {
           },
         },
       }, 'jinja2 looks ok');
+
+      t.match(pkg.dependencies['python-etcd'], {
+        name: 'python-etcd',
+        version: '0.4.5',
+        from: [
+          'pip-app@0.0.0',
+          'python-etcd@0.4.5',
+        ],
+        dependencies: {
+          dnspython: {
+            name: 'dnspython',
+            version: /.+$/,
+            from: [
+              'pip-app@0.0.0',
+              'python-etcd@0.4.5',
+              /dnspython@.+$/,
+            ],
+          },
+          urllib3: {
+            name: 'urllib3',
+            version: /.+$/,
+            from: [
+              'pip-app@0.0.0',
+              'python-etcd@0.4.5',
+              /urllib3@.+$/,
+            ],
+          },
+        },
+      }, 'python-etcd is ok');
+
       t.end();
     });
 
