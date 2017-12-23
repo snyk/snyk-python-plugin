@@ -1,12 +1,10 @@
 import sys
 import os
-import argparse
 import json
-import requirements
-import pip
-import pkg_resources
-import utils
 import re
+import pip
+import utils
+import requirements
 
 
 def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_path):
@@ -35,10 +33,12 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
     def create_children_recursive(root_package, key_tree):
         children_packages_as_dist = key_tree[root_package[NAME].lower()]
         for child_dist in children_packages_as_dist:
-            child_package = {NAME: child_dist.project_name, VERSION: child_dist.installed_version,
-                             FROM: root_package[FROM] +
-                             [child_dist.key + VERSION_SEPARATOR +
-                              child_dist.installed_version]}
+            child_package = {
+                NAME: child_dist.project_name,
+                VERSION: child_dist.installed_version,
+                FROM: root_package[FROM] +
+                      [child_dist.key + VERSION_SEPARATOR + child_dist.installed_version]
+            }
             create_children_recursive(child_package, key_tree)
             if DEPENDENCIES not in root_package:
                 root_package[DEPENDENCIES] = {}
@@ -47,16 +47,24 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
 
     def create_dir_as_root():
         name = os.path.basename(os.path.dirname(os.path.abspath(req_file_path)))
-        dir_as_root = { NAME: name, VERSION: DIR_VERSION,
-                       FROM: [name + VERSION_SEPARATOR + DIR_VERSION], DEPENDENCIES: {},
-                       PACKAGE_FORMAT_VERSION: 'pip:0.0.1'}
+        dir_as_root = {
+            NAME: name,
+            VERSION: DIR_VERSION,
+            DEPENDENCIES: {},
+            FROM: [name + VERSION_SEPARATOR + DIR_VERSION], DEPENDENCIES: {},
+            PACKAGE_FORMAT_VERSION: 'pip:0.0.1'
+        }
         return dir_as_root
 
     def create_package_as_root(package, dir_as_root):
-        package_as_root = {NAME: package.project_name.lower(), VERSION: package._obj._version,
-                           FROM: ["{}{}{}".format(dir_as_root[NAME], VERSION_SEPARATOR, dir_as_root[VERSION])] +
-                           ["{}{}{}".format(package.project_name.lower(),
-                                            VERSION_SEPARATOR, package._obj._version)]}
+        package_as_root = {
+            NAME: package.project_name.lower(),
+            VERSION: package._obj._version,
+            FROM: ["{}{}{}".format(
+                dir_as_root[NAME], VERSION_SEPARATOR, dir_as_root[VERSION])] +
+                  ["{}{}{}".format(
+                package.project_name.lower(), VERSION_SEPARATOR, package._obj._version)]
+        }
         return package_as_root
     dir_as_root = create_dir_as_root()
     for package in packages_as_dist_obj:
