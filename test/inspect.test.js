@@ -119,6 +119,30 @@ test('deps not installed', function (t) {
   });
 });
 
+test('deps not installed, but with allowMissing option', function (t) {
+  chdirWorkspaces('pip-app-deps-not-installed');
+  return plugin.inspect('.', 'requirements.txt', {allowMissing: true})
+  .then(function (result) {
+    var plugin = result.plugin;
+    var pkg = result.package;
+
+    t.test('plugin', function (t) {
+      t.ok(plugin, 'plugin');
+      t.equal(plugin.name, 'snyk-python-plugin', 'name');
+      t.match(plugin.runtime, 'Python', 'runtime');
+      t.end();
+    });
+
+    t.test('package', function (t) {
+      t.ok(pkg, 'package');
+      t.equal(pkg.name, 'pip-app-deps-not-installed', 'name');
+      t.equal(pkg.version, '0.0.0', 'version');
+      t.same(pkg.from, ['pip-app-deps-not-installed@0.0.0'], 'from self');
+      t.end();
+    });
+  });
+});
+
 test('uses provided exec command', function (t) {
   var command = 'echo';
   var execute = sinon.stub(subProcess, 'execute');
