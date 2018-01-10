@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import re
+import argparse
 import pip
 import utils
 import requirements
@@ -98,7 +99,7 @@ def get_requirements_list(requirements_file):
     required = [req.name.replace('_', '-') for req in req_list]
     return required
 
-def create_dependencies_tree_by_req_file_path(requirements_file_path):
+def create_dependencies_tree_by_req_file_path(requirements_file_path, allow_missing=False):
     # get all installed packages
     pkgs = pip.get_installed_distributions(local_only=False, skip=[])
 
@@ -114,13 +115,25 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path):
         installed = [p for p in dist_index]
         for r in required:
             if r.lower() not in installed:
-                sys.exit('Required package missing: ' + r.lower())
+                msg = 'Required package missing: ' + r.lower()
+                if allow_missing:
+                    sys.stderr.write(msg)
+                else:
+                    sys.exit(msg)
         package_tree = create_tree_of_packages_dependencies(
             dist_tree, required, requirements_file_path)
     print(json.dumps(package_tree))
 
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("requirements", help="requirements.txt path")
+    parser.add_argument("--allow-missing",
+        action="store_true",
+        help="don't fail if some packages listed in requirements.txt are missing")
+    args = parser.parse_args()
+
+    create_dependencies_tree_by_req_file_path(
+        args.requirements, args.allow_missing)
 
 if __name__ == '__main__':
-    if(not sys.argv[1]):
-        print('Expecting requirements.txt Path An Argument')
-    sys.exit(create_dependencies_tree_by_req_file_path(sys.argv[1]))
+    sys.exit(main())
