@@ -28,8 +28,11 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
     key_tree = dict((k.key, v) for k, v in tree.items())
 
     def get_children(n): return key_tree.get(n.key, [])
+    lowercase_pkgs_names = [p.lower() for p in packages_names]
     packages_as_dist_obj = [
-        p for p in nodes if p.key in packages_names or p.project_name in packages_names]
+        p for p in nodes if
+            p.key.lower() in lowercase_pkgs_names or
+            (p.project_name and p.project_name.lower()) in lowercase_pkgs_names]
 
     def create_children_recursive(root_package, key_tree):
         root_name = root_package[NAME].lower()

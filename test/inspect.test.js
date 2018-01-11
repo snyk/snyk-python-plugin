@@ -101,6 +101,20 @@ test('inspect', function (t) {
         },
       }, 'python-etcd is ok');
 
+      t.match(pkg.dependencies['django-select2'], {
+        name: 'django-select2',
+        version: '6.0.1',
+        from: [
+          'pip-app@0.0.0',
+          'django-select2@6.0.1',
+        ],
+        dependencies: {
+          'django-appconf': {
+            name: 'django-appconf',
+          },
+        },
+      }, 'django-select2 looks ok');
+
       t.end();
     });
 
@@ -198,6 +212,20 @@ test('transitive dep not installed, but with allowMissing option', function (t) 
                 },
               },
             }, 'python-etcd is ok');
+
+            t.match(pkg.dependencies['django-select2'], {
+              name: 'django-select2',
+              version: '6.0.1',
+              from: [
+                'pip-app@0.0.0',
+                'django-select2@6.0.1',
+              ],
+              dependencies: {
+                'django-appconf': {
+                  name: 'django-appconf',
+                },
+              },
+            }, 'django-select2 looks ok');
 
             t.end();
           });
