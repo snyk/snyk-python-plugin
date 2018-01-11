@@ -8,7 +8,7 @@ import utils
 import requirements
 
 
-def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_path):
+def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_path, allow_missing=False):
     """Create packages dependencies tree
     :param dict tree: the package tree
     :param set packages_names: set of select packages to be shown in the output.
@@ -32,7 +32,15 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
         p for p in nodes if p.key in packages_names or p.project_name in packages_names]
 
     def create_children_recursive(root_package, key_tree):
-        children_packages_as_dist = key_tree[root_package[NAME].lower()]
+        root_name = root_package[NAME].lower()
+        if root_name not in key_tree:
+            msg = 'Required package missing: ' + root_name
+            if allow_missing:
+                sys.stderr.write(msg + "\n")
+                return
+            else:
+                sys.exit(msg)
+        children_packages_as_dist = key_tree[root_name]
         for child_dist in children_packages_as_dist:
             child_package = {
                 NAME: child_dist.project_name,
@@ -113,15 +121,19 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path, allow_miss
     with open(requirements_file_path, 'r') as requirements_file:
         required = get_requirements_list(requirements_file)
         installed = [p for p in dist_index]
+        packages = []
         for r in required:
             if r.lower() not in installed:
                 msg = 'Required package missing: ' + r.lower()
                 if allow_missing:
-                    sys.stderr.write(msg)
+                    sys.stderr.write(msg + "\n")
                 else:
                     sys.exit(msg)
+            else:
+                packages.append(r);
+
         package_tree = create_tree_of_packages_dependencies(
-            dist_tree, required, requirements_file_path)
+            dist_tree, packages, requirements_file_path, allow_missing)
     print(json.dumps(package_tree))
 
 def main():
