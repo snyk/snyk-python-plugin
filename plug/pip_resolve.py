@@ -34,7 +34,7 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
             p.key.lower() in lowercase_pkgs_names or
             (p.project_name and p.project_name.lower()) in lowercase_pkgs_names]
 
-    def create_children_recursive(root_package, key_tree):
+    def create_children_recursive(root_package, key_tree, ancestors):
         root_name = root_package[NAME].lower()
         if root_name not in key_tree:
             msg = 'Required package missing: ' + root_name
@@ -43,15 +43,22 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
                 return
             else:
                 sys.exit(msg)
+
+        ancestors = ancestors.copy()
+        ancestors.add(root_name)
         children_packages_as_dist = key_tree[root_name]
         for child_dist in children_packages_as_dist:
+            if child_dist.project_name.lower() in ancestors:
+                continue
+
             child_package = {
                 NAME: child_dist.project_name,
                 VERSION: child_dist.installed_version,
                 FROM: root_package[FROM] +
                       [child_dist.key + VERSION_SEPARATOR + child_dist.installed_version]
             }
-            create_children_recursive(child_package, key_tree)
+
+            create_children_recursive(child_package, key_tree, ancestors)
             if DEPENDENCIES not in root_package:
                 root_package[DEPENDENCIES] = {}
             root_package[DEPENDENCIES][child_dist.project_name] = child_package
@@ -81,7 +88,7 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
     dir_as_root = create_dir_as_root()
     for package in packages_as_dist_obj:
         package_as_root = create_package_as_root(package, dir_as_root)
-        package_tree = create_children_recursive(package_as_root, key_tree)
+        package_tree = create_children_recursive(package_as_root, key_tree, set([]))
         dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
     return dir_as_root
 
