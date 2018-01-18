@@ -115,6 +115,46 @@ test('inspect', function (t) {
         },
       }, 'django-select2 looks ok');
 
+      t.match(pkg.dependencies['irc'], {
+        name: 'irc',
+        version: '16.2',
+        from: [
+          "pip-app@0.0.0",
+          "irc@16.2"
+        ],
+        dependencies: {
+          'more-itertools': {},
+          'jaraco.functools': {},
+          'jaraco.collections': {
+            dependencies: {
+              'jaraco.text': {},
+            }
+          },
+          'jaraco.text': {
+            dependencies: {
+              'jaraco.collections': {}
+            }
+          },
+        }
+      }, 'irc ok, even though it has a cyclic dep, yay!')
+
+      t.match(pkg.dependencies['testtools'], {
+        name: 'testtools',
+        version: '2.3.0',
+        from: [
+          "pip-app@0.0.0",
+          "testtools@2.3.0"
+        ],
+        dependencies: {
+          'pbr': {},
+          'extras': {},
+          'fixtures': {},
+          'unittest2': {},
+          'traceback2': {},
+          'python-mimeparse': {},
+        }
+      }, 'testtools ok, even though it\'s cyclic, yay!')
+
       t.end();
     });
 
