@@ -408,6 +408,58 @@ test('editables ignored', function (t) {
     });
 });
 
+test('deps withs hashes', function (t) {
+  chdirWorkspaces('pip-app-deps-with-hashes');
+
+  return pipInstall()
+    .then(function () {
+      return plugin.inspect('.', 'requirements.txt')
+        .then(function (result) {
+          var plugin = result.plugin;
+          var pkg = result.package;
+
+          t.test('plugin', function (t) {
+            t.ok(plugin, 'plugin');
+            t.equal(plugin.name, 'snyk-python-plugin', 'name');
+            t.match(plugin.runtime, 'Python', 'runtime');
+            t.end();
+          });
+
+          t.test('package', function (t) {
+            t.ok(pkg, 'package');
+            t.equal(pkg.name, 'pip-app-deps-with-hashes', 'name');
+            t.equal(pkg.version, '0.0.0', 'version');
+            t.same(pkg.from, ['pip-app-deps-with-hashes@0.0.0'], 'from self');
+            t.end();
+          });
+
+          t.test('package dependencies', function (t) {
+            t.match(pkg.dependencies.markupsafe, {
+              name: 'markupsafe',
+              version: '1.0',
+              from: [
+                'pip-app-deps-with-hashes@0.0.0',
+                'markupsafe@1.0',
+              ],
+            }, 'MarkupSafe looks ok');
+
+            t.match(pkg.dependencies.dnspython, {
+              name: 'dnspython',
+              version: '1.13.0',
+              from: [
+                'pip-app-deps-with-hashes@0.0.0',
+                'dnspython@1.13.0',
+              ],
+            }, 'dnspython looks ok');
+
+            t.end();
+          });
+
+          t.end();
+        });
+    });
+});
+
 test('trusted host ignored', function (t) {
   chdirWorkspaces('pip-app-trusted-host');
   return pipInstall()

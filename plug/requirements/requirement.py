@@ -195,6 +195,10 @@ class Requirement(object):
             # This is a requirement specifier.
             # Delegate to pkg_resources and hope for the best
             req.specifier = True
+
+            # an optional --hash param is not part of the req specifier
+            line = re.sub('\s*--hash=\S+', '', line)
+
             pkg_req = Req.parse(line)
             req.name = pkg_req.unsafe_name
             req.extras = list(pkg_req.extras)
