@@ -408,8 +408,8 @@ test('editables ignored', function (t) {
     });
 });
 
-test('deps withs hashes', function (t) {
-  chdirWorkspaces('pip-app-deps-with-hashes');
+test('deps withs options', function (t) {
+  chdirWorkspaces('pip-app-with-options');
 
   return pipInstall()
     .then(function () {
@@ -427,9 +427,9 @@ test('deps withs hashes', function (t) {
 
           t.test('package', function (t) {
             t.ok(pkg, 'package');
-            t.equal(pkg.name, 'pip-app-deps-with-hashes', 'name');
+            t.equal(pkg.name, 'pip-app-with-options', 'name');
             t.equal(pkg.version, '0.0.0', 'version');
-            t.same(pkg.from, ['pip-app-deps-with-hashes@0.0.0'], 'from self');
+            t.same(pkg.from, ['pip-app-with-options@0.0.0'], 'from self');
             t.end();
           });
 
@@ -438,7 +438,7 @@ test('deps withs hashes', function (t) {
               name: 'markupsafe',
               version: '1.0',
               from: [
-                'pip-app-deps-with-hashes@0.0.0',
+                'pip-app-with-options@0.0.0',
                 'markupsafe@1.0',
               ],
             }, 'MarkupSafe looks ok');
@@ -447,7 +447,7 @@ test('deps withs hashes', function (t) {
               name: 'dnspython',
               version: '1.13.0',
               from: [
-                'pip-app-deps-with-hashes@0.0.0',
+                'pip-app-with-options@0.0.0',
                 'dnspython@1.13.0',
               ],
             }, 'dnspython looks ok');
