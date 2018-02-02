@@ -8,7 +8,7 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "test": "tap `find ./test -name '*.test.js'`",
+    "test": "tap `find ./test -name '*.test.js'` --timeout=300",
     "lint": "jscs `find ./lib -name '*.js'` -v && jscs `find ./test -name '*.js'` -v",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
