@@ -54,5 +54,9 @@ def parse(reqstr):
         elif line.startswith('-Z') or line.startswith('--always-unzip'):
             warnings.warn('Unused option --always-unzip. Skipping.')
             continue
+        elif line.startswith('-'):
+            warnings.warn('Line starts with an option (%s). Skipping.' % \
+                line.split()[0])
+            continue
         else:
             yield Requirement.parse(line)
