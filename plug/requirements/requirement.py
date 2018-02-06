@@ -196,8 +196,10 @@ class Requirement(object):
             # Delegate to pkg_resources and hope for the best
             req.specifier = True
 
-            # an optional --hash param is not part of the req specifier
-            line = re.sub('\s*--hash=\S+', '', line)
+            # an optional per-requirement param is not part of the req specifier
+            #   see https://pip.pypa.io/en/stable/reference/pip_install/#per-requirement-overrides
+            #   and https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode
+            line = re.sub('\s*--[a-z-]+=\S+', '', line)
 
             pkg_req = Req.parse(line)
             req.name = pkg_req.unsafe_name
