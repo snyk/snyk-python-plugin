@@ -1,3 +1,3 @@
--e git+https://github.com/snyk-fixtures/python-pypi-package-simple#egg=simple
+git+https://github.com/snyk-fixtures/python-pypi-package-simple@v1.0.0#egg=simple==v1.0.0
 -e git+https://github.com/snyk-fixtures/python-pypi-package-sample-subdir#egg=sample&subdirectory=subdir
 posix_ipc==1.0.0

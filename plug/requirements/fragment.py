@@ -1,3 +1,5 @@
+# MODIFIED - Replace/Update with care
+
 import re
 
 # Copied from pip
@@ -14,7 +16,7 @@ def parse_fragment(fragment_string):
 
     try:
         return dict(
-            key_value_string.split('=')
+            key_value_string.split('==')[0].split('=')
             for key_value_string in fragment_string.split('&')
         )
     except ValueError:
