@@ -8,6 +8,9 @@ node_js:
   - "6"
   - "4"
   - "0.12"
+env:
+  - PIP_VER=9.0.3
+  - PIP_VER=10.0.0
 cache:
   directories:
     - node_modules
@@ -16,6 +19,7 @@ before_script:
   - pip install virtualenv --user `whoami`
   - virtualenv ./env
   - source ./env/bin/activate
+  - pip install pip==$PIP_VER
 script: npm test
 jobs:
   include:
