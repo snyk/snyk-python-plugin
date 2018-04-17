@@ -7,6 +7,13 @@ import pip
 import utils
 import requirements
 
+# Since pip 10, get_installed_distributions is not in the pip module anymore
+from distutils.version import StrictVersion
+if StrictVersion(pip.__version__) >= StrictVersion("10.0.0"):
+    from pip._internal.utils.misc import get_installed_distributions
+else:
+    from pip import get_installed_distributions
+
 
 def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_path, allow_missing=False):
     """Create packages dependencies tree
@@ -119,7 +126,7 @@ def get_requirements_list(requirements_file):
 
 def create_dependencies_tree_by_req_file_path(requirements_file_path, allow_missing=False):
     # get all installed packages
-    pkgs = pip.get_installed_distributions(local_only=False, skip=[])
+    pkgs = get_installed_distributions(local_only=False, skip=[])
 
     # get all installed packages's distribution object
     dist_index = utils.build_dist_index(pkgs)
