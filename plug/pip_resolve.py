@@ -3,10 +3,16 @@ import os
 import json
 import re
 import argparse
-import pip
 import utils
 import requirements
 
+# pip >= 10.0.0 moved all APIs to the _internal package reflecting the fact
+# that pip does not currently have any public APIs. This is a temporary fix.
+# TODO: We need a workaround to using the get_installed_distributions method.
+try:
+    from pip import get_installed_distributions
+except ImportError:
+    from pip._internal import get_installed_distributions
 
 def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_path, allow_missing=False):
     """Create packages dependencies tree
@@ -119,7 +125,7 @@ def get_requirements_list(requirements_file):
 
 def create_dependencies_tree_by_req_file_path(requirements_file_path, allow_missing=False):
     # get all installed packages
-    pkgs = pip.get_installed_distributions(local_only=False, skip=[])
+    pkgs = get_installed_distributions(local_only=False, skip=[])
 
     # get all installed packages's distribution object
     dist_index = utils.build_dist_index(pkgs)
