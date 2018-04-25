@@ -22,7 +22,6 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
     :rtype: dict
     """
     DEPENDENCIES = 'dependencies'
-    FROM = 'from'
     VERSION = 'version'
     NAME = 'name'
     VERSION_SEPARATOR = '@'
@@ -60,8 +59,6 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
             child_package = {
                 NAME: child_dist.project_name,
                 VERSION: child_dist.installed_version,
-                FROM: root_package[FROM] +
-                      [child_dist.key + VERSION_SEPARATOR + child_dist.installed_version]
             }
 
             create_children_recursive(child_package, key_tree, ancestors)
@@ -76,7 +73,6 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
             NAME: name,
             VERSION: DIR_VERSION,
             DEPENDENCIES: {},
-            FROM: [name + VERSION_SEPARATOR + DIR_VERSION], DEPENDENCIES: {},
             PACKAGE_FORMAT_VERSION: 'pip:0.0.1'
         }
         return dir_as_root
@@ -85,10 +81,6 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
         package_as_root = {
             NAME: package.project_name.lower(),
             VERSION: package._obj._version,
-            FROM: ["{}{}{}".format(
-                dir_as_root[NAME], VERSION_SEPARATOR, dir_as_root[VERSION])] +
-                  ["{}{}{}".format(
-                package.project_name.lower(), VERSION_SEPARATOR, package._obj._version)]
         }
         return package_as_root
     dir_as_root = create_dir_as_root()

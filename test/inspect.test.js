@@ -37,8 +37,6 @@ test('inspect', function (t) {
       t.ok(pkg, 'package');
       t.equal(pkg.name, 'pip-app', 'name');
       t.equal(pkg.version, '0.0.0', 'version');
-      // t.equal(pkg.full, 'pip-app@0.0.0', 'full'); // do we need this?
-      t.same(pkg.from, ['pip-app@0.0.0'], 'from self');
       t.end();
     });
 
@@ -46,26 +44,13 @@ test('inspect', function (t) {
       t.same(pkg.dependencies.django, {
         name: 'django',
         version: '1.6.1',
-        from: [
-          'pip-app@0.0.0',
-          'django@1.6.1',
-        ],
       }, 'django looks ok');
 
       t.match(pkg.dependencies.jinja2, {
         name: 'jinja2',
         version: '2.7.2',
-        from: [
-          'pip-app@0.0.0',
-          'jinja2@2.7.2',
-        ],
         dependencies: {
           markupsafe: {
-            from: [
-              'pip-app@0.0.0',
-              'jinja2@2.7.2',
-              /markupsafe@.+$/,
-            ],
             name: 'markupsafe',
             version: /.+$/,
           },
@@ -75,28 +60,14 @@ test('inspect', function (t) {
       t.match(pkg.dependencies['python-etcd'], {
         name: 'python-etcd',
         version: '0.4.5',
-        from: [
-          'pip-app@0.0.0',
-          'python-etcd@0.4.5',
-        ],
         dependencies: {
           dnspython: {
             name: 'dnspython',
             version: /.+$/,
-            from: [
-              'pip-app@0.0.0',
-              'python-etcd@0.4.5',
-              /dnspython@.+$/,
-            ],
           },
           urllib3: {
             name: 'urllib3',
             version: /.+$/,
-            from: [
-              'pip-app@0.0.0',
-              'python-etcd@0.4.5',
-              /urllib3@.+$/,
-            ],
           },
         },
       }, 'python-etcd is ok');
@@ -104,10 +75,6 @@ test('inspect', function (t) {
       t.match(pkg.dependencies['django-select2'], {
         name: 'django-select2',
         version: '6.0.1',
-        from: [
-          'pip-app@0.0.0',
-          'django-select2@6.0.1',
-        ],
         dependencies: {
           'django-appconf': {
             name: 'django-appconf',
@@ -118,10 +85,6 @@ test('inspect', function (t) {
       t.match(pkg.dependencies['irc'], {
         name: 'irc',
         version: '16.2',
-        from: [
-          "pip-app@0.0.0",
-          "irc@16.2"
-        ],
         dependencies: {
           'more-itertools': {},
           'jaraco.functools': {},
@@ -141,10 +104,6 @@ test('inspect', function (t) {
       t.match(pkg.dependencies['testtools'], {
         name: 'testtools',
         version: '2.3.0',
-        from: [
-          "pip-app@0.0.0",
-          "testtools@2.3.0"
-        ],
         dependencies: {
           'pbr': {},
           'extras': {},
@@ -200,7 +159,6 @@ test('transitive dep not installed, but with allowMissing option', function (t) 
             t.equal(pkg.name, 'pip-app', 'name');
             t.equal(pkg.version, '0.0.0', 'version');
             // t.equal(pkg.full, 'pip-app@0.0.0', 'full'); // do we need this?
-            t.same(pkg.from, ['pip-app@0.0.0'], 'from self');
             t.end();
           });
 
@@ -208,47 +166,25 @@ test('transitive dep not installed, but with allowMissing option', function (t) 
             t.same(pkg.dependencies.django, {
               name: 'django',
               version: '1.6.1',
-              from: [
-                'pip-app@0.0.0',
-                'django@1.6.1',
-              ],
             }, 'django looks ok');
 
             t.match(pkg.dependencies.jinja2, {
               name: 'jinja2',
               version: '2.7.2',
-              from: [
-                'pip-app@0.0.0',
-                'jinja2@2.7.2',
-              ],
               dependencies: {},
             }, 'jinja2 looks ok');
 
             t.match(pkg.dependencies['python-etcd'], {
               name: 'python-etcd',
               version: '0.4.5',
-              from: [
-                'pip-app@0.0.0',
-                'python-etcd@0.4.5',
-              ],
               dependencies: {
                 dnspython: {
                   name: 'dnspython',
                   version: /.+$/,
-                  from: [
-                    'pip-app@0.0.0',
-                    'python-etcd@0.4.5',
-                    /dnspython@.+$/,
-                  ],
                 },
                 urllib3: {
                   name: 'urllib3',
                   version: /.+$/,
-                  from: [
-                    'pip-app@0.0.0',
-                    'python-etcd@0.4.5',
-                    /urllib3@.+$/,
-                  ],
                 },
               },
             }, 'python-etcd is ok');
@@ -256,10 +192,6 @@ test('transitive dep not installed, but with allowMissing option', function (t) 
             t.match(pkg.dependencies['django-select2'], {
               name: 'django-select2',
               version: '6.0.1',
-              from: [
-                'pip-app@0.0.0',
-                'django-select2@6.0.1',
-              ],
               dependencies: {
                 'django-appconf': {
                   name: 'django-appconf',
@@ -305,7 +237,6 @@ test('deps not installed, but with allowMissing option', function (t) {
         t.ok(pkg, 'package');
         t.equal(pkg.name, 'pip-app-deps-not-installed', 'name');
         t.equal(pkg.version, '0.0.0', 'version');
-        t.same(pkg.from, ['pip-app-deps-not-installed@0.0.0'], 'from self');
         t.end();
       });
     });
@@ -336,18 +267,10 @@ test('package name differs from requirement', function (t) {
         .then(function (result) {
           var pkg = result.package;
           t.same(pkg.dependencies['dj-database-url'], {
-            from: [
-              'pip-app-deps-with-dashes@0.0.0',
-              'dj-database-url@0.4.2',
-            ],
             name: 'dj-database-url',
             version: '0.4.2',
           }, 'dj-database-url looks ok');
           t.same(pkg.dependencies['posix-ipc'], {
-            from: [
-              'pip-app-deps-with-dashes@0.0.0',
-              'posix-ipc@1.0.0',
-            ],
             name: 'posix-ipc',
             version: '1.0.0',
           }, 'posix-ipc looks ok');
@@ -368,10 +291,6 @@ test('package depends on platform', function (t) {
           var pkg = result.package;
           t.notOk(pkg.dependencies.pypiwin32, 'win32 dep ignored');
           t.same(pkg.dependencies['posix-ipc'], {
-            from: [
-              'pip-app-deps-conditional@0.0.0',
-              'posix-ipc@1.0.0',
-            ],
             name: 'posix-ipc',
             version: '1.0.0',
           }, 'posix-ipc looks ok');
@@ -393,10 +312,6 @@ test('editables ignored', function (t) {
           t.notOk(pkg.dependencies['simple'], 'editable dep ignored');
           t.notOk(pkg.dependencies['sample'], 'editable subdir dep ignored');
           t.same(pkg.dependencies['posix-ipc'], {
-            from: [
-              'pip-app-deps-editable@0.0.0',
-              'posix-ipc@1.0.0',
-            ],
             name: 'posix-ipc',
             version: '1.0.0',
           }, 'posix-ipc looks ok');
@@ -429,7 +344,6 @@ test('deps withs options', function (t) {
             t.ok(pkg, 'package');
             t.equal(pkg.name, 'pip-app-with-options', 'name');
             t.equal(pkg.version, '0.0.0', 'version');
-            t.same(pkg.from, ['pip-app-with-options@0.0.0'], 'from self');
             t.end();
           });
 
@@ -437,19 +351,11 @@ test('deps withs options', function (t) {
             t.match(pkg.dependencies.markupsafe, {
               name: 'markupsafe',
               version: '1.0',
-              from: [
-                'pip-app-with-options@0.0.0',
-                'markupsafe@1.0',
-              ],
             }, 'MarkupSafe looks ok');
 
             t.match(pkg.dependencies.dnspython, {
               name: 'dnspython',
               version: '1.13.0',
-              from: [
-                'pip-app-with-options@0.0.0',
-                'dnspython@1.13.0',
-              ],
             }, 'dnspython looks ok');
 
             t.end();
