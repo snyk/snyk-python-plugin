@@ -2,7 +2,7 @@ var test = require('tap').test;
 var plugin = require('../lib').__tests;
 
 test('check build args with array', function (t) {
-  var result = plugin.buildArgs('requirements.txt', false, [
+  var result = plugin.buildArgs('requirements.txt', false, "../plug", [
     '-argOne',
     '-argTwo',
   ]);
@@ -16,7 +16,7 @@ test('check build args with array', function (t) {
 });
 
 test('check build args with array & allowMissing', function (t) {
-  var result = plugin.buildArgs('requirements.txt', true, [
+  var result = plugin.buildArgs('requirements.txt', true, "../plug", [
     '-argOne',
     '-argTwo',
   ]);
@@ -31,7 +31,7 @@ test('check build args with array & allowMissing', function (t) {
 });
 
 test('check build args with string', function (t) {
-  var result = plugin.buildArgs('requirements.txt', false, '-argOne -argTwo');
+  var result = plugin.buildArgs('requirements.txt', false, "../plug", '-argOne -argTwo');
   t.match(result[0], /.*\/plug\/pip_resolve\.py/);
   t.deepEqual(result.slice(1), [
     'requirements.txt',
@@ -41,7 +41,7 @@ test('check build args with string', function (t) {
 });
 
 test('check build args with string & allowMissing', function (t) {
-  var result = plugin.buildArgs('requirements.txt', true, '-argOne -argTwo');
+  var result = plugin.buildArgs('requirements.txt', true, "../plug", '-argOne -argTwo');
   t.match(result[0], /.*\/plug\/pip_resolve\.py/);
   t.deepEqual(result.slice(1), [
     'requirements.txt',
