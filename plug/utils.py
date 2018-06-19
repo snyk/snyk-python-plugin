@@ -4,6 +4,7 @@ try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
+import sys
 from reqPackage import ReqPackage
 from distPackage import DistPackage
 __version__ = '0.10.1'
@@ -58,3 +59,12 @@ def guess_version(pkg_key, default='?'):
         return default
     else:
         return getattr(m, '__version__', default)
+
+
+def is_string(obj):
+    """Check whether an object is a string"""
+    if sys.version_info < (3,):
+        # Python 2.x only
+        return isinstance(obj, basestring)
+    else:
+        return isinstance(obj, str)

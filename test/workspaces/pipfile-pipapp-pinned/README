@@ -1,0 +1,10 @@
+This is a small pipenv-based config with all dependency versions pinned
+in the Pipfile, based on pip-app.
+
+This was created by running the following commands in a clean python3.6
+virtualenv:
+
+pip install pipenv
+pipenv install -r test/workspaces/pip-app/requirements.txt
+# manually empty the "requires" section of the Pipfile
+pipenv lock

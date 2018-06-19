@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-etcd = "==0.4.5"
+irc = "==16.2"
+testtools = "==2.3.0"
+"Jinja2" = "==2.7.2"
+Django = "==1.6.1"
+"Django-Select2" = "==6.0.1"
+
+[dev-packages]
+
+[requires]

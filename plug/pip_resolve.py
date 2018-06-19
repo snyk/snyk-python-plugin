@@ -1,3 +1,4 @@
+import io
 import sys
 import os
 import json
@@ -5,6 +6,7 @@ import re
 import argparse
 import utils
 import requirements
+import pipfile
 
 # pip >= 10.0.0 moved all APIs to the _internal package reflecting the fact
 # that pip does not currently have any public APIs. This is a temporary fix.
@@ -14,11 +16,13 @@ try:
 except ImportError:
     from pip._internal import get_installed_distributions
 
+
 def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_path, allow_missing=False):
     """Create packages dependencies tree
     :param dict tree: the package tree
     :param set packages_names: set of select packages to be shown in the output.
-    :param req_file_path: the path to requirements.txt file
+    :param req_file_path: the path to the dependencies file
+                          (e.g. requirements.txt)
     :rtype: dict
     """
     DEPENDENCIES = 'dependencies'
@@ -99,17 +103,33 @@ def matches_environment(requirement):
     This should be expanded to include other environment markers.
     See: https://www.python.org/dev/peps/pep-0508/#environment-markers
     """
-    if 'sys_platform' in requirement.line:
-        match = sys_platform_re.findall(requirement.line)
+    # TODO: refactor this out into the Requirement classes
+    if isinstance(requirement, pipfile.PipfileRequirement):
+        markers_text = requirement.markers
+    else:
+        markers_text = requirement.line
+    if markers_text is not None and 'sys_platform' in markers_text:
+        match = sys_platform_re.findall(markers_text)
         if len(match) > 0:
             return match[0].lower() == sys_platform
     return True
 
 def is_testable(requirement):
-    return requirement.editable == False and requirement.vcs == None
+    return requirement.editable == False and requirement.vcs is None
 
-def get_requirements_list(requirements_file):
-    req_list = list(requirements.parse(requirements_file))
+def get_requirements_list(requirements_file_path):
+    # TODO: refactor recognizing the dependency manager to a single place
+    if os.path.basename(requirements_file_path) == 'Pipfile':
+        with io.open(requirements_file_path, 'r', encoding='utf-8') as f:
+            requirements_data = f.read()
+        req_list = list(pipfile.parse(requirements_data).get('packages', []))
+    else:
+        # assume this is a requirements.txt formatted file
+        # Note: requirements.txt files are unicode and can be in any encoding.
+        with open(requirements_file_path, 'r') as f:
+            requirements_data = f.read()
+        req_list = list(requirements.parse(requirements_data))
+
     req_list = filter(matches_environment, req_list)
     req_list = filter(is_testable, req_list)
     required = [req.name.replace('_', '-') for req in req_list]
@@ -125,31 +145,33 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path, allow_miss
     # get all installed distributions tree
     dist_tree = utils.construct_tree(dist_index)
 
-    # open the requirements.txt file and create dependencies tree out of it
-    with open(requirements_file_path, 'r') as requirements_file:
-        required = get_requirements_list(requirements_file)
-        installed = [p for p in dist_index]
-        packages = []
-        for r in required:
-            if r.lower() not in installed:
-                msg = 'Required package missing: ' + r.lower()
-                if allow_missing:
-                    sys.stderr.write(msg + "\n")
-                else:
-                    sys.exit(msg)
+    # create a list of dependencies from the dependencies file
+    required = get_requirements_list(requirements_file_path)
+    installed = [p for p in dist_index]
+    packages = []
+    for r in required:
+        if r.lower() not in installed:
+            msg = 'Required package missing: ' + r.lower()
+            if allow_missing:
+                sys.stderr.write(msg + "\n")
             else:
-                packages.append(r);
+                sys.exit(msg)
+        else:
+            packages.append(r)
 
-        package_tree = create_tree_of_packages_dependencies(
-            dist_tree, packages, requirements_file_path, allow_missing)
+    # build a tree of dependencies
+    package_tree = create_tree_of_packages_dependencies(
+        dist_tree, packages, requirements_file_path, allow_missing)
     print(json.dumps(package_tree))
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("requirements", help="requirements.txt path")
+    parser.add_argument("requirements",
+        help="dependencies file path (requirements.txt or Pipfile)")
     parser.add_argument("--allow-missing",
         action="store_true",
-        help="don't fail if some packages listed in requirements.txt are missing")
+        help="don't fail if some packages listed in the dependencies file " +
+             "are not installed")
     args = parser.parse_args()
 
     create_dependencies_tree_by_req_file_path(

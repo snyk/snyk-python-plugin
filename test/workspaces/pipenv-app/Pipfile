@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-etcd = ">=0.4,<0.5"
+testtools = "*"
+"Jinja2" = { version = "<2.7" }
+
+[dev-packages]
+virtualenv = "*"
+
+[requires]
