@@ -26,7 +26,7 @@ def parse(reqstr):
             reqstr = reqstr.read()
 
     # combine consecutive lines seperated by a backslash
-    reqstr = reqstr.replace('\\\n', ' ');
+    reqstr = reqstr.replace('\\\n', ' ')
 
     for line in reqstr.splitlines():
         line = line.strip()
