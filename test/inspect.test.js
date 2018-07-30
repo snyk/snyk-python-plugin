@@ -636,6 +636,39 @@ test('inspect pipenv app with auto-created virtualenv', function (t) {
   });
 });
 
+test('inspect pipenv app dev dependencies', function (t) {
+  return Promise.resolve().then(function () {
+    chdirWorkspaces('pipenv-app');
+
+    var venvCreated = testUtils.ensureVirtualenv('pipenv-app');
+    t.teardown(testUtils.activateVirtualenv('pipenv-app'));
+    if (venvCreated) {
+      return testUtils.pipenvInstall();
+    }
+  })
+  .then(function () {
+    return plugin.inspect('.', 'Pipfile', {dev: true})
+  })
+  .then(function (result) {
+    var pkg = result.package;
+
+    t.test('package dependencies', function (t) {
+      Object.keys(pipenvAppExpectedDependencies).forEach(function (depName) {
+        t.match(
+          pkg.dependencies[depName],
+          pipenvAppExpectedDependencies[depName].data,
+          pipenvAppExpectedDependencies[depName].msg
+        );
+      });
+
+      t.match(pkg.dependencies.virtualenv, {name: 'virtualenv'});
+
+      t.end();
+    });
+
+    t.end();
+  });
+});
 
 function chdirWorkspaces(dir) {
   process.chdir(path.resolve(__dirname, 'workspaces', dir));
