@@ -117,13 +117,18 @@ def matches_environment(requirement):
 def is_testable(requirement):
     return requirement.editable == False and requirement.vcs is None
 
-def get_requirements_list(requirements_file_path):
+def get_requirements_list(requirements_file_path, dev_deps=False):
     # TODO: refactor recognizing the dependency manager to a single place
     if os.path.basename(requirements_file_path) == 'Pipfile':
         with io.open(requirements_file_path, 'r', encoding='utf-8') as f:
             requirements_data = f.read()
-        req_list = list(pipfile.parse(requirements_data).get('packages', []))
+        packages_key = 'packages' if not dev_deps else 'dev-packages'
+        req_list = list(pipfile.parse(requirements_data).get(packages_key, []))
     else:
+        if dev_deps:
+            msg = ("dev dependencies are not supported for projects " +
+                   "using requirements.txt")
+            raise Exception(msg)
         # assume this is a requirements.txt formatted file
         # Note: requirements.txt files are unicode and can be in any encoding.
         with open(requirements_file_path, 'r') as f:
@@ -135,7 +140,9 @@ def get_requirements_list(requirements_file_path):
     required = [req.name.replace('_', '-') for req in req_list]
     return required
 
-def create_dependencies_tree_by_req_file_path(requirements_file_path, allow_missing=False):
+def create_dependencies_tree_by_req_file_path(requirements_file_path,
+                                              allow_missing=False,
+                                              dev_deps=False):
     # get all installed packages
     pkgs = get_installed_distributions(local_only=False, skip=[])
 
@@ -146,7 +153,7 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path, allow_miss
     dist_tree = utils.construct_tree(dist_index)
 
     # create a list of dependencies from the dependencies file
-    required = get_requirements_list(requirements_file_path)
+    required = get_requirements_list(requirements_file_path, dev_deps=dev_deps)
     installed = [p for p in dist_index]
     packages = []
     for r in required:
@@ -172,10 +179,16 @@ def main():
         action="store_true",
         help="don't fail if some packages listed in the dependencies file " +
              "are not installed")
+    parser.add_argument("--dev-deps",
+        action="store_true",
+        help="resolve dev dependencies")
     args = parser.parse_args()
 
     create_dependencies_tree_by_req_file_path(
-        args.requirements, args.allow_missing)
+        args.requirements,
+        allow_missing=args.allow_missing,
+        dev_deps=args.dev_deps,
+    )
 
 if __name__ == '__main__':
     sys.exit(main())

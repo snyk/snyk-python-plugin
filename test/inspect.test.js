@@ -458,6 +458,23 @@ test('trusted host ignored', function (t) {
   });
 });
 
+test('dev deps not supported for requirements.txt', function (t) {
+  return Promise.resolve().then(function () {
+    chdirWorkspaces('pip-app');
+    t.teardown(testUtils.activateVirtualenv('pip-app'));
+  })
+  .then(function () {
+    return plugin.inspect('.', 'requirements.txt', {dev: true})
+  })
+  .then(function () {
+    t.fail('should have failed');
+  })
+  .catch(function (error) {
+    t.match(error.message, /not supported/i);
+    t.end();
+  });
+});
+
 test('inspect Pipfile', function (t) {
   return Promise.resolve().then(function () {
     chdirWorkspaces('pipfile-pipapp');
@@ -636,6 +653,31 @@ test('inspect pipenv app with auto-created virtualenv', function (t) {
   });
 });
 
+test('inspect pipenv app dev dependencies', function (t) {
+  return Promise.resolve().then(function () {
+    chdirWorkspaces('pipenv-app');
+
+    var venvCreated = testUtils.ensureVirtualenv('pipenv-app');
+    t.teardown(testUtils.activateVirtualenv('pipenv-app'));
+    if (venvCreated) {
+      return testUtils.pipenvInstall();
+    }
+  })
+  .then(function () {
+    return plugin.inspect('.', 'Pipfile', {dev: true})
+  })
+  .then(function (result) {
+    var pkg = result.package;
+
+    t.test('package dependencies', function (t) {
+      t.match(pkg.dependencies.virtualenv, {name: 'virtualenv'});
+      t.strictSame(Object.keys(pkg.dependencies), ['virtualenv']);
+      t.end();
+    });
+
+    t.end();
+  });
+});
 
 function chdirWorkspaces(dir) {
   process.chdir(path.resolve(__dirname, 'workspaces', dir));
