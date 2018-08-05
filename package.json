@@ -10,7 +10,7 @@
   "scripts": {
     "test": "tap `find ./test -name '*.test.js'` --timeout=900",
     "lint": "jscs `find ./lib -name '*.js'` -v && jscs `find ./test -name '*.js'` -v",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release"
   },
   "author": "snyk.io",
   "license": "Apache-2.0",
@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "jscs": "^3.0.7",
-    "semantic-release": "^6.3.6",
+    "semantic-release": "^15",
     "sinon": "^2.3.2",
     "tap": "^10.3.2"
   }
