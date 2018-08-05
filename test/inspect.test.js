@@ -1,6 +1,5 @@
 var test = require('tap').test;
 var fs = require('fs');
-var os  = require('os');
 var path = require('path');
 var process = require('process');
 var sinon = require('sinon');
@@ -18,8 +17,7 @@ test('install requirements in "pip-app" venv (may take a while)', function (t) {
     testUtils.pipInstall();
     t.pass('installed pip packages');
     t.end();
-  }
-  catch (error) {
+  } catch (error) {
     t.bailout(error);
   }
 });
@@ -84,14 +82,14 @@ var pipAppExpectedDependencies = {
         'jaraco.collections': {
           dependencies: {
             'jaraco.text': {},
-          }
+          },
         },
         'jaraco.text': {
           dependencies: {
-            'jaraco.collections': {}
-          }
+            'jaraco.collections': {},
+          },
         },
-      }
+      },
     },
     msg: 'irc ok, even though it has a cyclic dep, yay!',
   },
@@ -106,7 +104,7 @@ var pipAppExpectedDependencies = {
         'unittest2': {},
         'traceback2': {},
         'python-mimeparse': {},
-      }
+      },
     },
     msg: 'testtools ok, even though it\'s cyclic, yay!',
   },
@@ -117,41 +115,41 @@ test('inspect', function (t) {
     chdirWorkspaces('pip-app');
     t.teardown(testUtils.activateVirtualenv('pip-app'));
   })
-  .then(function () {
-    return plugin.inspect('.', 'requirements.txt')
-  })
-  .then(function (result) {
-    var plugin = result.plugin;
-    var pkg = result.package;
+    .then(function () {
+      return plugin.inspect('.', 'requirements.txt');
+    })
+    .then(function (result) {
+      var plugin = result.plugin;
+      var pkg = result.package;
 
-    t.test('plugin', function (t) {
-      t.ok(plugin, 'plugin');
-      t.equal(plugin.name, 'snyk-python-plugin', 'name');
-      t.match(plugin.runtime, 'Python', 'runtime');
-      t.end();
-    });
+      t.test('plugin', function (t) {
+        t.ok(plugin, 'plugin');
+        t.equal(plugin.name, 'snyk-python-plugin', 'name');
+        t.match(plugin.runtime, 'Python', 'runtime');
+        t.end();
+      });
 
-    t.test('package', function (t) {
-      t.ok(pkg, 'package');
-      t.equal(pkg.name, 'pip-app', 'name');
-      t.equal(pkg.version, '0.0.0', 'version');
-      t.end();
-    });
+      t.test('package', function (t) {
+        t.ok(pkg, 'package');
+        t.equal(pkg.name, 'pip-app', 'name');
+        t.equal(pkg.version, '0.0.0', 'version');
+        t.end();
+      });
 
-    t.test('package dependencies', function (t) {
-      Object.keys(pipAppExpectedDependencies).forEach(function (depName) {
-        t.match(
-          pkg.dependencies[depName],
-          pipAppExpectedDependencies[depName].data,
-          pipAppExpectedDependencies[depName].msg
-        );
+      t.test('package dependencies', function (t) {
+        Object.keys(pipAppExpectedDependencies).forEach(function (depName) {
+          t.match(
+            pkg.dependencies[depName],
+            pipAppExpectedDependencies[depName].data,
+            pipAppExpectedDependencies[depName].msg
+          );
+        });
+
+        t.end();
       });
 
       t.end();
     });
-
-    t.end();
-  });
 });
 
 test('transitive dep not installed', function (t) {
@@ -164,109 +162,112 @@ test('transitive dep not installed', function (t) {
       testUtils.pipUninstall('MarkupSafe');
     }
   })
-  .then(function () {
-    return plugin.inspect('.', 'requirements.txt')
     .then(function () {
-      t.fail('should have failed');
-    })
-    .catch(function (error) {
-      t.equal(error.message, 'Please run `pip install -r requirements.txt`');
-      t.end();
-    })
-  });
+      return plugin.inspect('.', 'requirements.txt')
+        .then(function () {
+          t.fail('should have failed');
+        })
+        .catch(function (error) {
+          t.equal(error.message,
+            'Please run `pip install -r requirements.txt`');
+          t.end();
+        });
+    });
 });
 
-test('transitive dep not installed, but with allowMissing option', function (t) {
-  return Promise.resolve().then(function () {
-    chdirWorkspaces('pip-app');
-    var venvCreated = testUtils.ensureVirtualenv('pip-app-without-markupsafe');
-    t.teardown(testUtils.activateVirtualenv('pip-app-without-markupsafe'));
-    if (venvCreated) {
-      testUtils.pipInstall();
-      testUtils.pipUninstall('MarkupSafe');
-    }
-  })
-  .then(function () {
-    return plugin.inspect('.', 'requirements.txt', {allowMissing: true})
-  })
-  .then(function (result) {
-    var plugin = result.plugin;
-    var pkg = result.package;
+test('transitive dep not installed, but with allowMissing option',
+  function (t) {
+    return Promise.resolve().then(function () {
+      chdirWorkspaces('pip-app');
+      var venvCreated =
+        testUtils.ensureVirtualenv('pip-app-without-markupsafe');
+      t.teardown(testUtils.activateVirtualenv('pip-app-without-markupsafe'));
+      if (venvCreated) {
+        testUtils.pipInstall();
+        testUtils.pipUninstall('MarkupSafe');
+      }
+    })
+      .then(function () {
+        return plugin.inspect('.', 'requirements.txt', {allowMissing: true});
+      })
+      .then(function (result) {
+        var plugin = result.plugin;
+        var pkg = result.package;
 
-    t.test('plugin', function (t) {
-      t.ok(plugin, 'plugin');
-      t.equal(plugin.name, 'snyk-python-plugin', 'name');
-      t.match(plugin.runtime, 'Python', 'runtime');
-      t.end();
-    });
+        t.test('plugin', function (t) {
+          t.ok(plugin, 'plugin');
+          t.equal(plugin.name, 'snyk-python-plugin', 'name');
+          t.match(plugin.runtime, 'Python', 'runtime');
+          t.end();
+        });
 
-    t.test('package', function (t) {
-      t.ok(pkg, 'package');
-      t.equal(pkg.name, 'pip-app', 'name');
-      t.equal(pkg.version, '0.0.0', 'version');
-      // t.equal(pkg.full, 'pip-app@0.0.0', 'full'); // do we need this?
-      t.end();
-    });
+        t.test('package', function (t) {
+          t.ok(pkg, 'package');
+          t.equal(pkg.name, 'pip-app', 'name');
+          t.equal(pkg.version, '0.0.0', 'version');
+          // t.equal(pkg.full, 'pip-app@0.0.0', 'full'); // do we need this?
+          t.end();
+        });
 
-    t.test('package dependencies', function (t) {
-      t.same(pkg.dependencies.django, {
-        name: 'django',
-        version: '1.6.1',
-      }, 'django looks ok');
+        t.test('package dependencies', function (t) {
+          t.same(pkg.dependencies.django, {
+            name: 'django',
+            version: '1.6.1',
+          }, 'django looks ok');
 
-      t.match(pkg.dependencies.jinja2, {
-        name: 'jinja2',
-        version: '2.7.2',
-        dependencies: {},
-      }, 'jinja2 looks ok');
+          t.match(pkg.dependencies.jinja2, {
+            name: 'jinja2',
+            version: '2.7.2',
+            dependencies: {},
+          }, 'jinja2 looks ok');
 
-      t.match(pkg.dependencies['python-etcd'], {
-        name: 'python-etcd',
-        version: '0.4.5',
-        dependencies: {
-          dnspython: {
-            name: 'dnspython',
-            version: /.+$/,
-          },
-          urllib3: {
-            name: 'urllib3',
-            version: /.+$/,
-          },
-        },
-      }, 'python-etcd is ok');
+          t.match(pkg.dependencies['python-etcd'], {
+            name: 'python-etcd',
+            version: '0.4.5',
+            dependencies: {
+              dnspython: {
+                name: 'dnspython',
+                version: /.+$/,
+              },
+              urllib3: {
+                name: 'urllib3',
+                version: /.+$/,
+              },
+            },
+          }, 'python-etcd is ok');
 
-      t.match(pkg.dependencies['django-select2'], {
-        name: 'django-select2',
-        version: '6.0.1',
-        dependencies: {
-          'django-appconf': {
-            name: 'django-appconf',
-          },
-        },
-      }, 'django-select2 looks ok');
+          t.match(pkg.dependencies['django-select2'], {
+            name: 'django-select2',
+            version: '6.0.1',
+            dependencies: {
+              'django-appconf': {
+                name: 'django-appconf',
+              },
+            },
+          }, 'django-select2 looks ok');
 
-      t.end();
-    });
+          t.end();
+        });
 
-    t.end();
+        t.end();
+      });
   });
-});
 
 test('deps not installed', function (t) {
   return Promise.resolve().then(function () {
     chdirWorkspaces('pip-app-deps-not-installed');
     t.teardown(testUtils.activateVirtualenv('pip-app'));
   })
-  .then(function () {
-    return plugin.inspect('.', 'requirements.txt')
-  })
-  .then(function () {
-    t.fail('should have failed');
-  })
-  .catch(function (error) {
-    t.equal(error.message, 'Please run `pip install -r requirements.txt`');
-    t.end();
-  });
+    .then(function () {
+      return plugin.inspect('.', 'requirements.txt');
+    })
+    .then(function () {
+      t.fail('should have failed');
+    })
+    .catch(function (error) {
+      t.equal(error.message, 'Please run `pip install -r requirements.txt`');
+      t.end();
+    });
 });
 
 test('deps not installed, but with allowMissing option', function (t) {
@@ -274,29 +275,29 @@ test('deps not installed, but with allowMissing option', function (t) {
     chdirWorkspaces('pip-app-deps-not-installed');
     t.teardown(testUtils.activateVirtualenv('pip-app'));
   })
-  .then(function () {
-    return plugin.inspect('.', 'requirements.txt', { allowMissing: true })
-  })
-  .then(function (result) {
-    var plugin = result.plugin;
-    var pkg = result.package;
+    .then(function () {
+      return plugin.inspect('.', 'requirements.txt', {allowMissing: true});
+    })
+    .then(function (result) {
+      var plugin = result.plugin;
+      var pkg = result.package;
 
-    t.test('plugin', function (t) {
-      t.ok(plugin, 'plugin');
-      t.equal(plugin.name, 'snyk-python-plugin', 'name');
-      t.match(plugin.runtime, 'Python', 'runtime');
+      t.test('plugin', function (t) {
+        t.ok(plugin, 'plugin');
+        t.equal(plugin.name, 'snyk-python-plugin', 'name');
+        t.match(plugin.runtime, 'Python', 'runtime');
+        t.end();
+      });
+
+      t.test('package', function (t) {
+        t.ok(pkg, 'package');
+        t.equal(pkg.name, 'pip-app-deps-not-installed', 'name');
+        t.equal(pkg.version, '0.0.0', 'version');
+        t.end();
+      });
+
       t.end();
     });
-
-    t.test('package', function (t) {
-      t.ok(pkg, 'package');
-      t.equal(pkg.name, 'pip-app-deps-not-installed', 'name');
-      t.equal(pkg.version, '0.0.0', 'version');
-      t.end();
-    });
-
-    t.end();
-  });
 });
 
 test('uses provided exec command', function (t) {
@@ -307,16 +308,16 @@ test('uses provided exec command', function (t) {
     t.teardown(execute.restore);
     return execute;
   })
-  .then(function (execute) {
-    var command = 'echo';
-    return plugin.inspect('.', 'requirements.txt', { command: command })
-    .then(function (result) {
-      t.ok(execute.calledTwice, 'execute called twice');
-      t.equal(execute.firstCall.args[0], command, 'uses command');
-      t.equal(execute.secondCall.args[0], command, 'uses command');
-      t.end();
+    .then(function (execute) {
+      var command = 'echo';
+      return plugin.inspect('.', 'requirements.txt', {command: command})
+        .then(function () {
+          t.ok(execute.calledTwice, 'execute called twice');
+          t.equal(execute.firstCall.args[0], command, 'uses command');
+          t.equal(execute.secondCall.args[0], command, 'uses command');
+          t.end();
+        });
     });
-  })
 });
 
 test('package name differs from requirement', function (t) {
@@ -328,21 +329,21 @@ test('package name differs from requirement', function (t) {
       testUtils.pipInstall();
     }
   })
-  .then(function () {
-    return plugin.inspect('.', 'requirements.txt')
-  })
-  .then(function (result) {
-    var pkg = result.package;
-    t.same(pkg.dependencies['dj-database-url'], {
-      name: 'dj-database-url',
-      version: '0.4.2',
-    }, 'dj-database-url looks ok');
-    t.same(pkg.dependencies['posix-ipc'], {
-      name: 'posix-ipc',
-      version: '1.0.0',
-    }, 'posix-ipc looks ok');
-    t.end();
-  });
+    .then(function () {
+      return plugin.inspect('.', 'requirements.txt');
+    })
+    .then(function (result) {
+      var pkg = result.package;
+      t.same(pkg.dependencies['dj-database-url'], {
+        name: 'dj-database-url',
+        version: '0.4.2',
+      }, 'dj-database-url looks ok');
+      t.same(pkg.dependencies['posix-ipc'], {
+        name: 'posix-ipc',
+        version: '1.0.0',
+      }, 'posix-ipc looks ok');
+      t.end();
+    });
 });
 
 test('package depends on platform', function (t) {
@@ -354,18 +355,18 @@ test('package depends on platform', function (t) {
       testUtils.pipInstall();
     }
   })
-  .then(function () {
-    return plugin.inspect('.', 'requirements.txt')
-  })
-  .then(function (result) {
-    var pkg = result.package;
-    t.notOk(pkg.dependencies.pypiwin32, 'win32 dep ignored');
-    t.same(pkg.dependencies['posix-ipc'], {
-      name: 'posix-ipc',
-      version: '1.0.0',
-    }, 'posix-ipc looks ok');
-    t.end();
-  });
+    .then(function () {
+      return plugin.inspect('.', 'requirements.txt');
+    })
+    .then(function (result) {
+      var pkg = result.package;
+      t.notOk(pkg.dependencies.pypiwin32, 'win32 dep ignored');
+      t.same(pkg.dependencies['posix-ipc'], {
+        name: 'posix-ipc',
+        version: '1.0.0',
+      }, 'posix-ipc looks ok');
+      t.end();
+    });
 });
 
 test('editables ignored', function (t) {
@@ -377,19 +378,19 @@ test('editables ignored', function (t) {
       testUtils.pipInstall();
     }
   })
-  .then(function () {
-    return plugin.inspect('.', 'requirements.txt')
-  })
-  .then(function (result) {
-    var pkg = result.package;
-    t.notOk(pkg.dependencies['simple'], 'editable dep ignored');
-    t.notOk(pkg.dependencies['sample'], 'editable subdir dep ignored');
-    t.same(pkg.dependencies['posix-ipc'], {
-      name: 'posix-ipc',
-      version: '1.0.0',
-    }, 'posix-ipc looks ok');
-    t.end();
-  });
+    .then(function () {
+      return plugin.inspect('.', 'requirements.txt');
+    })
+    .then(function (result) {
+      var pkg = result.package;
+      t.notOk(pkg.dependencies['simple'], 'editable dep ignored');
+      t.notOk(pkg.dependencies['sample'], 'editable subdir dep ignored');
+      t.same(pkg.dependencies['posix-ipc'], {
+        name: 'posix-ipc',
+        version: '1.0.0',
+      }, 'posix-ipc looks ok');
+      t.end();
+    });
 });
 
 test('deps with options', function (t) {
@@ -401,43 +402,43 @@ test('deps with options', function (t) {
       testUtils.pipInstall();
     }
   })
-  .then(function () {
-    return plugin.inspect('.', 'requirements.txt')
-  })
-  .then(function (result) {
-    var plugin = result.plugin;
-    var pkg = result.package;
+    .then(function () {
+      return plugin.inspect('.', 'requirements.txt');
+    })
+    .then(function (result) {
+      var plugin = result.plugin;
+      var pkg = result.package;
 
-    t.test('plugin', function (t) {
-      t.ok(plugin, 'plugin');
-      t.equal(plugin.name, 'snyk-python-plugin', 'name');
-      t.match(plugin.runtime, 'Python', 'runtime');
+      t.test('plugin', function (t) {
+        t.ok(plugin, 'plugin');
+        t.equal(plugin.name, 'snyk-python-plugin', 'name');
+        t.match(plugin.runtime, 'Python', 'runtime');
+        t.end();
+      });
+
+      t.test('package', function (t) {
+        t.ok(pkg, 'package');
+        t.equal(pkg.name, 'pip-app-with-options', 'name');
+        t.equal(pkg.version, '0.0.0', 'version');
+        t.end();
+      });
+
+      t.test('package dependencies', function (t) {
+        t.match(pkg.dependencies.markupsafe, {
+          name: 'markupsafe',
+          version: '1.0',
+        }, 'MarkupSafe looks ok');
+
+        t.match(pkg.dependencies.dnspython, {
+          name: 'dnspython',
+          version: '1.13.0',
+        }, 'dnspython looks ok');
+
+        t.end();
+      });
+
       t.end();
     });
-
-    t.test('package', function (t) {
-      t.ok(pkg, 'package');
-      t.equal(pkg.name, 'pip-app-with-options', 'name');
-      t.equal(pkg.version, '0.0.0', 'version');
-      t.end();
-    });
-
-    t.test('package dependencies', function (t) {
-      t.match(pkg.dependencies.markupsafe, {
-        name: 'markupsafe',
-        version: '1.0',
-      }, 'MarkupSafe looks ok');
-
-      t.match(pkg.dependencies.dnspython, {
-        name: 'dnspython',
-        version: '1.13.0',
-      }, 'dnspython looks ok');
-
-      t.end();
-    });
-
-    t.end();
-  });
 });
 
 test('trusted host ignored', function (t) {
@@ -449,13 +450,13 @@ test('trusted host ignored', function (t) {
       testUtils.pipInstall();
     }
   })
-  .then(function () {
-    return plugin.inspect('.', 'requirements.txt')
-  })
-  .then(function (result) {
-    t.ok(result.package.dependencies, 'does not error');
-    t.end();
-  });
+    .then(function () {
+      return plugin.inspect('.', 'requirements.txt');
+    })
+    .then(function (result) {
+      t.ok(result.package.dependencies, 'does not error');
+      t.end();
+    });
 });
 
 test('inspect Pipfile', function (t) {
@@ -463,41 +464,41 @@ test('inspect Pipfile', function (t) {
     chdirWorkspaces('pipfile-pipapp');
     t.teardown(testUtils.activateVirtualenv('pip-app'));
   })
-  .then(function () {
-    return plugin.inspect('.', 'Pipfile')
-  })
-  .then(function (result) {
-    var pkg = result.package;
+    .then(function () {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .then(function (result) {
+      var pkg = result.package;
 
-    t.test('package dependencies', function (t) {
-      t.notOk(pkg.dependencies['django'], 'django skipped (editable)');
+      t.test('package dependencies', function (t) {
+        t.notOk(pkg.dependencies['django'], 'django skipped (editable)');
 
-      t.match(pkg.dependencies['django-select2'], {
-        name: 'django-select2',
-        version: '6.0.1',
-        dependencies: {
-          'django-appconf': {
-            name: 'django-appconf',
+        t.match(pkg.dependencies['django-select2'], {
+          name: 'django-select2',
+          version: '6.0.1',
+          dependencies: {
+            'django-appconf': {
+              name: 'django-appconf',
+            },
           },
-        },
-      }, 'django-select2 looks ok');
+        }, 'django-select2 looks ok');
 
-      t.match(pkg.dependencies['python-etcd'], {
-        name: 'python-etcd',
-        version: /^0\.4.*$/,
-      }, 'python-etcd looks ok');
+        t.match(pkg.dependencies['python-etcd'], {
+          name: 'python-etcd',
+          version: /^0\.4.*$/,
+        }, 'python-etcd looks ok');
 
-      t.notOk(pkg.dependencies['e1839a8'],
-        'dummy local package skipped (editable)');
+        t.notOk(pkg.dependencies['e1839a8'],
+          'dummy local package skipped (editable)');
 
-      t.ok(pkg.dependencies['jinja2'] !== undefined, 'jinja2 found');
-      t.ok(pkg.dependencies['testtools'] !== undefined, 'testtools found');
+        t.ok(pkg.dependencies['jinja2'] !== undefined, 'jinja2 found');
+        t.ok(pkg.dependencies['testtools'] !== undefined, 'testtools found');
+
+        t.end();
+      });
 
       t.end();
     });
-
-    t.end();
-  });
 });
 
 test('inspect Pipfile with pinned versions', function (t) {
@@ -505,26 +506,26 @@ test('inspect Pipfile with pinned versions', function (t) {
     chdirWorkspaces('pipfile-pipapp-pinned');
     t.teardown(testUtils.activateVirtualenv('pip-app'));
   })
-  .then(function () {
-    return plugin.inspect('.', 'Pipfile')
-  })
-  .then(function (result) {
-    var pkg = result.package;
+    .then(function () {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .then(function (result) {
+      var pkg = result.package;
 
-    t.test('package dependencies', function (t) {
-      Object.keys(pipAppExpectedDependencies).forEach(function (depName) {
-        t.match(
-          pkg.dependencies[depName],
-          pipAppExpectedDependencies[depName].data,
-          pipAppExpectedDependencies[depName].msg
-        );
+      t.test('package dependencies', function (t) {
+        Object.keys(pipAppExpectedDependencies).forEach(function (depName) {
+          t.match(
+            pkg.dependencies[depName],
+            pipAppExpectedDependencies[depName].data,
+            pipAppExpectedDependencies[depName].msg
+          );
+        });
+
+        t.end();
       });
 
       t.end();
     });
-
-    t.end();
-  });
 });
 
 var pipenvAppExpectedDependencies = {
@@ -560,26 +561,26 @@ test('inspect pipenv app with user-created virtualenv', function (t) {
       return testUtils.pipenvInstall();
     }
   })
-  .then(function () {
-    return plugin.inspect('.', 'Pipfile')
-  })
-  .then(function (result) {
-    var pkg = result.package;
+    .then(function () {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .then(function (result) {
+      var pkg = result.package;
 
-    t.test('package dependencies', function (t) {
-      Object.keys(pipenvAppExpectedDependencies).forEach(function (depName) {
-        t.match(
-          pkg.dependencies[depName],
-          pipenvAppExpectedDependencies[depName].data,
-          pipenvAppExpectedDependencies[depName].msg
-        );
+      t.test('package dependencies', function (t) {
+        Object.keys(pipenvAppExpectedDependencies).forEach(function (depName) {
+          t.match(
+            pkg.dependencies[depName],
+            pipenvAppExpectedDependencies[depName].data,
+            pipenvAppExpectedDependencies[depName].msg
+          );
+        });
+
+        t.end();
       });
 
       t.end();
     });
-
-    t.end();
-  });
 });
 
 test('inspect pipenv app with auto-created virtualenv', function (t) {
@@ -606,7 +607,7 @@ test('inspect pipenv app with auto-created virtualenv', function (t) {
     var proc = subProcess.executeSync('pipenv', ['--venv']);
     if (proc.status !== 0) {
       teardowns.push(function () {
-        fs.unlinkSync('Pipfile.lock', function (err) {});
+        fs.unlinkSync('Pipfile.lock');
       });
       var updateProc = subProcess.executeSync('pipenv', ['update']);
       if (updateProc.status !== 0) {
@@ -614,26 +615,26 @@ test('inspect pipenv app with auto-created virtualenv', function (t) {
       }
     }
   })
-  .then(function () {
-    return plugin.inspect('.', 'Pipfile')
-  })
-  .then(function (result) {
-    var pkg = result.package;
+    .then(function () {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .then(function (result) {
+      var pkg = result.package;
 
-    t.test('package dependencies', function (t) {
-      Object.keys(pipenvAppExpectedDependencies).forEach(function (depName) {
-        t.match(
-          pkg.dependencies[depName],
-          pipenvAppExpectedDependencies[depName].data,
-          pipenvAppExpectedDependencies[depName].msg
-        );
+      t.test('package dependencies', function (t) {
+        Object.keys(pipenvAppExpectedDependencies).forEach(function (depName) {
+          t.match(
+            pkg.dependencies[depName],
+            pipenvAppExpectedDependencies[depName].data,
+            pipenvAppExpectedDependencies[depName].msg
+          );
+        });
+
+        t.end();
       });
 
       t.end();
     });
-
-    t.end();
-  });
 });
 
 test('inspect pipenv app dev dependencies', function (t) {
@@ -646,28 +647,28 @@ test('inspect pipenv app dev dependencies', function (t) {
       return testUtils.pipenvInstall();
     }
   })
-  .then(function () {
-    return plugin.inspect('.', 'Pipfile', {dev: true})
-  })
-  .then(function (result) {
-    var pkg = result.package;
+    .then(function () {
+      return plugin.inspect('.', 'Pipfile', {dev: true});
+    })
+    .then(function (result) {
+      var pkg = result.package;
 
-    t.test('package dependencies', function (t) {
-      Object.keys(pipenvAppExpectedDependencies).forEach(function (depName) {
-        t.match(
-          pkg.dependencies[depName],
-          pipenvAppExpectedDependencies[depName].data,
-          pipenvAppExpectedDependencies[depName].msg
-        );
+      t.test('package dependencies', function (t) {
+        Object.keys(pipenvAppExpectedDependencies).forEach(function (depName) {
+          t.match(
+            pkg.dependencies[depName],
+            pipenvAppExpectedDependencies[depName].data,
+            pipenvAppExpectedDependencies[depName].msg
+          );
+        });
+
+        t.match(pkg.dependencies.virtualenv, {name: 'virtualenv'});
+
+        t.end();
       });
-
-      t.match(pkg.dependencies.virtualenv, {name: 'virtualenv'});
 
       t.end();
     });
-
-    t.end();
-  });
 });
 
 function chdirWorkspaces(dir) {
