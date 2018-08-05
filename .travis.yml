@@ -34,7 +34,6 @@ before_script:
   - pyenv rehash
   - pip --version
   - pip install --user -r dev-requirements.txt --disable-pip-version-check
-script: npm test
 jobs:
   include:
     - stage: npm release
@@ -42,7 +41,7 @@ jobs:
       script: skip
       before_script: # Don't need virtualenv for release, so skip it
       after_success:
-        - TRAVIS_JOB_NUMBER=WORKAROUND.1 npm run semantic-release
+        - npm run semantic-release
 branches:
   only:
     - master
