@@ -9,7 +9,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "tap `find ./test -name '*.test.js'` --timeout=900",
-    "lint": "jscs `find ./lib -name '*.js'` -v && jscs `find ./test -name '*.js'` -v",
+    "lint": "eslint -c .eslintrc lib test",
     "semantic-release": "semantic-release"
   },
   "author": "snyk.io",
@@ -18,7 +18,7 @@
     "tmp": "0.0.33"
   },
   "devDependencies": {
-    "jscs": "^3.0.7",
+    "eslint": "^4.11.0",
     "semantic-release": "^15",
     "sinon": "^2.3.2",
     "tap": "^10.3.2"

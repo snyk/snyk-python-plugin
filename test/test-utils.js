@@ -83,16 +83,14 @@ function ensureVirtualenv(venvName) {
   var venvsBaseDir = path.join(path.resolve(__dirname), '.venvs');
   try {
     fs.accessSync(venvsBaseDir, fs.R_OK);
-  }
-  catch (e) {
+  } catch (e) {
     fs.mkdirSync(venvsBaseDir);
   }
 
   var venvDir = path.join(venvsBaseDir, venvName);
   try {
     fs.accessSync(venvDir, fs.R_OK);
-  }
-  catch (e) {
+  } catch (e) {
     var revert = function () {};
     if (process.env.VIRTUAL_ENV) {
       revert = deactivateVirtualenv();
@@ -103,8 +101,7 @@ function ensureVirtualenv(venvName) {
         console.error(proc.stdout.toString() + '\n' + proc.stderr.toString());
         throw new Error('Failed to create virtualenv in ' + venvDir);
       }
-    }
-    finally {
+    } finally {
       revert();
     }
     return true;
@@ -139,9 +136,8 @@ function pipenvInstall() {
   subProcess.executeSync('pip', ['install', 'pipenv']);
   try {
     subProcess.executeSync('pipenv', ['update']);
-  }
-  finally {
-    fs.unlinkSync('Pipfile.lock', function (err) {});
+  } finally {
+    fs.unlinkSync('Pipfile.lock');
   }
 }
 
@@ -149,8 +145,7 @@ function setWorkonHome() {
   var venvsBaseDir = path.join(path.resolve(__dirname), '.venvs');
   try {
     fs.accessSync(venvsBaseDir, fs.R_OK);
-  }
-  catch (e) {
+  } catch (e) {
     fs.mkdirSync(venvsBaseDir);
   }
 
