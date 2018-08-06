@@ -126,6 +126,7 @@ test('inspect', function (t) {
         t.ok(plugin, 'plugin');
         t.equal(plugin.name, 'snyk-python-plugin', 'name');
         t.match(plugin.runtime, 'Python', 'runtime');
+        t.notOk(plugin.targetFile, 'no targetfile for requirements.txt');
         t.end();
       });
 
@@ -468,7 +469,10 @@ test('inspect Pipfile', function (t) {
       return plugin.inspect('.', 'Pipfile');
     })
     .then(function (result) {
+      var plugin = result.plugin;
       var pkg = result.package;
+
+      t.equal(plugin.targetFile, 'Pipfile', 'Pipfile targetfile');
 
       t.test('package dependencies', function (t) {
         t.notOk(pkg.dependencies['django'], 'django skipped (editable)');
