@@ -9,12 +9,17 @@ import requirements
 import pipfile
 
 # pip >= 10.0.0 moved all APIs to the _internal package reflecting the fact
-# that pip does not currently have any public APIs. This is a temporary fix.
-# TODO: We need a workaround to using the get_installed_distributions method.
+#   that pip does not currently have any public APIs.
+# pip >= 18.0.0 moved the internal API we use deeper to _internal.utils.misc
+# TODO: This is a temporary fix that might not hold again for upcoming releases,
+#   we need a better approach for this.
 try:
     from pip import get_installed_distributions
 except ImportError:
-    from pip._internal import get_installed_distributions
+    try :
+        from pip._internal import get_installed_distributions
+    except ImportError:
+        from pip._internal.utils.misc import get_installed_distributions
 
 
 def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_path, allow_missing=False):
