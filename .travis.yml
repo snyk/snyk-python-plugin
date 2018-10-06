@@ -10,10 +10,10 @@ node_js:
 env:
   - PIP_VER=9.0.3   PYTHON_VER=2.7
   - PIP_VER=9.0.3   PYTHON_VER=3.6
-#  - PIP_VER=9.0.3   PYTHON_VER=3.7  # missing in Travis's old version of pyenv
   - PIP_VER=10.0.0  PYTHON_VER=2.7
   - PIP_VER=10.0.0  PYTHON_VER=3.6
-#  - PIP_VER=10.0.0  PYTHON_VER=3.7  # missing in Travis's old version of pyenv
+  - PIP_VER=18.1.0  PYTHON_VER=2.7
+  - PIP_VER=18.1.0  PYTHON_VER=3.6
 cache:
   directories:
     - node_modules
