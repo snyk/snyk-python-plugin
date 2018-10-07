@@ -137,7 +137,12 @@ function pipenvInstall() {
   try {
     subProcess.executeSync('pipenv', ['update']);
   } finally {
-    fs.unlinkSync('Pipfile.lock');
+    try {
+      fs.unlinkSync('Pipfile.lock');
+    }
+    catch (e) {
+      // will error if the file doesn't exist, which is fine
+    }
   }
 }
 
