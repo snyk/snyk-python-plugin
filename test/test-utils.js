@@ -16,6 +16,8 @@ module.exports = {
   setWorkonHome,
 };
 
+var binDirName = process.platform === 'win32' ? 'Scripts' : 'bin';
+
 function getActiveVenvName() {
   return process.env.VIRTUAL_ENV
     ? path.basename(process.env.VIRTUAL_ENV)
@@ -25,7 +27,6 @@ function getActiveVenvName() {
 function activateVirtualenv(venvName) {
   var venvDir = path.join(path.resolve(__dirname), '.venvs', venvName);
 
-  var binDirName = process.platform === 'win32' ? 'Scripts' : 'bin';
   var binDir = path.resolve(venvDir, binDirName);
 
   var origProcessEnv = Object.assign({}, process.env);
@@ -62,7 +63,6 @@ function deactivateVirtualenv() {
 
   // simulate the "deactivate" virtualenv script
   var pathElements = process.env.PATH.split(path.delimiter);
-  var binDirName = process.platform === 'win32' ? 'Scripts' : 'bin';
   var venvBinDir = path.join(process.env.VIRTUAL_ENV, binDirName);
   var index = pathElements.indexOf(venvBinDir);
   if (index > -1) {
@@ -80,8 +80,6 @@ function deactivateVirtualenv() {
 }
 
 function ensureVirtualenv(venvName) {
-  var binDirName = process.platform === 'win32' ? 'Scripts' : 'bin';
-
   var venvsBaseDir = path.join(path.resolve(__dirname), '.venvs');
   try {
     fs.accessSync(venvsBaseDir, fs.R_OK);
@@ -92,34 +90,38 @@ function ensureVirtualenv(venvName) {
   var venvDir = path.join(venvsBaseDir, venvName);
   try {
     fs.accessSync(venvDir, fs.R_OK);
+    return false;
   } catch (e) {
-    var revert = function () {};
-    if (process.env.VIRTUAL_ENV) {
-      revert = deactivateVirtualenv();
-    }
-    try {
-      var proc = subProcess.executeSync('virtualenv', [venvDir]);
-      if (proc.status !== 0) {
-        console.error(proc.stdout.toString() + '\n' + proc.stderr.toString());
-        throw new Error('Failed to create virtualenv in ' + venvDir);
-      }
-      if (process.env.PIP_VER) {
-        proc = subProcess.executeSync(
-          path.resolve(venvDir, binDirName, 'python'),
-          ['-m', 'pip', 'install', `pip==${process.env.PIP_VER}`]
-        );
-        if (proc.status !== 0) {
-          console.error(proc.stdout.toString() + '\n' + proc.stderr.toString());
-          throw new Error('Failed to install required pip version in virtualenv ' + venvDir);
-        }
-      }
-    } finally {
-      revert();
-    }
+    createVenv(venvDir);
     return true;
   }
+}
 
-  return false;
+function createVenv(venvDir) {
+  var revert = function () {};
+  if (process.env.VIRTUAL_ENV) {
+    revert = deactivateVirtualenv();
+  }
+  try {
+    var proc = subProcess.executeSync('virtualenv', [venvDir]);
+    if (proc.status !== 0) {
+      console.error(proc.stdout.toString() + '\n' + proc.stderr.toString());
+      throw new Error('Failed to create virtualenv in ' + venvDir);
+    }
+    if (process.env.PIP_VER) {
+      proc = subProcess.executeSync(
+        path.resolve(venvDir, binDirName, 'python'),
+        ['-m', 'pip', 'install', `pip==${process.env.PIP_VER}`]
+      );
+      if (proc.status !== 0) {
+        console.error(proc.stdout.toString() + '\n' + proc.stderr.toString());
+        throw new Error(
+          'Failed to install required pip version in virtualenv ' + venvDir);
+      }
+    }
+  } finally {
+    revert();
+  }
 }
 
 function pipInstall() {
@@ -151,8 +153,7 @@ function pipenvInstall() {
   } finally {
     try {
       fs.unlinkSync('Pipfile.lock');
-    }
-    catch (e) {
+    } catch (e) {
       // will error if the file doesn't exist, which is fine
     }
   }
