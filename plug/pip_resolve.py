@@ -8,18 +8,15 @@ import utils
 import requirements
 import pipfile
 
-# pip >= 10.0.0 moved all APIs to the _internal package reflecting the fact
-#   that pip does not currently have any public APIs.
-# pip >= 18.0.0 moved the internal API we use deeper to _internal.utils.misc
-# TODO: This is a temporary fix that might not hold again for upcoming releases,
-#   we need a better approach for this.
 try:
-    from pip import get_installed_distributions
+    import pkg_resources
 except ImportError:
-    try :
-        from pip._internal import get_installed_distributions
+    # try using the version vendored by pip
+    try:
+        import pip._vendor.pkg_resources as pkg_resources
     except ImportError:
-        from pip._internal.utils.misc import get_installed_distributions
+        raise ImportError(
+            "Could not import pkg_resources; please install setuptools or pip.")
 
 
 def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_path, allow_missing=False):
@@ -147,7 +144,7 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path,
                                               allow_missing=False,
                                               dev_deps=False):
     # get all installed packages
-    pkgs = get_installed_distributions(local_only=False, skip=[])
+    pkgs = list(pkg_resources.working_set)
 
     # get all installed packages's distribution object
     dist_index = utils.build_dist_index(pkgs)
