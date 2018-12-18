@@ -1,5 +1,3 @@
-import pip
-
 
 class Package(object):
     """Abstract class for wrappers around objects that pip returns.
@@ -23,11 +21,6 @@ class Package(object):
             return self.render_as_root(frozen)
         else:
             return self.render_as_branch(frozen)
-
-    @staticmethod
-    def frozen_repr(obj):
-        fr = pip.FrozenRequirement.from_dist(obj, [])
-        return str(fr).strip()
 
     def __getattr__(self, key):
         return getattr(self._obj, key)
