@@ -37,23 +37,6 @@ class ReqPackage(Package):
         req_obj = pkg_resources.Requirement.parse(req_version_str)
         return self.installed_version not in req_obj
 
-    def render_as_root(self, frozen):
-        if not frozen:
-            return '{0}=={1}'.format(self.project_name, self.installed_version)
-        elif self.dist:
-            return self.__class__.frozen_repr(self.dist._obj)
-        else:
-            return self.project_name
-
-    def render_as_branch(self, frozen):
-        if not frozen:
-            req_ver = self.version_spec if self.version_spec else 'Any'
-            return (
-                '{0} [required: {1}, installed: {2}]'
-            ).format(self.project_name, req_ver, self.installed_version)
-        else:
-            return self.render_as_root(frozen)
-
     def as_dict(self):
         return {'key': self.key,
                 'package_name': self.project_name,
