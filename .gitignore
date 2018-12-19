@@ -2,4 +2,8 @@
 __pycache__/
 *.pyc
 npm-debug.log
-test/.venvs/
+
+# tox testing
+/.tox/
+*.egg-info/
+.venvs/
