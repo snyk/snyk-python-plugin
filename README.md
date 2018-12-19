@@ -27,6 +27,13 @@ Prerequisites:
       pip install --user -r dev-requirements.txt
       ``` 
 
+Tests can be run against multiple python versions by using tox:
+
+```
+pip install tox
+tox
+```
+
 Linting and testing:
 ```
 npm i
