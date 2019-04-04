@@ -191,6 +191,13 @@ class Requirement(object):
                 req.hash_name, req.hash = get_hash_info(fragment)
                 req.subdirectory = fragment.get('subdirectory')
             req.path = groups['path']
+        elif line.startswith('./'):
+            setup_file = open(line + "/setup.py", "r")
+            setup_content = setup_file.read()
+            name_search = re.search('name="(\S+)"', setup_content)
+            if name_search:
+                req.name = name_search.group(1)
+            req.local_file = True
         else:
             # This is a requirement specifier.
             # Delegate to pkg_resources and hope for the best
