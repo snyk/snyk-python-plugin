@@ -86,7 +86,7 @@ var pipAppExpectedDependencies = {
         },
         'jaraco.text': {
           dependencies: {
-            'jaraco.collections': {},
+            'jaraco.functools': {},
           },
         },
       },
