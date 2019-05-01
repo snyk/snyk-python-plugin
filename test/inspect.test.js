@@ -206,7 +206,6 @@ test('transitive dep not installed, but with allowMissing option',
           t.ok(pkg, 'package');
           t.equal(pkg.name, 'pip-app', 'name');
           t.equal(pkg.version, '0.0.0', 'version');
-          // t.equal(pkg.full, 'pip-app@0.0.0', 'full'); // do we need this?
           t.end();
         });
 
@@ -321,7 +320,7 @@ test('uses provided exec command', function (t) {
     });
 });
 
-test('package name differs from requirement', function (t) {
+test('package name differs from requirement (- vs _)', function (t) {
   return Promise.resolve().then(function () {
     chdirWorkspaces('pip-app-deps-with-dashes');
     var venvCreated = testUtils.ensureVirtualenv('pip-app-deps-with-dashes');
@@ -343,6 +342,30 @@ test('package name differs from requirement', function (t) {
         name: 'posix-ipc',
         version: '1.0.0',
       }, 'posix-ipc looks ok');
+      t.end();
+    });
+});
+
+test('package name differs from requirement (- vs .)', function (t) {
+  t.pass('Not implemented yet');
+  t.end();
+});
+
+test('package installed conditionally based on python version', function (t) {
+  return Promise.resolve().then(function () {
+    chdirWorkspaces('pip-app-with-python-markers');
+    var venvCreated = testUtils.ensureVirtualenv('pip-app-with-python-markers');
+    t.teardown(testUtils.activateVirtualenv('pip-app-with-python-markers'));
+    if (venvCreated) {
+      testUtils.pipInstall();
+    }
+  })
+    .then(function () {
+      return plugin.inspect('.', 'requirements.txt');
+    })
+    .then(function (result) {
+      var pkg = result.package;
+      t.notOk(pkg.dependencies.enum34, 'enum34 dep ignored');
       t.end();
     });
 });
