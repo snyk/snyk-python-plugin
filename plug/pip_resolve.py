@@ -7,6 +7,7 @@ import argparse
 import utils
 import requirements
 import pipfile
+from operator import le, lt, gt, ge, eq, ne
 
 try:
     import pkg_resources
@@ -99,6 +100,48 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
 sys_platform_re = re.compile('sys_platform\s*==\s*[\'"](.+)[\'"]')
 sys_platform = sys.platform.lower()
 
+def satisfies_python_requirement(parsed_operator, parsed_python_version ):
+    # TODO: use python semver library to compare versions
+    operator_func = {
+        ">": gt,
+        "==": eq,
+        "<": lt,
+        "<=": le,
+        ">=": ge,
+        '!=': ne,
+    }[parsed_operator]
+    system_python = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
+    satisfies = operator_func(float(system_python), float(parsed_python_version))
+    return satisfies
+
+def matches_python_version(requirement):
+    """Filter out requirements that should not be installed
+    in this Python version.
+    See: https://www.python.org/dev/peps/pep-0508/#environment-markers
+    """
+    python_version_re = re.compile('python_version\s*(==|<=|=>|>|<)\s*\'(.+)\'')
+    if isinstance(requirement, pipfile.PipfileRequirement):
+        markers_text = requirement.markers
+    else:
+        markers_text = requirement.line
+
+    if markers_text is None:
+        return True
+
+    if 'python_version' not in markers_text:
+        return True
+
+    match = python_version_re.findall(markers_text)
+    if len(match) > 0:
+        parsed_operator = match[0][0]
+        parsed_python_version = match[0][1]
+
+        if parsed_operator and parsed_python_version:
+            return satisfies_python_requirement(parsed_operator, parsed_python_version)
+        else:
+            return True
+
+
 def matches_environment(requirement):
     """Filter out requirements that should not be installed
     in this environment. Only sys_platform is inspected right now.
@@ -137,6 +180,7 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
 
     req_list = filter(matches_environment, req_list)
     req_list = filter(is_testable, req_list)
+    req_list = filter(matches_python_version, req_list)
     required = [req.name.replace('_', '-') for req in req_list]
     return required
 
