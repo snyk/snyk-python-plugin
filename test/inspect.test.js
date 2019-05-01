@@ -373,11 +373,7 @@ test('package installed conditionally based on python version', function (t) {
 test('Pipfile package found conditionally based on python version', function (t) {
   return Promise.resolve().then(function () {
     chdirWorkspaces('pipfile-markers');
-    var venvCreated = testUtils.ensureVirtualenv('pipfile-markers');
-    t.teardown(testUtils.activateVirtualenv('pipfile-markers'));
-    if (venvCreated) {
-      testUtils.pipInstall();
-    }
+    t.teardown(testUtils.activateVirtualenv('pip-app'));
   })
     .then(function () {
       return plugin.inspect('.', 'Pipfile');
