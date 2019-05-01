@@ -1,0 +1,26 @@
+[dev-packages]
+"flake8" = ">=3.3.0,<4"
+sphinx = "<=1.5.5"
+twine = "*"
+sphinx-click = "*"
+click = "*"
+pytest_pypi = {path = "./tests/pytest-pypi", editable = true}
+stdeb = {version="*", markers="sys_platform == 'linux' ; python_version != '3.4"}
+black = {version="*", markers="python_version > '3.6'"}
+pytz = "*"
+towncrier = {git = "https://github.com/hawkowl/towncrier.git", editable = true, ref = "master"}
+parver = "*"
+invoke = "*"
+jedi = "*"
+isort = "*"
+rope = "*"
+passa = {editable = true, git = "https://github.com/sarugaku/passa.git"}
+bs4 = "*"
+
+[packages]
+
+[scripts]
+tests = "bash ./run-tests.sh"
+
+[pipenv]
+allow_prereleases = true

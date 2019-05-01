@@ -370,6 +370,27 @@ test('package installed conditionally based on python version', function (t) {
     });
 });
 
+test('Pipfile package found conditionally based on python version', function (t) {
+  return Promise.resolve().then(function () {
+    chdirWorkspaces('pipfile-markers');
+    var venvCreated = testUtils.ensureVirtualenv('pipfile-markers');
+    t.teardown(testUtils.activateVirtualenv('pipfile-markers'));
+    if (venvCreated) {
+      testUtils.pipInstall();
+    }
+  })
+    .then(function () {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .then(function (result) {
+      var pkg = result.package;
+      t.notOk(pkg.dependencies.black, 'black dep ignored');
+      t.notOk(pkg.dependencies.stdeb, 'stdeb dep ignored');
+
+      t.end();
+    });
+});
+
 test('package depends on platform', function (t) {
   return Promise.resolve().then(function () {
     chdirWorkspaces('pip-app-deps-conditional');
@@ -446,7 +467,6 @@ test('deps with options', function (t) {
         t.equal(pkg.version, '0.0.0', 'version');
         t.end();
       });
-
       t.test('package dependencies', function (t) {
         t.match(pkg.dependencies.markupsafe, {
           name: 'markupsafe',
