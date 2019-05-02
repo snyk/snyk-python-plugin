@@ -4,9 +4,9 @@ notifications:
   email: false
 language: node_js
 node_js:
+  - "10"
   - "8"
   - "6"
-  - "4"
 env:
   - PIP_VER=9.0.3   PYTHON_VER=2.7
   - PIP_VER=9.0.3   PYTHON_VER=3.6

@@ -6,3 +6,5 @@ __pycache__/
 /.tox/
 *.egg-info/
 .venvs/
+npm-debug.log
+test/.venvs/

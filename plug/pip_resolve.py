@@ -7,6 +7,7 @@ import argparse
 import utils
 import requirements
 import pipfile
+from operator import le, lt, gt, ge, eq, ne
 
 try:
     import pkg_resources
@@ -18,6 +19,8 @@ except ImportError:
         raise ImportError(
             "Could not import pkg_resources; please install setuptools or pip.")
 
+PYTHON_MARKER_REGEX = 'python_version\s*(?P<operator>==|<=|=>|>|<)\s*\'(?P<python_version>.+)\''
+SYSTEM_MARKER_REGEX = 'sys_platform\s*==\s*[\'"](.+)[\'"]'
 
 def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_path, allow_missing=False):
     """Create packages dependencies tree
@@ -96,8 +99,51 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
         dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
     return dir_as_root
 
-sys_platform_re = re.compile('sys_platform\s*==\s*[\'"](.+)[\'"]')
-sys_platform = sys.platform.lower()
+def satisfies_python_requirement(parsed_operator, parsed_python_version):
+    # TODO: use python semver library to compare versions
+    operator_func = {
+        ">": gt,
+        "==": eq,
+        "<": lt,
+        "<=": le,
+        ">=": ge,
+        '!=': ne,
+    }[parsed_operator]
+    system_python = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
+    return operator_func(float(system_python), float(parsed_python_version))
+
+def get_markers_text(requirement):
+    if isinstance(requirement, pipfile.PipfileRequirement):
+        markers_text = requirement.markers
+    else:
+        markers_text = requirement.line
+    return markers_text
+
+def matches_python_version(requirement):
+    """Filter out requirements that should not be installed
+    in this Python version.
+    See: https://www.python.org/dev/peps/pep-0508/#environment-markers
+    """
+    python_version_re = re.compile(PYTHON_MARKER_REGEX)
+    markers_text = get_markers_text(requirement)
+    if not markers_text:
+        return True
+    if not 'python_version' in markers_text:
+        return True
+    match = python_version_re.match(markers_text)
+    if not match:
+        return False
+    parsed_operator = match.group('operator')
+    parsed_python_version = match.group('python_version')
+
+    if not parsed_python_version or not parsed_operator:
+        return False
+
+    return satisfies_python_requirement(
+        parsed_operator,
+        parsed_python_version
+    )
+
 
 def matches_environment(requirement):
     """Filter out requirements that should not be installed
@@ -105,12 +151,10 @@ def matches_environment(requirement):
     This should be expanded to include other environment markers.
     See: https://www.python.org/dev/peps/pep-0508/#environment-markers
     """
-    # TODO: refactor this out into the Requirement classes
-    if isinstance(requirement, pipfile.PipfileRequirement):
-        markers_text = requirement.markers
-    else:
-        markers_text = requirement.line
-    if markers_text is not None and 'sys_platform' in markers_text:
+    sys_platform_re = re.compile(SYSTEM_MARKER_REGEX)
+    sys_platform = sys.platform.lower()
+    markers_text = get_markers_text(requirement)
+    if markers_text and 'sys_platform' in markers_text:
         match = sys_platform_re.findall(markers_text)
         if len(match) > 0:
             return match[0].lower() == sys_platform
@@ -137,6 +181,7 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
 
     req_list = filter(matches_environment, req_list)
     req_list = filter(is_testable, req_list)
+    req_list = filter(matches_python_version, req_list)
     required = [req.name.replace('_', '-') for req in req_list]
     return required
 
