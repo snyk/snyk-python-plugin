@@ -7,3 +7,5 @@ npm-debug.log
 /.tox/
 *.egg-info/
 .venvs/
+dist/
+package-lock.json
