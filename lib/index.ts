@@ -1,27 +1,24 @@
-var path = require('path');
-var subProcess = require('./sub-process');
-var fs = require('fs');
-var tmp = require('tmp');
+import * as path from 'path';
+import * as subProcess from './sub-process';
+import * as fs from 'fs';
+import * as tmp from 'tmp';
 
-module.exports = {
-  inspect: inspect,
+// tslint:disable-next-line
+export const __tests = {
+  buildArgs,
 };
 
-module.exports.__tests = {
-  buildArgs: buildArgs,
-};
-
-function inspect(root, targetFile, options) {
+export function inspect(root, targetFile, options) {
   if (!options) {
     options = {};
   }
-  var command = options.command || 'python';
-  var includeDevDeps = !!(options.dev || false);
-  var baseargs = [];
+  let command = options.command || 'python';
+  const includeDevDeps = !!(options.dev || false);
+  let baseargs: string[] = [];
 
   if (path.basename(targetFile) === 'Pipfile') {
     // Check that pipenv is available by running it.
-    var pipenvCheckProc = subProcess.executeSync('pipenv', ['--version']);
+    const pipenvCheckProc = subProcess.executeSync('pipenv', ['--version']);
     if (pipenvCheckProc.status !== 0) {
       throw new Error(
         'Failed to run `pipenv`; please make sure it is installed.');
@@ -39,10 +36,10 @@ function inspect(root, targetFile, options) {
       targetFile,
       options.allowMissing,
       includeDevDeps,
-      options.args
+      options.args,
     ),
   ])
-    .then(function (result) {
+    .then((result) => {
       return {
         plugin: result[0],
         package: result[1],
@@ -53,10 +50,10 @@ function inspect(root, targetFile, options) {
 function getMetaData(command, baseargs, root, targetFile) {
   return subProcess.execute(
     command,
-    [].concat(baseargs, ['--version']),
-    {cwd: root}
+    [...baseargs, '--version'],
+    {cwd: root},
   )
-    .then(function (output) {
+    .then((output) => {
       return {
         name: 'snyk-python-plugin',
         runtime: output.replace('\n', ''),
@@ -67,38 +64,32 @@ function getMetaData(command, baseargs, root, targetFile) {
     });
 }
 
-// Hack:
-// We're using Zeit assets feature in order to support Python and Go testing
-// within a binary release. By doing "path.join(__dirname, 'PATH'), Zeit adds
-// PATH file auto to the assets. Sadly, Zeit doesn't support (as far as I
-// understand) adding a full folder as an asset, and this is why we're adding
-// the required files this way. In addition, Zeit doesn't support
-// path.resolve(), and this is why I'm using path.join()
-function createAssets(){
-  var assets = [];
-  assets.push(path.join(__dirname, '../plug/pip_resolve.py'));
-  assets.push(path.join(__dirname, '../plug/distPackage.py'));
-  assets.push(path.join(__dirname, '../plug/package.py'));
-  assets.push(path.join(__dirname, '../plug/pipfile.py'));
-  assets.push(path.join(__dirname, '../plug/reqPackage.py'));
-  assets.push(path.join(__dirname, '../plug/utils.py'));
+  // path.join calls have to be exactly in this format, needed by "pkg" to build a standalone Snyk CLI binary:
+  // https://www.npmjs.com/package/pkg#detecting-assets-in-source-code
+function createAssets() {
+  return [
+    path.join(__dirname, '../plug/pip_resolve.py'),
+    path.join(__dirname, '../plug/distPackage.py'),
+    path.join(__dirname, '../plug/package.py'),
+    path.join(__dirname, '../plug/pipfile.py'),
+    path.join(__dirname, '../plug/reqPackage.py'),
+    path.join(__dirname, '../plug/utils.py'),
 
-  assets.push(path.join(__dirname, '../plug/requirements/fragment.py'));
-  assets.push(path.join(__dirname, '../plug/requirements/parser.py'));
-  assets.push(path.join(__dirname, '../plug/requirements/requirement.py'));
-  assets.push(path.join(__dirname, '../plug/requirements/vcs.py'));
-  assets.push(path.join(__dirname, '../plug/requirements/__init__.py'));
+    path.join(__dirname, '../plug/requirements/fragment.py'),
+    path.join(__dirname, '../plug/requirements/parser.py'),
+    path.join(__dirname, '../plug/requirements/requirement.py'),
+    path.join(__dirname, '../plug/requirements/vcs.py'),
+    path.join(__dirname, '../plug/requirements/__init__.py'),
 
-  assets.push(path.join(__dirname, '../plug/pytoml/__init__.py'));
-  assets.push(path.join(__dirname, '../plug/pytoml/core.py'));
-  assets.push(path.join(__dirname, '../plug/pytoml/parser.py'));
-  assets.push(path.join(__dirname, '../plug/pytoml/writer.py'));
-
-  return assets;
+    path.join(__dirname, '../plug/pytoml/__init__.py'),
+    path.join(__dirname, '../plug/pytoml/core.py'),
+    path.join(__dirname, '../plug/pytoml/parser.py'),
+    path.join(__dirname, '../plug/pytoml/writer.py'),
+  ];
 }
 
 function writeFile(writeFilePath, contents) {
-  var dirPath = path.dirname(writeFilePath);
+  const dirPath = path.dirname(writeFilePath);
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath);
   }
@@ -106,7 +97,7 @@ function writeFile(writeFilePath, contents) {
 }
 
 function getFilePathRelativeToDumpDir(filePath) {
-  var pathParts = filePath.split('\\plug\\');
+  let pathParts = filePath.split('\\plug\\');
 
   // Windows
   if (pathParts.length > 1) {
@@ -119,17 +110,17 @@ function getFilePathRelativeToDumpDir(filePath) {
 }
 
 function dumpAllFilesInTempDir(tempDirName) {
-  createAssets().forEach(function(currentReadFilePath) {
+  createAssets().forEach((currentReadFilePath) => {
     if (!fs.existsSync(currentReadFilePath)) {
       throw new Error('The file `' + currentReadFilePath + '` is missing');
     }
 
-    var relFilePathToDumpDir =
+    const relFilePathToDumpDir =
       getFilePathRelativeToDumpDir(currentReadFilePath);
 
-    var writeFilePath = path.join(tempDirName, relFilePathToDumpDir);
+    const writeFilePath = path.join(tempDirName, relFilePathToDumpDir);
 
-    var contents = fs.readFileSync(currentReadFilePath);
+    const contents = fs.readFileSync(currentReadFilePath);
     writeFile(writeFilePath, contents);
   });
 }
@@ -141,9 +132,9 @@ function getDependencies(
   targetFile,
   allowMissing,
   includeDevDeps,
-  args
+  args,
 ) {
-  var tempDirObj = tmp.dirSync({
+  const tempDirObj = tmp.dirSync({
     unsafeCleanup: true,
   });
 
@@ -151,26 +142,27 @@ function getDependencies(
 
   return subProcess.execute(
     command,
-    [].concat(baseargs,
-      buildArgs(
+    [
+      ...baseargs,
+      ...buildArgs(
         targetFile,
         allowMissing,
         tempDirObj.name,
         includeDevDeps,
-        args
-      )
-    ),
-    {cwd: root}
+        args,
+      ),
+    ],
+    {cwd: root},
   )
-    .then(function (output) {
+    .then((output) => {
       tempDirObj.removeCallback();
       return JSON.parse(output);
     })
-    .catch(function (error) {
+    .catch((error) => {
       tempDirObj.removeCallback();
       if (typeof error === 'string') {
         if (error.indexOf('Required package missing') !== -1) {
-          var errMsg = 'Please run `pip install -r ' + targetFile + '`';
+          let errMsg = 'Please run `pip install -r ' + targetFile + '`';
           if (path.basename(targetFile) === 'Pipfile') {
             errMsg = 'Please run `pipenv update`';
           }
@@ -187,10 +179,10 @@ function buildArgs(
   allowMissing,
   tempDirPath,
   includeDevDeps,
-  extraArgs
+  extraArgs: string[],
 ) {
-  var pathToRun = path.join(tempDirPath, 'pip_resolve.py');
-  var args = [pathToRun];
+  const pathToRun = path.join(tempDirPath, 'pip_resolve.py');
+  let args = [pathToRun];
   if (targetFile) {
     args.push(targetFile);
   }
