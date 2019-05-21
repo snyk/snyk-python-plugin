@@ -182,7 +182,7 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
     req_list = filter(matches_environment, req_list)
     req_list = filter(is_testable, req_list)
     req_list = filter(matches_python_version, req_list)
-    required = [req.name.replace('_', '-') for req in req_list]
+    required = [req.name.replace('_', '-') for req in req_list if req.name]
     return required
 
 def create_dependencies_tree_by_req_file_path(requirements_file_path,
