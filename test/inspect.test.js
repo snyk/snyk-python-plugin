@@ -716,6 +716,24 @@ test('inspect pipenv app dev dependencies', function (t) {
     });
 });
 
+test('package names with urls are skipped', function (t) {
+  return Promise.resolve().then(function () {
+    chdirWorkspaces('pip-app-deps-with-urls');
+    var venvCreated = testUtils.ensureVirtualenv('pip-app-deps-with-urls');
+    t.teardown(testUtils.activateVirtualenv('pip-app-deps-with-urls'));
+    if (venvCreated) {
+      testUtils.pipInstall();
+    }
+  })
+    .then(function () {
+      return plugin.inspect('.', 'requirements.txt');
+    })
+    .then(function (result) {
+      var pkg = result.package;
+      t.equal(Object.keys(pkg.dependencies).length, 1, '1 dependency was skipped');
+    });
+});
+
 function chdirWorkspaces(dir) {
   process.chdir(path.resolve(__dirname, 'workspaces', dir));
 }
