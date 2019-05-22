@@ -7,6 +7,7 @@ var sinon = require('sinon');
 var plugin = require('../lib');
 var subProcess = require('../lib/sub-process');
 var testUtils = require('./test-utils');
+var os = require('os');
 
 
 test('install requirements in "pip-app" venv (may take a while)', function (t) {
@@ -330,7 +331,7 @@ test('package name differs from requirement (- vs _)', function (t) {
     }
   })
     .then(function () {
-      return plugin.inspect('.', 'requirements.txt');
+      return plugin.inspect('.', 'requirements.txt', {allowMissing: true});
     })
     .then(function (result) {
       var pkg = result.package;
@@ -338,10 +339,12 @@ test('package name differs from requirement (- vs _)', function (t) {
         name: 'dj-database-url',
         version: '0.4.2',
       }, 'dj-database-url looks ok');
-      t.same(pkg.dependencies['posix-ipc'], {
-        name: 'posix-ipc',
-        version: '1.0.0',
-      }, 'posix-ipc looks ok');
+      if (os.platform() !== 'win32') {
+        t.same(pkg.dependencies['posix-ipc'], {
+          name: 'posix-ipc',
+          version: '1.0.0',
+        }, 'posix-ipc looks ok');
+      }
       t.end();
     });
 });
@@ -397,15 +400,20 @@ test('package depends on platform', function (t) {
     }
   })
     .then(function () {
-      return plugin.inspect('.', 'requirements.txt');
+      return plugin.inspect('.', 'requirements.txt', {allowMissing: true});
     })
     .then(function (result) {
       var pkg = result.package;
-      t.notOk(pkg.dependencies.pypiwin32, 'win32 dep ignored');
-      t.same(pkg.dependencies['posix-ipc'], {
-        name: 'posix-ipc',
-        version: '1.0.0',
-      }, 'posix-ipc looks ok');
+      if (os.platform() !== 'win32') {
+        t.notOk(pkg.dependencies.pypiwin32, 'win32 dep ignored');
+        t.same(pkg.dependencies['posix-ipc'], {
+          name: 'posix-ipc',
+          version: '1.0.0',
+        }, 'posix-ipc looks ok');
+      } else {
+        t.ok(pkg.dependencies.pypiwin32, 'win32 installed');
+        t.notOk(pkg.dependencies['posix-ipc'], 'not win32 dep skipped');
+      }
       t.end();
     });
 });
@@ -420,16 +428,18 @@ test('editables ignored', function (t) {
     }
   })
     .then(function () {
-      return plugin.inspect('.', 'requirements.txt');
+      return plugin.inspect('.', 'requirements.txt', {allowMissing: true});
     })
     .then(function (result) {
       var pkg = result.package;
       t.notOk(pkg.dependencies['simple'], 'editable dep ignored');
       t.notOk(pkg.dependencies['sample'], 'editable subdir dep ignored');
-      t.same(pkg.dependencies['posix-ipc'], {
-        name: 'posix-ipc',
-        version: '1.0.0',
-      }, 'posix-ipc looks ok');
+      if (os.platform() !== 'win32') {
+        t.same(pkg.dependencies['posix-ipc'], {
+          name: 'posix-ipc',
+          version: '1.0.0',
+        }, 'posix-ipc looks ok');
+      }
       t.end();
     });
 });
@@ -647,6 +657,7 @@ test('inspect pipenv app with auto-created virtualenv', function (t) {
     teardowns.push(testUtils.setWorkonHome());
 
     // Have pipenv create and update a virtualenv if it doesn't exist.
+    subProcess.executeSync('pip', ['install', 'pipenv']);
     var proc = subProcess.executeSync('pipenv', ['--venv']);
     if (proc.status !== 0) {
       teardowns.push(function () {
