@@ -161,8 +161,8 @@ function getDependencies(
     .catch((error) => {
       tempDirObj.removeCallback();
       if (typeof error === 'string') {
-        if (error.indexOf('Required package missing') !== -1) {
-          let errMsg = 'Please run `pip install -r ' + targetFile + '`';
+        if (error.indexOf('Required packages missing') !== -1) {
+          let errMsg = error + '\nPlease run `pip install -r ' + targetFile + '`';
           if (path.basename(targetFile) === 'Pipfile') {
             errMsg = 'Please run `pipenv update`';
           }

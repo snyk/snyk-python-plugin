@@ -51,7 +51,7 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
     def create_children_recursive(root_package, key_tree, ancestors):
         root_name = root_package[NAME].lower()
         if root_name not in key_tree:
-            msg = 'Required package missing: ' + root_name
+            msg = 'Required packages missing: ' + root_name
             if allow_missing:
                 sys.stderr.write(msg + "\n")
                 return
@@ -201,15 +201,18 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path,
     required = get_requirements_list(requirements_file_path, dev_deps=dev_deps)
     installed = [p for p in dist_index]
     packages = []
+    missing_packages = []
     for r in required:
         if r.lower() not in installed:
-            msg = 'Required package missing: ' + r.lower()
-            if allow_missing:
-                sys.stderr.write(msg + "\n")
-            else:
-                sys.exit(msg)
+            missing_packages.append(r)
         else:
             packages.append(r)
+    if missing_packages:
+        msg = 'Required packages missing: ' + (', '.join(missing_packages))
+        if allow_missing:
+            sys.stderr.write(msg + "\n")
+        else:
+            sys.exit(msg)
 
     # build a tree of dependencies
     package_tree = create_tree_of_packages_dependencies(
