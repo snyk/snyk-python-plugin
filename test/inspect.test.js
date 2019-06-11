@@ -9,6 +9,9 @@ var subProcess = require('../lib/sub-process');
 var testUtils = require('./test-utils');
 var os = require('os');
 
+function normalize(s) {
+  return s.replace(/\r/g, '');
+}
 
 test('install requirements in "pip-app" venv (may take a while)', function (t) {
   chdirWorkspaces('pip-app');
@@ -170,8 +173,8 @@ test('transitive dep not installed', function (t) {
           t.fail('should have failed');
         })
         .catch(function (error) {
-          t.equal(error.message,
-            'Please run `pip install -r requirements.txt`');
+          t.equal(normalize(error.message),
+            'Required packages missing: markupsafe\n\nPlease run `pip install -r requirements.txt`');
           t.end();
         });
     });
@@ -266,7 +269,7 @@ test('deps not installed', function (t) {
       t.fail('should have failed');
     })
     .catch(function (error) {
-      t.equal(error.message, 'Please run `pip install -r requirements.txt`');
+      t.equal(normalize(error.message), 'Required packages missing: awss\n\nPlease run `pip install -r requirements.txt`');
       t.end();
     });
 });
