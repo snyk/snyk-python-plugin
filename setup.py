@@ -2,6 +2,6 @@
 from setuptools import setup
 
 setup(
-    name="plug",
-    packages=["plug"],
+    name="pysrc",
+    packages=["pysrc"],
 )
