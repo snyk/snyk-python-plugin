@@ -68,23 +68,23 @@ function getMetaData(command, baseargs, root, targetFile) {
   // https://www.npmjs.com/package/pkg#detecting-assets-in-source-code
 function createAssets() {
   return [
-    path.join(__dirname, '../plug/pip_resolve.py'),
-    path.join(__dirname, '../plug/distPackage.py'),
-    path.join(__dirname, '../plug/package.py'),
-    path.join(__dirname, '../plug/pipfile.py'),
-    path.join(__dirname, '../plug/reqPackage.py'),
-    path.join(__dirname, '../plug/utils.py'),
+    path.join(__dirname, '../pysrc/pip_resolve.py'),
+    path.join(__dirname, '../pysrc/distPackage.py'),
+    path.join(__dirname, '../pysrc/package.py'),
+    path.join(__dirname, '../pysrc/pipfile.py'),
+    path.join(__dirname, '../pysrc/reqPackage.py'),
+    path.join(__dirname, '../pysrc/utils.py'),
 
-    path.join(__dirname, '../plug/requirements/fragment.py'),
-    path.join(__dirname, '../plug/requirements/parser.py'),
-    path.join(__dirname, '../plug/requirements/requirement.py'),
-    path.join(__dirname, '../plug/requirements/vcs.py'),
-    path.join(__dirname, '../plug/requirements/__init__.py'),
+    path.join(__dirname, '../pysrc/requirements/fragment.py'),
+    path.join(__dirname, '../pysrc/requirements/parser.py'),
+    path.join(__dirname, '../pysrc/requirements/requirement.py'),
+    path.join(__dirname, '../pysrc/requirements/vcs.py'),
+    path.join(__dirname, '../pysrc/requirements/__init__.py'),
 
-    path.join(__dirname, '../plug/pytoml/__init__.py'),
-    path.join(__dirname, '../plug/pytoml/core.py'),
-    path.join(__dirname, '../plug/pytoml/parser.py'),
-    path.join(__dirname, '../plug/pytoml/writer.py'),
+    path.join(__dirname, '../pysrc/pytoml/__init__.py'),
+    path.join(__dirname, '../pysrc/pytoml/core.py'),
+    path.join(__dirname, '../pysrc/pytoml/parser.py'),
+    path.join(__dirname, '../pysrc/pytoml/writer.py'),
   ];
 }
 
@@ -97,7 +97,7 @@ function writeFile(writeFilePath, contents) {
 }
 
 function getFilePathRelativeToDumpDir(filePath) {
-  let pathParts = filePath.split('\\plug\\');
+  let pathParts = filePath.split('\\pysrc\\');
 
   // Windows
   if (pathParts.length > 1) {
@@ -105,7 +105,7 @@ function getFilePathRelativeToDumpDir(filePath) {
   }
 
   // Unix
-  pathParts = filePath.split('/plug/');
+  pathParts = filePath.split('/pysrc/');
   return pathParts[1];
 }
 
