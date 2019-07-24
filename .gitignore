@@ -9,3 +9,5 @@ npm-debug.log
 .venvs/
 dist/
 package-lock.json
+
+.nyc_output

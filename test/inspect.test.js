@@ -31,6 +31,7 @@ var pipAppExpectedDependencies = {
     data: {
       name: 'django',
       version: '1.6.1',
+      labels: {provenance: 'requirements.txt:2'},
     },
     msg: 'django looks ok',
   },
@@ -38,6 +39,7 @@ var pipAppExpectedDependencies = {
     data: {
       name: 'jinja2',
       version: '2.7.2',
+      labels: {provenance: 'requirements.txt:1'},
       dependencies: {
         markupsafe: {
           name: 'markupsafe',
@@ -51,6 +53,7 @@ var pipAppExpectedDependencies = {
     data: {
       name: 'python-etcd',
       version: '0.4.5',
+      labels: {provenance: 'requirements.txt:3'},
       dependencies: {
         dnspython: {
           name: 'dnspython',
@@ -68,6 +71,7 @@ var pipAppExpectedDependencies = {
     data: {
       name: 'django-select2',
       version: '6.0.1',
+      labels: {provenance: 'requirements.txt:4'},
       dependencies: {
         'django-appconf': {
           name: 'django-appconf',
@@ -80,6 +84,7 @@ var pipAppExpectedDependencies = {
     data: {
       name: 'irc',
       version: '16.2',
+      labels: {provenance: 'requirements.txt:5'},
       dependencies: {
         'more-itertools': {},
         'jaraco.functools': {},
@@ -101,6 +106,101 @@ var pipAppExpectedDependencies = {
     data: {
       name: 'testtools',
       version: '2.3.0',
+      labels: {provenance: 'requirements.txt:6'},
+      dependencies: {
+        'pbr': {},
+        'extras': {},
+        'fixtures': {},
+        'unittest2': {},
+        'traceback2': {},
+        'python-mimeparse': {},
+      },
+    },
+    msg: 'testtools ok, even though it\'s cyclic, yay!',
+  },
+};
+
+var pipfilePinnedExpectedDependencies = {
+  django: {
+    data: {
+      name: 'django',
+      version: '1.6.1',
+      labels: {provenance: 'Pipfile:11'},
+    },
+    msg: 'django looks ok',
+  },
+  jinja2: {
+    data: {
+      name: 'jinja2',
+      version: '2.7.2',
+      labels: {provenance: 'Pipfile:10'},
+      dependencies: {
+        markupsafe: {
+          name: 'markupsafe',
+          version: /.+$/,
+        },
+      },
+    },
+    msg: 'jinja2 looks ok',
+  },
+  'python-etcd': {
+    data: {
+      name: 'python-etcd',
+      version: '0.4.5',
+      labels: {provenance: 'Pipfile:7'},
+      dependencies: {
+        dnspython: {
+          name: 'dnspython',
+          version: /.+$/,
+        },
+        urllib3: {
+          name: 'urllib3',
+          version: /.+$/,
+        },
+      },
+    },
+    msg: 'python-etcd is ok',
+  },
+  'django-select2': {
+    data: {
+      name: 'django-select2',
+      version: '6.0.1',
+      labels: {provenance: 'Pipfile:12'},
+      dependencies: {
+        'django-appconf': {
+          name: 'django-appconf',
+        },
+      },
+    },
+    msg: 'django-select2 looks ok',
+  },
+  irc: {
+    data: {
+      name: 'irc',
+      version: '16.2',
+      labels: {provenance: 'Pipfile:8'},
+      dependencies: {
+        'more-itertools': {},
+        'jaraco.functools': {},
+        'jaraco.collections': {
+          dependencies: {
+            'jaraco.text': {},
+          },
+        },
+        'jaraco.text': {
+          dependencies: {
+            'jaraco.functools': {},
+          },
+        },
+      },
+    },
+    msg: 'irc ok, even though it has a cyclic dep, yay!',
+  },
+  testtools: {
+    data: {
+      name: 'testtools',
+      version: '2.3.0',
+      labels: {provenance: 'Pipfile:9'},
       dependencies: {
         'pbr': {},
         'extras': {},
@@ -120,7 +220,7 @@ test('inspect', function (t) {
     t.teardown(testUtils.activateVirtualenv('pip-app'));
   })
     .then(function () {
-      return plugin.inspect('.', 'requirements.txt');
+      return plugin.inspect('.', 'requirements.txt', {args: ['--add-provenance']});
     })
     .then(function (result) {
       var plugin = result.plugin;
@@ -563,17 +663,17 @@ test('inspect Pipfile with pinned versions', function (t) {
     t.teardown(testUtils.activateVirtualenv('pip-app'));
   })
     .then(function () {
-      return plugin.inspect('.', 'Pipfile');
+      return plugin.inspect('.', 'Pipfile', {args: ['--add-provenance']});
     })
     .then(function (result) {
       var pkg = result.package;
 
       t.test('package dependencies', function (t) {
-        Object.keys(pipAppExpectedDependencies).forEach(function (depName) {
+        Object.keys(pipfilePinnedExpectedDependencies).forEach(function (depName) {
           t.match(
             pkg.dependencies[depName],
-            pipAppExpectedDependencies[depName].data,
-            pipAppExpectedDependencies[depName].msg
+            pipfilePinnedExpectedDependencies[depName].data,
+            pipfilePinnedExpectedDependencies[depName].msg
           );
         });
 
@@ -589,6 +689,7 @@ var pipenvAppExpectedDependencies = {
     data: {
       name: 'python-etcd',
       version: /^0\.4/,
+      labels: {provenance: 'Pipfile:7'},
     },
     msg: 'python-etcd1 found with version >=0.4,<0.5',
   },
@@ -596,12 +697,14 @@ var pipenvAppExpectedDependencies = {
     data: {
       name: 'jinja2',
       version: /^0|1|2\.[0-6]/,
+      labels: {provenance: 'Pipfile:9'},
     },
     msg: 'jinja2 found with version <2.7',
   },
   testtools: {
     data: {
       name: 'testtools',
+      labels: {provenance: 'Pipfile:8'},
     },
     msg: 'testtools found',
   },
@@ -618,7 +721,7 @@ test('inspect pipenv app with user-created virtualenv', function (t) {
     }
   })
     .then(function () {
-      return plugin.inspect('.', 'Pipfile');
+      return plugin.inspect('.', 'Pipfile', {args: ['--add-provenance']});
     })
     .then(function (result) {
       var pkg = result.package;
@@ -673,7 +776,7 @@ test('inspect pipenv app with auto-created virtualenv', function (t) {
     }
   })
     .then(function () {
-      return plugin.inspect('.', 'Pipfile');
+      return plugin.inspect('.', 'Pipfile', {args: ['--add-provenance']});
     })
     .then(function (result) {
       var pkg = result.package;
@@ -707,7 +810,7 @@ test('inspect pipenv app dev dependencies', function (t) {
     }
   })
     .then(function () {
-      return plugin.inspect('.', 'Pipfile', {dev: true});
+      return plugin.inspect('.', 'Pipfile', {dev: true, args: ['--add-provenance']});
     })
     .then(function (result) {
       var pkg = result.package;

@@ -27,6 +27,11 @@ LOCAL_REGEX = re.compile(
     r'(#(?P<fragment>\S+))?'
 )
 
+NAME_EQ_REGEX = re.compile(r'name="(\S+)"')
+
+PER_REQ_PARAM_REGEX = re.compile(r'\s*--[a-z-]+=\S+')
+
+EDITABLE_REGEX = re.compile(r'^(-e|--editable=?)\s*')
 
 class Requirement(object):
     """
@@ -57,6 +62,7 @@ class Requirement(object):
       (eg. "mymodule[extra1, extra2]")
     * ``specs`` - a list of specs for this requirement
       (eg. "mymodule>1.5,<1.6" => [('>', '1.5'), ('<', '1.6')])
+    * ``provenance`` - a tuple of (file_name, start_line, end_line), line numbers are 1-based
     """
 
     def __init__(self, line):
@@ -75,6 +81,7 @@ class Requirement(object):
         self.hash = None
         self.extras = []
         self.specs = []
+        self.provenance = None
 
     def __repr__(self):
         return '<Requirement: "{0}">'.format(self.line)
@@ -194,7 +201,7 @@ class Requirement(object):
         elif line.startswith('./'):
             setup_file = open(line + "/setup.py", "r")
             setup_content = setup_file.read()
-            name_search = re.search('name="(\S+)"', setup_content)
+            name_search = NAME_EQ_REGEX.search(setup_content)
             if name_search:
                 req.name = name_search.group(1)
             req.local_file = True
@@ -206,7 +213,7 @@ class Requirement(object):
             # an optional per-requirement param is not part of the req specifier
             #   see https://pip.pypa.io/en/stable/reference/pip_install/#per-requirement-overrides
             #   and https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode
-            line = re.sub('\s*--[a-z-]+=\S+', '', line)
+            line = PER_REQ_PARAM_REGEX.sub('', line)
 
             pkg_req = Req.parse(line)
             req.name = pkg_req.unsafe_name
@@ -228,6 +235,6 @@ class Requirement(object):
             # Editable installs are either a local project path
             # or a VCS project URI
             return cls.parse_editable(
-                re.sub(r'^(-e|--editable=?)\s*', '', line))
+                EDITABLE_REGEX.sub('', line))
 
         return cls.parse_line(line)
