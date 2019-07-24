@@ -17,9 +17,10 @@ class PipfileRequirement(object):
         self.vcs_uri = None
         self.version = None
         self.markers = None
+        self.provenance = None # a tuple of (file name, line)
 
     @classmethod
-    def from_dict(cls, name, requirement_dict):
+    def from_dict(cls, name, requirement_dict, pos_in_toml):
         req = cls(name)
 
         req.version = requirement_dict.get('version')
@@ -30,12 +31,16 @@ class PipfileRequirement(object):
                 req.vcs_uri = requirement_dict[vcs]
                 break
         req.markers = requirement_dict.get('markers')
+        # proper file name to be injected into provenance by the calling code
+        req.provenance = ('Pipfile', pos_in_toml[0], pos_in_toml[0])
 
         return req
 
+def val_with_pos(kind, text, value, pos):
+    return (value, pos)
 
 def parse(file_contents):
-    data = pytoml.loads(file_contents)
+    data = pytoml.loads(file_contents, translate=val_with_pos)
 
     sections = ['packages', 'dev-packages']
     res = dict.fromkeys(sections)
@@ -49,8 +54,9 @@ def parse(file_contents):
             PipfileRequirement.from_dict(
                 name,
                 value if not is_string(value) else {'version': value},
+                pos,
             )
-            for name, value in sorted(section_data.items())
+            for name, (value, pos) in sorted(section_data.items())
         ]
 
     return res

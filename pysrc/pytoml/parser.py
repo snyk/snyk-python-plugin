@@ -6,10 +6,10 @@ if sys.version_info[0] == 2:
 else:
     _chr = chr
 
-def load(fin, translate=lambda t, x, v: v, object_pairs_hook=dict):
+def load(fin, translate=lambda t, x, v, pos: v, object_pairs_hook=dict):
     return loads(fin.read(), translate=translate, object_pairs_hook=object_pairs_hook, filename=getattr(fin, 'name', repr(fin)))
 
-def loads(s, filename='<string>', translate=lambda t, x, v: v, object_pairs_hook=dict):
+def loads(s, filename='<string>', translate=lambda t, x, v, pos: v, object_pairs_hook=dict):
     if isinstance(s, bytes):
         s = s.decode('utf-8')
 
@@ -35,7 +35,7 @@ def loads(s, filename='<string>', translate=lambda t, x, v: v, object_pairs_hook
             value = [process_value(item, object_pairs_hook=object_pairs_hook) for item in value]
         elif kind == 'table':
             value = object_pairs_hook([(k, process_value(value[k], object_pairs_hook=object_pairs_hook)) for k in value])
-        return translate(kind, text, value)
+        return translate(kind, text, value, pos)
 
     for kind, value, pos in ast:
         if kind == 'kv':

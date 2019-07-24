@@ -19,10 +19,23 @@ except ImportError:
         raise ImportError(
             "Could not import pkg_resources; please install setuptools or pip.")
 
-PYTHON_MARKER_REGEX = 'python_version\s*(?P<operator>==|<=|=>|>|<)\s*\'(?P<python_version>.+)\''
-SYSTEM_MARKER_REGEX = 'sys_platform\s*==\s*[\'"](.+)[\'"]'
+PYTHON_MARKER_REGEX = re.compile(r'python_version\s*(?P<operator>==|<=|=>|>|<)\s*\'(?P<python_version>.+)\'')
+SYSTEM_MARKER_REGEX = re.compile(r'sys_platform\s*==\s*[\'"](.+)[\'"]')
 
-def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_path, allow_missing=False):
+def format_provenance_label(prov_tuple):
+    fn, ln1, ln2 = prov_tuple
+    if ln1 == ln2:
+        return fn + ':' + str(ln1)
+    else:
+        return fn + ':' + str(ln1) + '-' + str(ln2)
+
+def create_tree_of_packages_dependencies(
+        dist_tree,
+        top_level_requirements,
+        req_file_path,
+        allow_missing=False,
+        add_provenance=False
+    ):
     """Create packages dependencies tree
     :param dict tree: the package tree
     :param set packages_names: set of select packages to be shown in the output.
@@ -33,16 +46,17 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
     DEPENDENCIES = 'dependencies'
     VERSION = 'version'
     NAME = 'name'
-    VERSION_SEPARATOR = '@'
     DIR_VERSION = '0.0.0'
     PACKAGE_FORMAT_VERSION = 'packageFormatVersion'
+    LABELS = 'labels'
+    PROVENANCE = 'provenance'
 
     tree = utils.sorted_tree(dist_tree)
     nodes = tree.keys()
     key_tree = dict((k.key, v) for k, v in tree.items())
 
-    def get_children(n): return key_tree.get(n.key, [])
-    lowercase_pkgs_names = [p.lower() for p in packages_names]
+    lowercase_pkgs_names = [p.name.lower() for p in top_level_requirements]
+    tlr_by_key = dict((tlr.name.lower(), tlr) for tlr in top_level_requirements)
     packages_as_dist_obj = [
         p for p in nodes if
             p.key.lower() in lowercase_pkgs_names or
@@ -95,6 +109,8 @@ def create_tree_of_packages_dependencies(dist_tree, packages_names, req_file_pat
     dir_as_root = create_dir_as_root()
     for package in packages_as_dist_obj:
         package_as_root = create_package_as_root(package, dir_as_root)
+        if add_provenance:
+            package_as_root[LABELS] = {PROVENANCE: format_provenance_label(tlr_by_key[package_as_root[NAME]].provenance)}
         package_tree = create_children_recursive(package_as_root, key_tree, set([]))
         dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
     return dir_as_root
@@ -124,13 +140,12 @@ def matches_python_version(requirement):
     in this Python version.
     See: https://www.python.org/dev/peps/pep-0508/#environment-markers
     """
-    python_version_re = re.compile(PYTHON_MARKER_REGEX)
     markers_text = get_markers_text(requirement)
     if not markers_text:
         return True
     if not 'python_version' in markers_text:
         return True
-    match = python_version_re.match(markers_text)
+    match = PYTHON_MARKER_REGEX.match(markers_text)
     if not match:
         return False
     parsed_operator = match.group('operator')
@@ -151,11 +166,10 @@ def matches_environment(requirement):
     This should be expanded to include other environment markers.
     See: https://www.python.org/dev/peps/pep-0508/#environment-markers
     """
-    sys_platform_re = re.compile(SYSTEM_MARKER_REGEX)
     sys_platform = sys.platform.lower()
     markers_text = get_markers_text(requirement)
     if markers_text and 'sys_platform' in markers_text:
-        match = sys_platform_re.findall(markers_text)
+        match = SYSTEM_MARKER_REGEX.findall(markers_text)
         if len(match) > 0:
             return match[0].lower() == sys_platform
     return True
@@ -172,22 +186,26 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
         req_list = list(parsed_reqs.get('packages', []))
         if dev_deps:
             req_list.extend(parsed_reqs.get('dev-packages', []))
+        for r in req_list:
+            r.provenance = (requirements_file_path, r.provenance[1], r.provenance[2])
     else:
         # assume this is a requirements.txt formatted file
         # Note: requirements.txt files are unicode and can be in any encoding.
         with open(requirements_file_path, 'r') as f:
-            requirements_data = f.read()
-        req_list = list(requirements.parse(requirements_data))
+            req_list = list(requirements.parse(f))
 
     req_list = filter(matches_environment, req_list)
     req_list = filter(is_testable, req_list)
     req_list = filter(matches_python_version, req_list)
-    required = [req.name.replace('_', '-') for req in req_list if req.name]
-    return required
+    req_list = [r for r in req_list if r.name]
+    for req in req_list:
+        req.name = req.name.lower().replace('_', '-')
+    return req_list
 
 def create_dependencies_tree_by_req_file_path(requirements_file_path,
                                               allow_missing=False,
-                                              dev_deps=False):
+                                              dev_deps=False,
+                                              add_provenance=False):
     # get all installed packages
     pkgs = list(pkg_resources.working_set)
 
@@ -200,15 +218,15 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path,
     # create a list of dependencies from the dependencies file
     required = get_requirements_list(requirements_file_path, dev_deps=dev_deps)
     installed = [p for p in dist_index]
-    packages = []
-    missing_packages = []
+    top_level_requirements = []
+    missing_package_names = []
     for r in required:
-        if r.lower() not in installed:
-            missing_packages.append(r)
+        if r.name not in installed:
+            missing_package_names.append(r.name)
         else:
-            packages.append(r)
-    if missing_packages:
-        msg = 'Required packages missing: ' + (', '.join(missing_packages))
+            top_level_requirements.append(r)
+    if missing_package_names:
+        msg = 'Required packages missing: ' + (', '.join(missing_package_names))
         if allow_missing:
             sys.stderr.write(msg + "\n")
         else:
@@ -216,10 +234,23 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path,
 
     # build a tree of dependencies
     package_tree = create_tree_of_packages_dependencies(
-        dist_tree, packages, requirements_file_path, allow_missing)
+        dist_tree, top_level_requirements, requirements_file_path, allow_missing, add_provenance)
     print(json.dumps(package_tree))
 
+
 def main():
+    """Builds the dependency tree from the manifest file (Pipfile or requirements.txt) and
+    prints it as JSON. The tree nodes are:
+    interface DepTree {
+        name: string;
+        version?: string;
+        dependencies?: {[n: string]: DepTree};
+        labels: { provenance?: string };
+    }
+    The `provenance` label only present for the top-level nodes, indicates the position of the dependency
+    version in the original file and is in the format "filename:lineNum" or "filename:lineFrom-lineTo",
+    where line numbers are 1-based.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("requirements",
         help="dependencies file path (requirements.txt or Pipfile)")
@@ -230,12 +261,16 @@ def main():
     parser.add_argument("--dev-deps",
         action="store_true",
         help="resolve dev dependencies")
+    parser.add_argument("--add-provenance",
+        action="store_true",
+        help="add provenance information to top-level dependencies")
     args = parser.parse_args()
 
     create_dependencies_tree_by_req_file_path(
         args.requirements,
         allow_missing=args.allow_missing,
         dev_deps=args.dev_deps,
+        add_provenance=args.add_provenance,
     )
 
 if __name__ == '__main__':
