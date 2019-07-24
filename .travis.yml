@@ -1,9 +1,10 @@
-dist: trusty
+dist: bionic
 sudo: false
 notifications:
   email: false
 language: node_js
 node_js:
+  - "12"
   - "10"
   - "8"
   - "6"
@@ -32,6 +33,7 @@ before_script:
   - pyenv rehash
   - pip --version
   - pip install --user -r dev-requirements.txt --disable-pip-version-check
+  - npm run lint
 jobs:
   include:
     - stage: npm release
@@ -39,7 +41,7 @@ jobs:
       script: skip
       before_script: # Don't need virtualenv for release, so skip it
       after_success:
-        - npm run semantic-release
+        - npx semantic-release
 branches:
   only:
     - master

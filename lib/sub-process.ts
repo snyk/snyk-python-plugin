@@ -1,7 +1,7 @@
 import * as childProcess from 'child_process';
 
 function makeSpawnOptions(options) {
-  const spawnOptions: childProcess.SpawnOptions = {shell: true};
+  const spawnOptions: childProcess.SpawnOptions = { shell: true };
   if (options && options.cwd) {
     spawnOptions.cwd = options.cwd;
   }

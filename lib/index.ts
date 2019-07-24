@@ -3,7 +3,6 @@ import * as subProcess from './sub-process';
 import * as fs from 'fs';
 import * as tmp from 'tmp';
 
-// tslint:disable-next-line
 export const __tests = {
   buildArgs,
 };
@@ -21,7 +20,8 @@ export function inspect(root, targetFile, options) {
     const pipenvCheckProc = subProcess.executeSync('pipenv', ['--version']);
     if (pipenvCheckProc.status !== 0) {
       throw new Error(
-        'Failed to run `pipenv`; please make sure it is installed.');
+        'Failed to run `pipenv`; please make sure it is installed.'
+      );
     }
     command = 'pipenv';
     baseargs = ['run', 'python'];
@@ -36,36 +36,32 @@ export function inspect(root, targetFile, options) {
       targetFile,
       options.allowMissing,
       includeDevDeps,
-      options.args,
+      options.args
     ),
-  ])
-    .then((result) => {
-      return {
-        plugin: result[0],
-        package: result[1],
-      };
-    });
+  ]).then((result) => {
+    return {
+      plugin: result[0],
+      package: result[1],
+    };
+  });
 }
 
 function getMetaData(command, baseargs, root, targetFile) {
-  return subProcess.execute(
-    command,
-    [...baseargs, '--version'],
-    {cwd: root},
-  )
+  return subProcess
+    .execute(command, [...baseargs, '--version'], { cwd: root })
     .then((output) => {
       return {
         name: 'snyk-python-plugin',
         runtime: output.replace('\n', ''),
         // specify targetFile only in case of Pipfile
         targetFile:
-          (path.basename(targetFile) === 'Pipfile') ? targetFile : undefined,
+          path.basename(targetFile) === 'Pipfile' ? targetFile : undefined,
       };
     });
 }
 
-  // path.join calls have to be exactly in this format, needed by "pkg" to build a standalone Snyk CLI binary:
-  // https://www.npmjs.com/package/pkg#detecting-assets-in-source-code
+// path.join calls have to be exactly in this format, needed by "pkg" to build a standalone Snyk CLI binary:
+// https://www.npmjs.com/package/pkg#detecting-assets-in-source-code
 function createAssets() {
   return [
     path.join(__dirname, '../pysrc/pip_resolve.py'),
@@ -115,8 +111,9 @@ function dumpAllFilesInTempDir(tempDirName) {
       throw new Error('The file `' + currentReadFilePath + '` is missing');
     }
 
-    const relFilePathToDumpDir =
-      getFilePathRelativeToDumpDir(currentReadFilePath);
+    const relFilePathToDumpDir = getFilePathRelativeToDumpDir(
+      currentReadFilePath
+    );
 
     const writeFilePath = path.join(tempDirName, relFilePathToDumpDir);
 
@@ -132,7 +129,7 @@ function getDependencies(
   targetFile,
   allowMissing,
   includeDevDeps,
-  args,
+  args
 ) {
   const tempDirObj = tmp.dirSync({
     unsafeCleanup: true,
@@ -140,20 +137,21 @@ function getDependencies(
 
   dumpAllFilesInTempDir(tempDirObj.name);
 
-  return subProcess.execute(
-    command,
-    [
-      ...baseargs,
-      ...buildArgs(
-        targetFile,
-        allowMissing,
-        tempDirObj.name,
-        includeDevDeps,
-        args,
-      ),
-    ],
-    {cwd: root},
-  )
+  return subProcess
+    .execute(
+      command,
+      [
+        ...baseargs,
+        ...buildArgs(
+          targetFile,
+          allowMissing,
+          tempDirObj.name,
+          includeDevDeps,
+          args
+        ),
+      ],
+      { cwd: root }
+    )
     .then((output) => {
       tempDirObj.removeCallback();
       return JSON.parse(output);
@@ -162,7 +160,8 @@ function getDependencies(
       tempDirObj.removeCallback();
       if (typeof error === 'string') {
         if (error.indexOf('Required packages missing') !== -1) {
-          let errMsg = error + '\nPlease run `pip install -r ' + targetFile + '`';
+          let errMsg =
+            error + '\nPlease run `pip install -r ' + targetFile + '`';
           if (path.basename(targetFile) === 'Pipfile') {
             errMsg = 'Please run `pipenv update`';
           }
@@ -179,7 +178,7 @@ function buildArgs(
   allowMissing,
   tempDirPath,
   includeDevDeps,
-  extraArgs: string[],
+  extraArgs: string[]
 ) {
   const pathToRun = path.join(tempDirPath, 'pip_resolve.py');
   let args = [pathToRun];
