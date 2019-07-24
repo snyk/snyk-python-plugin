@@ -9,9 +9,11 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "format:check": "prettier --check '{lib,test}/**/*.{js,ts}'",
+    "format": "prettier --write '{lib,test}/**/*.{js,ts}'",
     "prepare": "npm run build",
     "test": "tap --node-arg=-r --node-arg=ts-node/register ./test/*.test.js -R spec --timeout=900",
-    "lint": "tslint --project tsconfig.json --format stylish && eslint -c .eslintrc lib test",
+    "lint": "npm run format:check && eslint --cache '{lib,test}/**/*.{js,ts}'",
     "semantic-release": "semantic-release"
   },
   "author": "snyk.io",
@@ -22,12 +24,14 @@
   "devDependencies": {
     "@types/node": "^6.14.6",
     "@types/tmp": "^0.1.0",
-    "eslint": "^4.11.0",
-    "semantic-release": "^15",
+    "@typescript-eslint/eslint-plugin": "^1.13.0",
+    "@typescript-eslint/parser": "^1.13.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^6.0.0",
+    "prettier": "^1.18.2",
     "sinon": "^2.3.2",
     "tap": "^12.6.1",
     "ts-node": "^8.1.0",
-    "tslint": "^5.16.0",
     "typescript": "^3.4.5"
   }
 }
