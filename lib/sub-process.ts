@@ -1,7 +1,12 @@
-import * as childProcess from 'child_process';
+import { spawn, spawnSync, SpawnOptions } from 'child_process';
 
-function makeSpawnOptions(options) {
-  const spawnOptions: childProcess.SpawnOptions = { shell: true };
+interface ProcessOptions {
+  cwd?: string;
+  env?: { [name: string]: string };
+}
+
+function makeSpawnOptions(options?: ProcessOptions) {
+  const spawnOptions: SpawnOptions = { shell: true };
   if (options && options.cwd) {
     spawnOptions.cwd = options.cwd;
   }
@@ -11,14 +16,18 @@ function makeSpawnOptions(options) {
   return spawnOptions;
 }
 
-export function execute(command, args, options?): Promise<string> {
+export function execute(
+  command: string,
+  args: string[],
+  options?: ProcessOptions
+): Promise<string> {
   const spawnOptions = makeSpawnOptions(options);
 
   return new Promise((resolve, reject) => {
     let stdout = '';
     let stderr = '';
 
-    const proc = childProcess.spawn(command, args, spawnOptions);
+    const proc = spawn(command, args, spawnOptions);
     proc.stdout.on('data', (data) => {
       stdout = stdout + data;
     });
@@ -35,8 +44,12 @@ export function execute(command, args, options?): Promise<string> {
   });
 }
 
-export function executeSync(command, args, options?) {
+export function executeSync(
+  command: string,
+  args: string[],
+  options?: SpawnOptions
+) {
   const spawnOptions = makeSpawnOptions(options);
 
-  return childProcess.spawnSync(command, args, spawnOptions);
+  return spawnSync(command, args, spawnOptions);
 }

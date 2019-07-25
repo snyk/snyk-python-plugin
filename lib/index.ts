@@ -3,11 +3,50 @@ import * as subProcess from './sub-process';
 import * as fs from 'fs';
 import * as tmp from 'tmp';
 
+// TODO(kyegupov): find a nicer way to export/import namespaced types from cli-interface
+import { legacy } from '@snyk/cli-interface';
+type SingleSubprojectInspectOptions = legacy.pluginInterface.SingleSubprojectInspectOptions;
+// TODO(kyegupov): those two types below should also come from '@snyk/cli-interface'
+interface DepTreeDep {
+  name?: string;
+  version?: string;
+  dependencies?: {
+    [depName: string]: DepTreeDep;
+  };
+}
+interface DepTree extends DepTreeDep {
+  type?: string;
+  packageFormatVersion?: string;
+  targetOS?: {
+    name: string;
+    version: string;
+  };
+  labels?: {
+    [key: string]: string;
+  };
+  targetFile?: string;
+  policy?: string;
+  docker?: any;
+  files?: any;
+}
+
 export const __tests = {
   buildArgs,
 };
 
-export function inspect(root, targetFile, options) {
+export interface PythonInspectOptions {
+  command?: string;
+  allowMissing?: boolean;
+  args?: string[];
+}
+
+type Options = SingleSubprojectInspectOptions & PythonInspectOptions;
+
+export async function inspect(
+  root: string,
+  targetFile: string,
+  options: Options
+) {
   if (!options) {
     options = {};
   }
@@ -27,26 +66,27 @@ export function inspect(root, targetFile, options) {
     baseargs = ['run', 'python'];
   }
 
-  return Promise.all([
+  const [plugin, pkg] = await Promise.all([
     getMetaData(command, baseargs, root, targetFile),
     getDependencies(
       command,
       baseargs,
       root,
       targetFile,
-      options.allowMissing,
+      options.allowMissing || false,
       includeDevDeps,
       options.args
     ),
-  ]).then((result) => {
-    return {
-      plugin: result[0],
-      package: result[1],
-    };
-  });
+  ]);
+  return { plugin, package: pkg };
 }
 
-function getMetaData(command, baseargs, root, targetFile) {
+function getMetaData(
+  command: string,
+  baseargs: string[],
+  root: string,
+  targetFile: string
+) {
   return subProcess
     .execute(command, [...baseargs, '--version'], { cwd: root })
     .then((output) => {
@@ -84,7 +124,7 @@ function createAssets() {
   ];
 }
 
-function writeFile(writeFilePath, contents) {
+function writeFile(writeFilePath: string, contents: string) {
   const dirPath = path.dirname(writeFilePath);
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath);
@@ -92,7 +132,7 @@ function writeFile(writeFilePath, contents) {
   fs.writeFileSync(writeFilePath, contents);
 }
 
-function getFilePathRelativeToDumpDir(filePath) {
+function getFilePathRelativeToDumpDir(filePath: string) {
   let pathParts = filePath.split('\\pysrc\\');
 
   // Windows
@@ -105,7 +145,7 @@ function getFilePathRelativeToDumpDir(filePath) {
   return pathParts[1];
 }
 
-function dumpAllFilesInTempDir(tempDirName) {
+function dumpAllFilesInTempDir(tempDirName: string) {
   createAssets().forEach((currentReadFilePath) => {
     if (!fs.existsSync(currentReadFilePath)) {
       throw new Error('The file `' + currentReadFilePath + '` is missing');
@@ -117,28 +157,27 @@ function dumpAllFilesInTempDir(tempDirName) {
 
     const writeFilePath = path.join(tempDirName, relFilePathToDumpDir);
 
-    const contents = fs.readFileSync(currentReadFilePath);
+    const contents = fs.readFileSync(currentReadFilePath, 'utf8');
     writeFile(writeFilePath, contents);
   });
 }
 
-function getDependencies(
-  command,
-  baseargs,
-  root,
-  targetFile,
-  allowMissing,
-  includeDevDeps,
-  args
-) {
+async function getDependencies(
+  command: string,
+  baseargs: string[],
+  root: string,
+  targetFile: string,
+  allowMissing: boolean,
+  includeDevDeps: boolean,
+  args?: string[]
+): Promise<DepTree> {
   const tempDirObj = tmp.dirSync({
     unsafeCleanup: true,
   });
 
   dumpAllFilesInTempDir(tempDirObj.name);
-
-  return subProcess
-    .execute(
+  try {
+    const output = await subProcess.execute(
       command,
       [
         ...baseargs,
@@ -151,34 +190,30 @@ function getDependencies(
         ),
       ],
       { cwd: root }
-    )
-    .then((output) => {
-      tempDirObj.removeCallback();
-      return JSON.parse(output);
-    })
-    .catch((error) => {
-      tempDirObj.removeCallback();
-      if (typeof error === 'string') {
-        if (error.indexOf('Required packages missing') !== -1) {
-          let errMsg =
-            error + '\nPlease run `pip install -r ' + targetFile + '`';
-          if (path.basename(targetFile) === 'Pipfile') {
-            errMsg = 'Please run `pipenv update`';
-          }
-          throw new Error(errMsg);
+    );
+    return JSON.parse(output) as DepTree;
+  } catch (error) {
+    if (typeof error === 'string') {
+      if (error.indexOf('Required packages missing') !== -1) {
+        let errMsg = error + '\nPlease run `pip install -r ' + targetFile + '`';
+        if (path.basename(targetFile) === 'Pipfile') {
+          errMsg = 'Please run `pipenv update`';
         }
-        throw new Error(error);
+        throw new Error(errMsg);
       }
-      throw error;
-    });
+    }
+    throw error;
+  } finally {
+    tempDirObj.removeCallback();
+  }
 }
 
 function buildArgs(
-  targetFile,
-  allowMissing,
-  tempDirPath,
-  includeDevDeps,
-  extraArgs: string[]
+  targetFile: string,
+  allowMissing: boolean,
+  tempDirPath: string,
+  includeDevDeps: boolean,
+  extraArgs?: string[]
 ) {
   const pathToRun = path.join(tempDirPath, 'pip_resolve.py');
   let args = [pathToRun];
