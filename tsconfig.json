@@ -11,9 +11,9 @@
       "sourceMap": true,
       "strict": true,
       "declaration": true,
-      "importHelpers": true
+      "importHelpers": true,
   },
   "include": [
-      "./lib/**/*"
+    "./lib/**/*"
   ]
 }

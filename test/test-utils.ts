@@ -1,11 +1,11 @@
-/* eslint-disable no-console */
-const fs = require('fs');
-const path = require('path');
-const process = require('process');
+/* eslint-disable no-console, @typescript-eslint/no-non-null-assertion */
+import * as fs from 'fs';
+import * as path from 'path';
+import * as process from 'process';
 
-const subProcess = require('../lib/sub-process');
+import subProcess = require('../lib/sub-process');
 
-module.exports = {
+export {
   getActiveVenvName,
   activateVirtualenv,
   deactivateVirtualenv,
@@ -32,7 +32,7 @@ function activateVirtualenv(venvName) {
   const origProcessEnv = Object.assign({}, process.env);
 
   if (process.env.VIRTUAL_ENV) {
-    const pathElements = process.env.PATH.split(path.delimiter);
+    const pathElements = process.env.PATH!.split(path.delimiter);
     const index = pathElements.indexOf(process.env.VIRTUAL_ENV);
     if (index > -1) {
       pathElements.splice(index, 1);
@@ -55,14 +55,14 @@ function activateVirtualenv(venvName) {
 function deactivateVirtualenv() {
   if (getActiveVenvName() === null) {
     console.warn('Attempted to deactivate a virtualenv when none was active.');
-    return;
+    return () => {};
   }
 
   const origProcessEnv = Object.assign({}, process.env);
 
   // simulate the "deactivate" virtualenv script
-  const pathElements = process.env.PATH.split(path.delimiter);
-  const venvBinDir = path.join(process.env.VIRTUAL_ENV, binDirName);
+  const pathElements = process.env.PATH!.split(path.delimiter);
+  const venvBinDir = path.join(process.env.VIRTUAL_ENV!, binDirName);
   const index = pathElements.indexOf(venvBinDir);
   if (index > -1) {
     pathElements.splice(index, 1);
@@ -81,14 +81,14 @@ function deactivateVirtualenv() {
 function ensureVirtualenv(venvName) {
   const venvsBaseDir = path.join(path.resolve(__dirname), '.venvs');
   try {
-    fs.accessSync(venvsBaseDir, fs.R_OK);
+    fs.accessSync(venvsBaseDir, fs.constants.R_OK);
   } catch (e) {
     fs.mkdirSync(venvsBaseDir);
   }
 
   const venvDir = path.join(venvsBaseDir, venvName);
   try {
-    fs.accessSync(venvDir, fs.R_OK);
+    fs.accessSync(venvDir, fs.constants.R_OK);
     return false;
   } catch (e) {
     createVenv(venvDir);
@@ -97,7 +97,7 @@ function ensureVirtualenv(venvName) {
 }
 
 function createVenv(venvDir) {
-  let revert = function() {};
+  let revert = () => {};
   if (process.env.VIRTUAL_ENV) {
     revert = deactivateVirtualenv();
   }
@@ -169,7 +169,7 @@ function pipenvInstall() {
 function setWorkonHome() {
   const venvsBaseDir = path.join(path.resolve(__dirname), '.venvs');
   try {
-    fs.accessSync(venvsBaseDir, fs.R_OK);
+    fs.accessSync(venvsBaseDir, fs.constants.R_OK);
   } catch (e) {
     fs.mkdirSync(venvsBaseDir);
   }
@@ -180,4 +180,8 @@ function setWorkonHome() {
   return function revert() {
     process.env.WORKON_HOME = origWorkonHome;
   };
+}
+
+export function chdirWorkspaces(dir) {
+  process.chdir(path.resolve(__dirname, 'workspaces', dir));
 }
