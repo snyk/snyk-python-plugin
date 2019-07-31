@@ -69,6 +69,7 @@ function createAssets() {
     path.join(__dirname, '../pysrc/package.py'),
     path.join(__dirname, '../pysrc/pipfile.py'),
     path.join(__dirname, '../pysrc/reqPackage.py'),
+    path.join(__dirname, '../pysrc/setup_file.py'),
     path.join(__dirname, '../pysrc/utils.py'),
 
     path.join(__dirname, '../pysrc/requirements/fragment.py'),

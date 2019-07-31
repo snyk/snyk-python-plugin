@@ -214,6 +214,100 @@ const pipfilePinnedExpectedDependencies = {
   },
 };
 
+const setupPyAppExpectedDependencies = {
+  django: {
+    data: {
+      name: 'django',
+      version: '1.6.1',
+      labels: { provenance: 'setup.py:8' },
+    },
+    msg: 'django looks ok',
+  },
+  jinja2: {
+    data: {
+      name: 'jinja2',
+      version: '2.7.2',
+      labels: { provenance: 'setup.py:8' },
+      dependencies: {
+        markupsafe: {
+          name: 'markupsafe',
+          version: /.+$/,
+        },
+      },
+    },
+    msg: 'jinja2 looks ok',
+  },
+  'python-etcd': {
+    data: {
+      name: 'python-etcd',
+      version: '0.4.5',
+      labels: { provenance: 'setup.py:8' },
+      dependencies: {
+        dnspython: {
+          name: 'dnspython',
+          version: /.+$/,
+        },
+        urllib3: {
+          name: 'urllib3',
+          version: /.+$/,
+        },
+      },
+    },
+    msg: 'python-etcd is ok',
+  },
+  'django-select2': {
+    data: {
+      name: 'django-select2',
+      version: '6.0.1',
+      labels: { provenance: 'setup.py:8' },
+      dependencies: {
+        'django-appconf': {
+          name: 'django-appconf',
+        },
+      },
+    },
+    msg: 'django-select2 looks ok',
+  },
+  irc: {
+    data: {
+      name: 'irc',
+      version: '16.2',
+      labels: { provenance: 'setup.py:8' },
+      dependencies: {
+        'more-itertools': {},
+        'jaraco.functools': {},
+        'jaraco.collections': {
+          dependencies: {
+            'jaraco.text': {},
+          },
+        },
+        'jaraco.text': {
+          dependencies: {
+            'jaraco.functools': {},
+          },
+        },
+      },
+    },
+    msg: 'irc ok, even though it has a cyclic dep, yay!',
+  },
+  testtools: {
+    data: {
+      name: 'testtools',
+      version: '2.3.0',
+      labels: { provenance: 'setup.py:8' },
+      dependencies: {
+        pbr: {},
+        extras: {},
+        fixtures: {},
+        unittest2: {},
+        traceback2: {},
+        'python-mimeparse': {},
+      },
+    },
+    msg: "testtools ok, even though it's cyclic, yay!",
+  },
+};
+
 test('inspect', (t) => {
   return Promise.resolve()
     .then(() => {
@@ -250,6 +344,52 @@ test('inspect', (t) => {
             pkg.dependencies[depName],
             pipAppExpectedDependencies[depName].data,
             pipAppExpectedDependencies[depName].msg
+          );
+        });
+
+        t.end();
+      });
+
+      t.end();
+    });
+});
+
+test('inspect setup.py', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('setup_py-app');
+      t.teardown(testUtils.activateVirtualenv('pip-app'));
+    })
+    .then(() => {
+      return plugin.inspect('.', 'setup.py', {
+        args: ['--add-provenance'],
+      });
+    })
+    .then((result) => {
+      const plugin = result.plugin;
+      const pkg = result.package;
+
+      t.test('plugin', (t) => {
+        t.ok(plugin, 'plugin');
+        t.equal(plugin.name, 'snyk-python-plugin', 'name');
+        t.match(plugin.runtime, 'Python', 'runtime');
+        t.notOk(plugin.targetFile, 'no targetfile for setup.py');
+        t.end();
+      });
+
+      t.test('package', (t) => {
+        t.ok(pkg, 'package');
+        t.equal(pkg.name, 'test_package', 'name');
+        t.equal(pkg.version, '1.0.2', 'version');
+        t.end();
+      });
+
+      t.test('package dependencies', (t) => {
+        Object.keys(setupPyAppExpectedDependencies).forEach((depName) => {
+          t.match(
+            pkg.dependencies[depName],
+            setupPyAppExpectedDependencies[depName].data,
+            setupPyAppExpectedDependencies[depName].msg
           );
         });
 
