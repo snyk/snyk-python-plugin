@@ -3,32 +3,8 @@ import * as subProcess from './sub-process';
 import * as fs from 'fs';
 import * as tmp from 'tmp';
 
-// TODO(kyegupov): find a nicer way to export/import namespaced types from cli-interface
-import { legacy } from '@snyk/cli-interface';
-type SingleSubprojectInspectOptions = legacy.pluginInterface.SingleSubprojectInspectOptions;
-// TODO(kyegupov): those two types below should also come from '@snyk/cli-interface'
-interface DepTreeDep {
-  name?: string;
-  version?: string;
-  dependencies?: {
-    [depName: string]: DepTreeDep;
-  };
-}
-interface DepTree extends DepTreeDep {
-  type?: string;
-  packageFormatVersion?: string;
-  targetOS?: {
-    name: string;
-    version: string;
-  };
-  labels?: {
-    [key: string]: string;
-  };
-  targetFile?: string;
-  policy?: string;
-  docker?: any;
-  files?: any;
-}
+import { legacyCommon, legacyPlugin as api } from '@snyk/cli-interface';
+type DepTree = legacyCommon.DepTree;
 
 export const __tests = {
   buildArgs,
@@ -40,7 +16,7 @@ export interface PythonInspectOptions {
   args?: string[];
 }
 
-type Options = SingleSubprojectInspectOptions & PythonInspectOptions;
+type Options = api.SingleSubprojectInspectOptions & PythonInspectOptions;
 
 export async function inspect(
   root: string,
