@@ -7,6 +7,7 @@ import argparse
 import utils
 import requirements
 import pipfile
+import setup_file
 from operator import le, lt, gt, ge, eq, ne
 
 try:
@@ -91,10 +92,14 @@ def create_tree_of_packages_dependencies(
         return root_package
 
     def create_dir_as_root():
-        name = os.path.basename(os.path.dirname(os.path.abspath(req_file_path)))
+        name, version = None, None
+        if os.path.basename(req_file_path) == 'setup.py':
+            with open(req_file_path, "r") as setup_py_file:
+                name, version = setup_file.parse_name_and_version(setup_py_file.read())
+
         dir_as_root = {
-            NAME: name,
-            VERSION: DIR_VERSION,
+            NAME: name or os.path.basename(os.path.dirname(os.path.abspath(req_file_path))),
+            VERSION: version or DIR_VERSION,
             DEPENDENCIES: {},
             PACKAGE_FORMAT_VERSION: 'pip:0.0.1'
         }
@@ -188,6 +193,19 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
             req_list.extend(parsed_reqs.get('dev-packages', []))
         for r in req_list:
             r.provenance = (requirements_file_path, r.provenance[1], r.provenance[2])
+    elif os.path.basename(requirements_file_path) == 'setup.py':
+        with open(requirements_file_path, 'r') as f:
+            setup_py_file_content = f.read()
+        requirements_data = setup_file.parse_requirements(setup_py_file_content)
+        req_list = list(requirements.parse(requirements_data))
+
+        provenance = setup_file.get_provenance(setup_py_file_content)
+        for req in req_list:
+            req.provenance = (
+                os.path.basename(requirements_file_path),
+                provenance,
+                provenance
+            )
     else:
         # assume this is a requirements.txt formatted file
         # Note: requirements.txt files are unicode and can be in any encoding.
