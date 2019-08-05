@@ -145,7 +145,7 @@ def matches_python_version(requirement):
         return True
     if not 'python_version' in markers_text:
         return True
-    match = PYTHON_MARKER_REGEX.match(markers_text)
+    match = PYTHON_MARKER_REGEX.search(markers_text)
     if not match:
         return False
     parsed_operator = match.group('operator')
