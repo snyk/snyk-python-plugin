@@ -659,6 +659,7 @@ test('package installed conditionally based on python version', (t) => {
     .then((result) => {
       const pkg = result.package;
       t.notOk(pkg.dependencies.enum34, 'enum34 dep ignored');
+      t.ok(pkg.dependencies.click, 'click dep is present');
       t.end();
     });
 });
