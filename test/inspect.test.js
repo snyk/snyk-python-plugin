@@ -194,7 +194,6 @@ const setupPyAppExpectedDependencies = {
     data: {
       name: 'django',
       version: '1.6.1',
-      labels: { provenance: 'setup.py:8' },
     },
     msg: 'django looks ok',
   },
@@ -202,7 +201,6 @@ const setupPyAppExpectedDependencies = {
     data: {
       name: 'jinja2',
       version: '2.7.2',
-      labels: { provenance: 'setup.py:8' },
       dependencies: {
         markupsafe: {
           name: 'markupsafe',
@@ -216,7 +214,6 @@ const setupPyAppExpectedDependencies = {
     data: {
       name: 'python-etcd',
       version: '0.4.5',
-      labels: { provenance: 'setup.py:8' },
       dependencies: {
         dnspython: {
           name: 'dnspython',
@@ -234,7 +231,6 @@ const setupPyAppExpectedDependencies = {
     data: {
       name: 'django-select2',
       version: '6.0.1',
-      labels: { provenance: 'setup.py:8' },
       dependencies: {
         'django-appconf': {
           name: 'django-appconf',
@@ -247,7 +243,6 @@ const setupPyAppExpectedDependencies = {
     data: {
       name: 'irc',
       version: '16.2',
-      labels: { provenance: 'setup.py:8' },
       dependencies: {
         'more-itertools': {},
         'jaraco.functools': {},
@@ -269,7 +264,6 @@ const setupPyAppExpectedDependencies = {
     data: {
       name: 'testtools',
       version: '2.3.0',
-      labels: { provenance: 'setup.py:8' },
       dependencies: {
         pbr: {},
         extras: {},
@@ -334,9 +328,7 @@ test('inspect setup.py', (t) => {
       t.teardown(testUtils.activateVirtualenv('pip-app'));
     })
     .then(() => {
-      return plugin.inspect('.', 'setup.py', {
-        args: ['--add-provenance'],
-      });
+      return plugin.inspect('.', 'setup.py');
     })
     .then((result) => {
       const plugin = result.plugin;
@@ -368,7 +360,6 @@ test('inspect setup.py', (t) => {
 
         t.end();
       });
-
       t.end();
     });
 });
