@@ -1,7 +1,5 @@
 const test = require('tap').test;
 const fs = require('fs');
-const path = require('path');
-const process = require('process');
 const sinon = require('sinon');
 
 const plugin = require('../lib');
@@ -9,29 +7,17 @@ const subProcess = require('../lib/sub-process');
 const testUtils = require('./test-utils');
 const os = require('os');
 
+const chdirWorkspaces = testUtils.chdirWorkspaces;
+
 function normalize(s) {
   return s.replace(/\r/g, '');
 }
-
-test('install requirements in "pip-app" venv (may take a while)', (t) => {
-  chdirWorkspaces('pip-app');
-  testUtils.ensureVirtualenv('pip-app');
-  t.teardown(testUtils.activateVirtualenv('pip-app'));
-  try {
-    testUtils.pipInstall();
-    t.pass('installed pip packages');
-    t.end();
-  } catch (error) {
-    t.bailout(error);
-  }
-});
 
 const pipAppExpectedDependencies = {
   django: {
     data: {
       name: 'django',
       version: '1.6.1',
-      labels: { provenance: 'requirements.txt:2' },
     },
     msg: 'django looks ok',
   },
@@ -39,7 +25,6 @@ const pipAppExpectedDependencies = {
     data: {
       name: 'jinja2',
       version: '2.7.2',
-      labels: { provenance: 'requirements.txt:1' },
       dependencies: {
         markupsafe: {
           name: 'markupsafe',
@@ -53,7 +38,6 @@ const pipAppExpectedDependencies = {
     data: {
       name: 'python-etcd',
       version: '0.4.5',
-      labels: { provenance: 'requirements.txt:3' },
       dependencies: {
         dnspython: {
           name: 'dnspython',
@@ -71,7 +55,6 @@ const pipAppExpectedDependencies = {
     data: {
       name: 'django-select2',
       version: '6.0.1',
-      labels: { provenance: 'requirements.txt:4' },
       dependencies: {
         'django-appconf': {
           name: 'django-appconf',
@@ -84,7 +67,6 @@ const pipAppExpectedDependencies = {
     data: {
       name: 'irc',
       version: '16.2',
-      labels: { provenance: 'requirements.txt:5' },
       dependencies: {
         'more-itertools': {},
         'jaraco.functools': {},
@@ -106,7 +88,6 @@ const pipAppExpectedDependencies = {
     data: {
       name: 'testtools',
       version: '2.3.0',
-      labels: { provenance: 'requirements.txt:6' },
       dependencies: {
         pbr: {},
         extras: {},
@@ -125,7 +106,6 @@ const pipfilePinnedExpectedDependencies = {
     data: {
       name: 'django',
       version: '1.6.1',
-      labels: { provenance: 'Pipfile:11' },
     },
     msg: 'django looks ok',
   },
@@ -133,7 +113,6 @@ const pipfilePinnedExpectedDependencies = {
     data: {
       name: 'jinja2',
       version: '2.7.2',
-      labels: { provenance: 'Pipfile:10' },
       dependencies: {
         markupsafe: {
           name: 'markupsafe',
@@ -147,7 +126,6 @@ const pipfilePinnedExpectedDependencies = {
     data: {
       name: 'python-etcd',
       version: '0.4.5',
-      labels: { provenance: 'Pipfile:7' },
       dependencies: {
         dnspython: {
           name: 'dnspython',
@@ -165,7 +143,6 @@ const pipfilePinnedExpectedDependencies = {
     data: {
       name: 'django-select2',
       version: '6.0.1',
-      labels: { provenance: 'Pipfile:12' },
       dependencies: {
         'django-appconf': {
           name: 'django-appconf',
@@ -178,7 +155,6 @@ const pipfilePinnedExpectedDependencies = {
     data: {
       name: 'irc',
       version: '16.2',
-      labels: { provenance: 'Pipfile:8' },
       dependencies: {
         'more-itertools': {},
         'jaraco.functools': {},
@@ -200,7 +176,6 @@ const pipfilePinnedExpectedDependencies = {
     data: {
       name: 'testtools',
       version: '2.3.0',
-      labels: { provenance: 'Pipfile:9' },
       dependencies: {
         pbr: {},
         extras: {},
@@ -315,9 +290,7 @@ test('inspect', (t) => {
       t.teardown(testUtils.activateVirtualenv('pip-app'));
     })
     .then(() => {
-      return plugin.inspect('.', 'requirements.txt', {
-        args: ['--add-provenance'],
-      });
+      return plugin.inspect('.', 'requirements.txt');
     })
     .then((result) => {
       const plugin = result.plugin;
@@ -886,7 +859,7 @@ test('inspect Pipfile with pinned versions', (t) => {
       t.teardown(testUtils.activateVirtualenv('pip-app'));
     })
     .then(() => {
-      return plugin.inspect('.', 'Pipfile', { args: ['--add-provenance'] });
+      return plugin.inspect('.', 'Pipfile');
     })
     .then((result) => {
       const pkg = result.package;
@@ -912,7 +885,6 @@ const pipenvAppExpectedDependencies = {
     data: {
       name: 'python-etcd',
       version: /^0\.4/,
-      labels: { provenance: 'Pipfile:7' },
     },
     msg: 'python-etcd1 found with version >=0.4,<0.5',
   },
@@ -920,14 +892,12 @@ const pipenvAppExpectedDependencies = {
     data: {
       name: 'jinja2',
       version: /^0|1|2\.[0-6]/,
-      labels: { provenance: 'Pipfile:9' },
     },
     msg: 'jinja2 found with version <2.7',
   },
   testtools: {
     data: {
       name: 'testtools',
-      labels: { provenance: 'Pipfile:8' },
     },
     msg: 'testtools found',
   },
@@ -945,7 +915,7 @@ test('inspect pipenv app with user-created virtualenv', (t) => {
       }
     })
     .then(() => {
-      return plugin.inspect('.', 'Pipfile', { args: ['--add-provenance'] });
+      return plugin.inspect('.', 'Pipfile');
     })
     .then((result) => {
       const pkg = result.package;
@@ -1001,7 +971,7 @@ test('inspect pipenv app with auto-created virtualenv', (t) => {
       }
     })
     .then(() => {
-      return plugin.inspect('.', 'Pipfile', { args: ['--add-provenance'] });
+      return plugin.inspect('.', 'Pipfile');
     })
     .then((result) => {
       const pkg = result.package;
@@ -1036,7 +1006,6 @@ test('inspect pipenv app dev dependencies', (t) => {
     .then(() => {
       return plugin.inspect('.', 'Pipfile', {
         dev: true,
-        args: ['--add-provenance'],
       });
     })
     .then((result) => {
@@ -1082,7 +1051,3 @@ test('package names with urls are skipped', (t) => {
       );
     });
 });
-
-function chdirWorkspaces(dir) {
-  process.chdir(path.resolve(__dirname, 'workspaces', dir));
-}

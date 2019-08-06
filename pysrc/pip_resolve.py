@@ -35,7 +35,7 @@ def create_tree_of_packages_dependencies(
         top_level_requirements,
         req_file_path,
         allow_missing=False,
-        add_provenance=False
+        only_provenance=False
     ):
     """Create packages dependencies tree
     :param dict tree: the package tree
@@ -108,16 +108,19 @@ def create_tree_of_packages_dependencies(
     def create_package_as_root(package, dir_as_root):
         package_as_root = {
             NAME: package.project_name.lower(),
+            # Note: _version is a private field.
             VERSION: package._obj._version,
         }
         return package_as_root
     dir_as_root = create_dir_as_root()
     for package in packages_as_dist_obj:
         package_as_root = create_package_as_root(package, dir_as_root)
-        if add_provenance:
+        if only_provenance:
             package_as_root[LABELS] = {PROVENANCE: format_provenance_label(tlr_by_key[package_as_root[NAME]].provenance)}
-        package_tree = create_children_recursive(package_as_root, key_tree, set([]))
-        dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
+            dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_as_root
+        else:
+            package_tree = create_children_recursive(package_as_root, key_tree, set([]))
+            dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
     return dir_as_root
 
 def satisfies_python_requirement(parsed_operator, parsed_python_version):
@@ -223,7 +226,7 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
 def create_dependencies_tree_by_req_file_path(requirements_file_path,
                                               allow_missing=False,
                                               dev_deps=False,
-                                              add_provenance=False):
+                                              only_provenance=False):
     # get all installed packages
     pkgs = list(pkg_resources.working_set)
 
@@ -252,7 +255,7 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path,
 
     # build a tree of dependencies
     package_tree = create_tree_of_packages_dependencies(
-        dist_tree, top_level_requirements, requirements_file_path, allow_missing, add_provenance)
+        dist_tree, top_level_requirements, requirements_file_path, allow_missing, only_provenance)
     print(json.dumps(package_tree))
 
 
@@ -279,16 +282,16 @@ def main():
     parser.add_argument("--dev-deps",
         action="store_true",
         help="resolve dev dependencies")
-    parser.add_argument("--add-provenance",
+    parser.add_argument("--only-provenance",
         action="store_true",
-        help="add provenance information to top-level dependencies")
+        help="only return top level deps with provenance information")
     args = parser.parse_args()
 
     create_dependencies_tree_by_req_file_path(
         args.requirements,
         allow_missing=args.allow_missing,
         dev_deps=args.dev_deps,
-        add_provenance=args.add_provenance,
+        only_provenance=args.only_provenance,
     )
 
 if __name__ == '__main__':
