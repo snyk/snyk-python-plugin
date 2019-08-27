@@ -13,7 +13,9 @@
     "format:check": "prettier --check '{lib,test}/**/*.{js,ts}'",
     "format": "prettier --write '{lib,test}/**/*.{js,ts}'",
     "prepare": "npm run build",
-    "test": "cross-env TS_NODE_PROJECT=tsconfig-test.json tap --node-arg=-r --node-arg=ts-node/register ./test/*.test.{js,ts} -R spec --timeout=900",
+    "test": "npm run test:pysrc && npm run test:js",
+    "test:js": "cross-env TS_NODE_PROJECT=tsconfig-test.json tap --node-arg=-r --node-arg=ts-node/register ./test/*.test.{js,ts} -R spec --timeout=900",
+    "test:pysrc": "python -m unittest discover pysrc",
     "lint": "npm run build-tests && npm run format:check && eslint --cache '{lib,test}/**/*.{js,ts}'",
     "semantic-release": "semantic-release"
   },

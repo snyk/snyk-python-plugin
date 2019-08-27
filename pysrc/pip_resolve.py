@@ -123,7 +123,7 @@ def create_tree_of_packages_dependencies(
             dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
     return dir_as_root
 
-def satisfies_python_requirement(parsed_operator, parsed_python_version):
+def satisfies_python_requirement(parsed_operator, py_version_str, sys=sys):
     # TODO: use python semver library to compare versions
     operator_func = {
         ">": gt,
@@ -133,8 +133,15 @@ def satisfies_python_requirement(parsed_operator, parsed_python_version):
         ">=": ge,
         '!=': ne,
     }[parsed_operator]
-    system_python = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
-    return operator_func(float(system_python), float(parsed_python_version))
+    system_py_version_tuple = (sys.version_info[0], sys.version_info[1])
+    py_version_tuple = tuple(py_version_str.split('.')) # string tuple
+    if py_version_tuple[-1] == '*':
+        system_py_version_tuple = system_py_version_tuple[0]
+        py_version_tuple = int(py_version_tuple[0]) # int tuple
+    else:
+        py_version_tuple = tuple(int(x) for x in py_version_tuple) # int tuple
+
+    return operator_func(system_py_version_tuple, py_version_tuple)
 
 def get_markers_text(requirement):
     if isinstance(requirement, pipfile.PipfileRequirement):
