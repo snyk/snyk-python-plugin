@@ -11,6 +11,9 @@ This plugin provides dependency metadata for Python projects that use one of the
 * `pip` with a `requirements.txt` file
 * `pipenv` with a `Pipefile` file
 
+There's a special `only-provenance` mode that allows extracting of top-level dependencies with
+their corresponding positions in the original manifest file.
+
 ## Contributing
 
 [Guide](https://github.com/snyk/snyk-python-plugin/blob/master/.github/CONTRIBUTING.md)
@@ -18,8 +21,8 @@ This plugin provides dependency metadata for Python projects that use one of the
 ### Developing and Testing
 
 Prerequisites:
-- Node 6 (or 8)
-- Python (preferably 2.7)
+- Node.js 6+
+- Python 2.7 or 3.6+
 - Installed outside of any virtualenv:
     - [pip](https://pip.pypa.io/en/stable/installing/)
     - the contents of `dev-requirements.txt`:
