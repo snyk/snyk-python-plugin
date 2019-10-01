@@ -23,7 +23,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@snyk/cli-interface": "^2.0.3",
-    "tmp": "0.0.33"
+    "tmp": "0.1.0"
   },
   "devDependencies": {
     "@snyk/types-tap": "^1.1.0",
