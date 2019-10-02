@@ -20,7 +20,7 @@ except ImportError:
         raise ImportError(
             "Could not import pkg_resources; please install setuptools or pip.")
 
-PYTHON_MARKER_REGEX = re.compile(r'python_version\s*(?P<operator>==|<=|=>|>|<)\s*\'(?P<python_version>.+)\'')
+PYTHON_MARKER_REGEX = re.compile(r'python_version\s*(?P<operator>==|<=|=>|>|<)\s*[\'"](?P<python_version>.+?)[\'"]')
 SYSTEM_MARKER_REGEX = re.compile(r'sys_platform\s*==\s*[\'"](.+)[\'"]')
 
 def format_provenance_label(prov_tuple):
@@ -123,7 +123,7 @@ def create_tree_of_packages_dependencies(
             dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
     return dir_as_root
 
-def satisfies_python_requirement(parsed_operator, py_version_str, sys=sys):
+def satisfies_python_requirement(parsed_operator, py_version_str):
     # TODO: use python semver library to compare versions
     operator_func = {
         ">": gt,
@@ -145,10 +145,8 @@ def satisfies_python_requirement(parsed_operator, py_version_str, sys=sys):
 
 def get_markers_text(requirement):
     if isinstance(requirement, pipfile.PipfileRequirement):
-        markers_text = requirement.markers
-    else:
-        markers_text = requirement.line
-    return markers_text
+        return requirement.markers
+    return requirement.line
 
 def matches_python_version(requirement):
     """Filter out requirements that should not be installed
@@ -156,23 +154,26 @@ def matches_python_version(requirement):
     See: https://www.python.org/dev/peps/pep-0508/#environment-markers
     """
     markers_text = get_markers_text(requirement)
-    if not markers_text:
+    if not (markers_text and re.match(".*;.*python_version", markers_text)):
         return True
-    if not 'python_version' in markers_text:
-        return True
-    match = PYTHON_MARKER_REGEX.search(markers_text)
-    if not match:
-        return False
-    parsed_operator = match.group('operator')
-    parsed_python_version = match.group('python_version')
 
-    if not parsed_python_version or not parsed_operator:
-        return False
+    cond_text = markers_text.split(";", 1)[1]
 
-    return satisfies_python_requirement(
-        parsed_operator,
-        parsed_python_version
-    )
+    # Gloss over the 'and' case and return true on the first matching python version
+
+    for sub_exp in re.split("\s*(?:and|or)\s*", cond_text):
+        match = PYTHON_MARKER_REGEX.search(sub_exp)
+
+        if match:
+            match_dict = match.groupdict()
+
+            if len(match_dict) == 2 and satisfies_python_requirement(
+                    match_dict['operator'],
+                    match_dict['python_version']
+                ):
+                return True
+
+    return False
 
 
 def matches_environment(requirement):
