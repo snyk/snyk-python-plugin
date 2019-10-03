@@ -15,9 +15,7 @@ env:
   - PIP_VER=10.0.0  PYTHON_VER=3.6
   - PIP_VER=18.1.0  PYTHON_VER=2.7
   - PIP_VER=18.1.0  PYTHON_VER=3.6
-cache:
-  directories:
-    - node_modules
+cache: npm
 before_script:
   # Find the latest specific release of the desired Python version, e.g. 3.6.6.
   - export PYTHON_VER_FULL=`pyenv install --list | grep -v 'Available versions' | awk '{$1=$1};1' | grep "^$PYTHON_VER\.[0-9]\+$" | tail -1`
