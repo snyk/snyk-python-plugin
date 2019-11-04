@@ -3,7 +3,8 @@
 
 from pip_resolve import satisfies_python_requirement, \
                         matches_python_version, \
-                        matches_environment
+                        matches_environment, \
+                        canonicalize_package_name
 from collections import namedtuple
 
 import unittest
@@ -14,6 +15,17 @@ except:
     from unittest.mock import patch
 
 class TestStringMethods(unittest.TestCase):
+
+    def test_canonicalize_package_name(self):
+        # https://packaging.python.org/guides/distributing-packages-using-setuptools/#name
+        self.assertEqual(canonicalize_package_name("Cool-Stuff"), "cool.stuff")
+        self.assertEqual(canonicalize_package_name("Cool--.--Stuff"), "cool.stuff")
+        self.assertEqual(canonicalize_package_name("Cool--__.__--Stuff"), "cool.stuff")
+
+        self.assertEqual(canonicalize_package_name("cool.stuff"), "cool.stuff")
+        self.assertEqual(canonicalize_package_name("COOL_STUFF"), "cool.stuff")
+        self.assertEqual(canonicalize_package_name("CoOl__-.-__sTuFF"), "cool.stuff")
+
 
     def test_satisfies_python_requirement(self):
 
