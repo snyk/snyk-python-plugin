@@ -11,9 +11,6 @@ export function applyUpgrades(
   const requirementsFileName = Object.keys(manifests).find(
     (fn) => path.basename(fn) === 'requirements.txt'
   ) as string;
-  const constraintsFileName = Object.keys(manifests).find(
-    (fn) => path.basename(fn) === 'constraints.txt'
-  );
 
   // Updates to requirements.txt
   const patch: { [zeroBasedIndex: number]: string | false } = {}; // false means remove the line
@@ -65,25 +62,13 @@ export function applyUpgrades(
         }
       }
     } else {
-      // The dependency is not a top level: we are pinning a transitive using constraints file.
-      if (!constraintsFileName) {
-        append.push(
-          pkgName +
-            '>=' +
-            newVersion +
-            ' # not directly required, pinned by Snyk to avoid a vulnerability'
-        );
-      } else {
-        // TODO(kyegupov): parse constraints and replace the pre-existing one if any
-        const lines = manifests[constraintsFileName].trim().split('\n');
-        lines.push(
-          pkgName +
-            '>=' +
-            newVersion +
-            ' # pinned by Snyk to avoid a vulnerability'
-        );
-        manifests[constraintsFileName] = lines.join('\n') + '\n';
-      }
+      // The dependency is not a top level: we are pinning a transitive.
+      append.push(
+        pkgName +
+          '>=' +
+          newVersion +
+          ' # not directly required, pinned by Snyk to avoid a vulnerability'
+      );
     }
   }
   const lines: string[] = [];

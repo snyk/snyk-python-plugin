@@ -73,15 +73,9 @@ export async function applyRemediationToManifests(
   );
   if (
     !targetFile ||
-    !manifestNames.every(
-      (fn) =>
-        path.basename(fn) === 'requirements.txt' ||
-        path.basename(fn) === 'constraints.txt'
-    )
+    !manifestNames.every((fn) => path.basename(fn) === 'requirements.txt')
   ) {
-    throw new Error(
-      'Remediation only supported for requirements.txt and constraints.txt files'
-    );
+    throw new Error('Remediation only supported for requirements.txt file');
   }
 
   // Calculate provenance via Python code.

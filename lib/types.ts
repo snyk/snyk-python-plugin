@@ -8,7 +8,7 @@ export interface DependencyUpdates {
 }
 
 export interface ManifestFiles {
-  // Typically these are requirements.txt, constraints.txt and Pipfile;
+  // Typically these are requirements.txt and Pipfile;
   // the plugin supports paths with subdirectories
   [name: string]: string; // name-to-content
 }

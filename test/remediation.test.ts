@@ -14,34 +14,7 @@ function readDirAsFiles(dir: string) {
   return res;
 }
 
-test('remediation with constraints.txt', async (t) => {
-  chdirWorkspaces('pip-app');
-  t.teardown(testUtils.activateVirtualenv('pip-app'));
-  const upgrades = {
-    'DJANGO@1.6.1': { upgradeTo: 'Django@2.0.1' }, // Note different capitalisation
-    'transitive@1.0.0': { upgradeTo: 'transitive@1.1.1' },
-  };
-
-  const manifests = {
-    'requirements.txt': fs.readFileSync('requirements.txt', 'utf8'),
-    'constraints.txt': '',
-  };
-
-  const expectedUpdatedManifests = readDirAsFiles(
-    '../../fixtures/updated-manifests-with-constraints'
-  );
-
-  const result = await plugin.applyRemediationToManifests(
-    '.',
-    manifests,
-    upgrades,
-    {}
-  );
-
-  t.same(result, expectedUpdatedManifests, 'remediation as expected');
-});
-
-test('remediation without constraints.txt', async (t) => {
+test('remediation', async (t) => {
   chdirWorkspaces('pip-app');
   t.teardown(testUtils.activateVirtualenv('pip-app'));
   const upgrades = {
@@ -54,7 +27,7 @@ test('remediation without constraints.txt', async (t) => {
   };
 
   const expectedUpdatedManifests = readDirAsFiles(
-    '../../fixtures/updated-manifests-without-constraints'
+    '../../fixtures/updated-manifest'
   );
 
   const result = await plugin.applyRemediationToManifests(
@@ -97,7 +70,7 @@ test('remediation - retains python markers', async (t) => {
   t.same(result, expectedUpdatedManifests, 'remediation as expected');
 });
 
-test('remediation without constraints.txt - no-op upgrades', async (t) => {
+test('remediation - no-op upgrades', async (t) => {
   chdirWorkspaces('pip-app');
   t.teardown(testUtils.activateVirtualenv('pip-app'));
   const upgrades = {};
@@ -132,9 +105,6 @@ test('remediation for Pipfile', async (t) => {
     await plugin.applyRemediationToManifests('.', manifests, upgrades, {});
     t.fail('expected exception');
   } catch (e) {
-    t.match(
-      e.message,
-      'Remediation only supported for requirements.txt and constraints.txt files'
-    );
+    t.match(e.message, 'Remediation only supported for requirements.txt file');
   }
 });
