@@ -231,6 +231,14 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
         req.name = req.name.lower().replace('_', '-')
     return req_list
 
+
+def canonicalize_package_name(name):
+    # https://packaging.python.org/guides/distributing-packages-using-setuptools/#name
+    name = name.lower().replace('-', '.').replace('_', '.')
+    name = re.sub(r'\.+', '.', name)
+    return name
+
+
 def create_dependencies_tree_by_req_file_path(requirements_file_path,
                                               allow_missing=False,
                                               dev_deps=False,
@@ -246,11 +254,11 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path,
 
     # create a list of dependencies from the dependencies file
     required = get_requirements_list(requirements_file_path, dev_deps=dev_deps)
-    installed = [p for p in dist_index]
+    installed = [canonicalize_package_name(p) for p in dist_index]
     top_level_requirements = []
     missing_package_names = []
     for r in required:
-        if r.name not in installed:
+        if canonicalize_package_name(r.name) not in installed:
             missing_package_names.append(r.name)
         else:
             top_level_requirements.append(r)
