@@ -1,2 +1,0 @@
-
-transitive>=1.1.1 # pinned by Snyk to avoid a vulnerability
