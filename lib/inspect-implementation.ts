@@ -17,9 +17,10 @@ export function getMetaData(
       return {
         name: 'snyk-python-plugin',
         runtime: output.replace('\n', ''),
-        // specify targetFile only in case of Pipfile
-        targetFile:
-          path.basename(targetFile) === 'Pipfile' ? targetFile : undefined,
+        // specify targetFile only in case of Pipfile or setup.py
+        targetFile: path.basename(targetFile).match(/^(Pipfile|setup\.py)$/)
+          ? targetFile
+          : undefined,
       };
     });
 }
