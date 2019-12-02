@@ -24,7 +24,7 @@ function getActiveVenvName() {
     : null;
 }
 
-function activateVirtualenv(venvName) {
+function activateVirtualenv(venvName: string) {
   const venvDir = path.join(path.resolve(__dirname), '.venvs', venvName);
 
   const binDir = path.resolve(venvDir, binDirName);
@@ -78,7 +78,7 @@ function deactivateVirtualenv() {
   };
 }
 
-function ensureVirtualenv(venvName) {
+function ensureVirtualenv(venvName: string) {
   const venvsBaseDir = path.join(path.resolve(__dirname), '.venvs');
   try {
     fs.accessSync(venvsBaseDir, fs.constants.R_OK);
@@ -96,7 +96,7 @@ function ensureVirtualenv(venvName) {
   }
 }
 
-function createVenv(venvDir) {
+function createVenv(venvDir: string) {
   let revert = () => {};
   if (process.env.VIRTUAL_ENV) {
     revert = deactivateVirtualenv();
@@ -140,7 +140,7 @@ function pipInstall() {
   }
 }
 
-function pipUninstall(pkgName) {
+function pipUninstall(pkgName: string) {
   const proc = subProcess.executeSync('pip', ['uninstall', '-y', pkgName]);
   if (proc.status !== 0) {
     throw new Error(
@@ -182,6 +182,6 @@ function setWorkonHome() {
   };
 }
 
-export function chdirWorkspaces(dir) {
+export function chdirWorkspaces(dir: string) {
   process.chdir(path.resolve(__dirname, 'workspaces', dir));
 }
