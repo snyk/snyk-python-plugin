@@ -14,3 +14,6 @@ package-lock.json
 .nyc_output
 
 .eslintcache
+
+# Test output reports, coverage, etc
+reports/
