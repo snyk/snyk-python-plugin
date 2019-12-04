@@ -276,6 +276,8 @@ jobs:
           command: npm run build
   release:
     <<: *defaults
+    docker:
+      - image: node:8
     steps:
       - checkout_and_merge
       - run:
