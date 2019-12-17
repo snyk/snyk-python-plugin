@@ -5,6 +5,9 @@ defaults: &defaults
     - image: node:6
   working_directory: ~/snyk-python-plugin
 
+orbs:
+  win: circleci/windows@2.2.0
+
 commands:
   checkout_and_merge:
     steps:
@@ -56,6 +59,22 @@ commands:
           environment:
             PIP_VER: << parameters.pip_ver >>
             PYTHON_VER: << parameters.python_ver >>
+  test_windows:
+    parameters:
+      node_ver:
+        type: string
+    steps:
+      - attach_workspace:
+          at: ~/snyk-python-plugin
+      - run:
+          name: Run Windows tests
+          environment:
+            NODE_VER: << parameters.node_ver >>
+          command: |
+            Install-Product node $NODE_VER
+            node --version
+            npm --version
+            pip install tox
 
 jobs:
   install:
@@ -87,180 +106,200 @@ jobs:
       - image: node:12
     steps:
       - test:
-          pip_ver: '9.0.3'
-          python_ver: '3.6'
+          pip_ver: "9.0.3"
+          python_ver: "3.6"
   test_node12_py2_pip9:
     <<: *defaults
     docker:
       - image: node:12
     steps:
       - test:
-          pip_ver: '9.0.3'
-          python_ver: '2.7'
+          pip_ver: "9.0.3"
+          python_ver: "2.7"
   test_node12_py3_pip10:
     <<: *defaults
     docker:
       - image: node:12
     steps:
       - test:
-          pip_ver: '10.0.0'
-          python_ver: '3.6'
+          pip_ver: "10.0.0"
+          python_ver: "3.6"
   test_node12_py2_pip10:
     <<: *defaults
     docker:
       - image: node:12
     steps:
       - test:
-          pip_ver: '10.0.0'
-          python_ver: '2.7'
+          pip_ver: "10.0.0"
+          python_ver: "2.7"
   test_node12_py3_pip18:
     <<: *defaults
     docker:
       - image: node:12
     steps:
       - test:
-          pip_ver: '18.1.0'
-          python_ver: '3.6'
+          pip_ver: "18.1.0"
+          python_ver: "3.6"
   test_node12_py2_pip18:
     <<: *defaults
     docker:
       - image: node:12
     steps:
       - test:
-          pip_ver: '18.1.0'
-          python_ver: '2.7'
+          pip_ver: "18.1.0"
+          python_ver: "2.7"
   test_node10_py3_pip9:
     <<: *defaults
     docker:
       - image: node:10
     steps:
       - test:
-          pip_ver: '9.0.3'
-          python_ver: '3.6'
+          pip_ver: "9.0.3"
+          python_ver: "3.6"
   test_node10_py2_pip9:
     <<: *defaults
     docker:
       - image: node:10
     steps:
       - test:
-          pip_ver: '9.0.3'
-          python_ver: '2.7'
+          pip_ver: "9.0.3"
+          python_ver: "2.7"
   test_node10_py3_pip10:
     <<: *defaults
     docker:
       - image: node:10
     steps:
       - test:
-          pip_ver: '10.0.0'
-          python_ver: '3.6'
+          pip_ver: "10.0.0"
+          python_ver: "3.6"
   test_node10_py2_pip10:
     <<: *defaults
     docker:
       - image: node:10
     steps:
       - test:
-          pip_ver: '10.0.0'
-          python_ver: '2.7'
+          pip_ver: "10.0.0"
+          python_ver: "2.7"
   test_node10_py3_pip18:
     <<: *defaults
     docker:
       - image: node:10
     steps:
       - test:
-          pip_ver: '18.1.0'
-          python_ver: '3.6'
+          pip_ver: "18.1.0"
+          python_ver: "3.6"
   test_node10_py2_pip18:
     <<: *defaults
     docker:
       - image: node:10
     steps:
       - test:
-          pip_ver: '18.1.0'
-          python_ver: '2.7'
+          pip_ver: "18.1.0"
+          python_ver: "2.7"
   test_node8_py3_pip9:
     <<: *defaults
     docker:
       - image: node:8
     steps:
       - test:
-          pip_ver: '9.0.3'
-          python_ver: '3.6'
+          pip_ver: "9.0.3"
+          python_ver: "3.6"
   test_node8_py2_pip9:
     <<: *defaults
     docker:
       - image: node:8
     steps:
       - test:
-          pip_ver: '9.0.3'
-          python_ver: '2.7'
+          pip_ver: "9.0.3"
+          python_ver: "2.7"
   test_node8_py3_pip10:
     <<: *defaults
     docker:
       - image: node:8
     steps:
       - test:
-          pip_ver: '10.0.0'
-          python_ver: '3.6'
+          pip_ver: "10.0.0"
+          python_ver: "3.6"
   test_node8_py2_pip10:
     <<: *defaults
     docker:
       - image: node:8
     steps:
       - test:
-          pip_ver: '10.0.0'
-          python_ver: '2.7'
+          pip_ver: "10.0.0"
+          python_ver: "2.7"
   test_node8_py3_pip18:
     <<: *defaults
     docker:
       - image: node:8
     steps:
       - test:
-          pip_ver: '18.1.0'
-          python_ver: '3.6'
+          pip_ver: "18.1.0"
+          python_ver: "3.6"
   test_node8_py2_pip18:
     <<: *defaults
     docker:
       - image: node:8
     steps:
       - test:
-          pip_ver: '18.1.0'
-          python_ver: '2.7'
+          pip_ver: "18.1.0"
+          python_ver: "2.7"
   test_node6_py3_pip9:
     <<: *defaults
     steps:
       - test:
-          pip_ver: '9.0.3'
-          python_ver: '3.6'
+          pip_ver: "9.0.3"
+          python_ver: "3.6"
   test_node6_py2_pip9:
     <<: *defaults
     steps:
       - test:
-          pip_ver: '9.0.3'
-          python_ver: '2.7'
+          pip_ver: "9.0.3"
+          python_ver: "2.7"
   test_node6_py3_pip10:
     <<: *defaults
     steps:
       - test:
-          pip_ver: '10.0.0'
-          python_ver: '3.6'
+          pip_ver: "10.0.0"
+          python_ver: "3.6"
   test_node6_py2_pip10:
     <<: *defaults
     steps:
       - test:
-          pip_ver: '10.0.0'
-          python_ver: '2.7'
+          pip_ver: "10.0.0"
+          python_ver: "2.7"
   test_node6_py3_pip18:
     <<: *defaults
     steps:
       - test:
-          pip_ver: '18.1.0'
-          python_ver: '3.6'
+          pip_ver: "18.1.0"
+          python_ver: "3.6"
   test_node6_py2_pip18:
     <<: *defaults
     steps:
       - test:
-          pip_ver: '18.1.0'
-          python_ver: '2.7'
+          pip_ver: "18.1.0"
+          python_ver: "2.7"
+  test_win_node12:
+    <<: *defaults
+    steps:
+      - test_windows:
+          node_ver: 12
+  test_win_node10:
+    <<: *defaults
+    steps:
+      - test_windows:
+          node_ver: 10
+  test_win_node8:
+    <<: *defaults
+    steps:
+      - test_windows:
+          node_ver: 8
+  test_win_node6:
+    <<: *defaults
+    steps:
+      - test_windows:
+          node_ver: 6
   build:
     <<: *defaults
     steps:
@@ -527,6 +566,42 @@ workflows:
                 - master
       - test_node6_py2_pip18:
           name: Test (Node 6, Python 2.7, Pip 18.1.0)
+          requires:
+            - Lint
+            - Build
+          filters:
+            branches:
+              ignore:
+                - master
+      - test_win_node6:
+          name: Test Windows (Node 6)
+          requires:
+            - Lint
+            - Build
+          filters:
+            branches:
+              ignore:
+                - master
+      - test_win_node8:
+          name: Test Windows (Node 8)
+          requires:
+            - Lint
+            - Build
+          filters:
+            branches:
+              ignore:
+                - master
+      - test_win_node10:
+          name: Test Windows (Node 10)
+          requires:
+            - Lint
+            - Build
+          filters:
+            branches:
+              ignore:
+                - master
+      - test_win_node12:
+          name: Test Windows (Node 12)
           requires:
             - Lint
             - Build
