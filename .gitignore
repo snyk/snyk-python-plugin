@@ -17,3 +17,6 @@ package-lock.json
 
 # Test output reports, coverage, etc
 reports/
+
+# Generic venv directory for experimenting / testing
+venv/

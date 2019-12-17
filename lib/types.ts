@@ -1,10 +1,7 @@
-export interface UpgradeRemediation {
-  upgradeTo: string;
-  // Other fields are of no interest
-}
-
 export interface DependencyUpdates {
-  [from: string]: UpgradeRemediation;
+  [from: string]: {
+    upgradeTo: string;
+  };
 }
 
 export interface ManifestFiles {

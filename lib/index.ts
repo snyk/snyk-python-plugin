@@ -4,7 +4,7 @@ import * as subProcess from './sub-process';
 import { legacyPlugin as api } from '@snyk/cli-interface';
 import { ManifestFiles, DependencyUpdates } from './types';
 import { getMetaData, getDependencies } from './inspect-implementation';
-import { applyUpgrades } from './apply-remediation-implementation';
+import { parseRequirementsFile } from './requirements-file-parser';
 
 export interface PythonInspectOptions {
   command?: string; // `python` command override
@@ -55,17 +55,16 @@ export async function inspect(
   return { plugin, package: pkg };
 }
 
-// Given contents of manifest file(s) and a set of upgrades, and assuming that all the packages
-// were installed (e.g. using `pip install`), produce the updated manifests by detecting the
-// provenance of top-level packages and replacing their specifications and adding "pinned" packages
-// to the manifest.
-// Currently only supported for `requirements.txt` - at least one file named `**/requirements.txt`
-// must be in the manifests.
-export async function applyRemediationToManifests(
-  root: string,
+/**
+ * Given contents of manifest file(s) and a set of upgrades, apply the given
+ * upgrades to a manifest and return the upgraded manifest.
+ *
+ * Currently only supported for `requirements.txt` - at least one file named
+ * `requirements.txt` must be in the manifests.
+ **/
+export function applyRemediationToManifests(
   manifests: ManifestFiles,
-  upgrades: DependencyUpdates,
-  options: Options
+  upgrades: DependencyUpdates
 ) {
   const manifestNames = Object.keys(manifests);
   const targetFile = manifestNames.find(
@@ -78,18 +77,94 @@ export async function applyRemediationToManifests(
     throw new Error('Remediation only supported for requirements.txt file');
   }
 
-  // Calculate provenance via Python code.
-  // This currently requires costly setup of a virtual environment, when
-  // called from pip-deps.
-  // Alternative approaches to consider:
-  // - modify python code to not require installed packages in this case
-  // - replicate the parser of requirements.txt in JS code (in pip-deps?)
-  const provOptions = { ...options };
-  provOptions.args = provOptions.args || [];
-  provOptions.args.push('--only-provenance');
-  const topLevelDeps = (await inspect(root, targetFile, provOptions)).package;
+  if (Object.keys(upgrades).length === 0) {
+    return manifests;
+  }
 
-  applyUpgrades(manifests, upgrades, topLevelDeps);
+  const requirementsFileName = Object.keys(manifests).find(
+    (fn) => path.basename(fn) === 'requirements.txt'
+  );
 
-  return manifests;
+  // If there is no usable manifest, return
+  if (typeof requirementsFileName === 'undefined') {
+    return manifests;
+  }
+
+  const requirementsFile = manifests[requirementsFileName];
+
+  const requirements = parseRequirementsFile(requirementsFile);
+
+  // This is a bit of a hack, but an easy one to follow. If a file ends with a
+  // new line, ensure we keep it this way. Don't hijack customers formatting.
+  let endsWithNewLine = false;
+  if (requirements[requirements.length - 1].originalText === '\n') {
+    endsWithNewLine = true;
+  }
+
+  const topLevelDeps = requirements
+    .map(({ name }) => name && name.toLowerCase())
+    .filter(isDefined);
+
+  // Lowercase the upgrades object. This might be overly defensive, given that
+  // we control this input internally, but its a low cost guard rail. Outputs a
+  // mapping of upgrade to -> from, instead of the nested upgradeTo object.
+  const lowerCasedUpgrades: { [upgradeFrom: string]: string } = {};
+  Object.keys(upgrades).forEach((upgrade) => {
+    const { upgradeTo } = upgrades[upgrade];
+    lowerCasedUpgrades[upgrade.toLowerCase()] = upgradeTo.toLowerCase();
+  });
+
+  const updatedRequirements: string[] = requirements.map(
+    ({ name, versionComparator, version, originalText, extras }) => {
+      // Defensive patching; if any of these are undefined, return
+      if (
+        typeof name === 'undefined' ||
+        typeof versionComparator === 'undefined' ||
+        typeof version === 'undefined'
+      ) {
+        return originalText;
+      }
+
+      // Check if we have an upgrade; if we do, replace the version string with
+      // the upgrade, but keep the rest of the content
+      const upgrade = lowerCasedUpgrades[`${name.toLowerCase()}@${version}`];
+
+      if (!upgrade) {
+        return originalText;
+      }
+
+      const newVersion = upgrade.split('@')[1];
+      return `${name}${versionComparator}${newVersion}${extras ? extras : ''}`;
+    }
+  );
+
+  const pinnedRequirements = Object.keys(lowerCasedUpgrades)
+    .map((pkgNameAtVersion) => {
+      const pkgName = pkgNameAtVersion.split('@')[0];
+
+      // Pinning is only for non top level deps
+      if (topLevelDeps.indexOf(pkgName) >= 0) {
+        return;
+      }
+
+      const version = lowerCasedUpgrades[pkgNameAtVersion].split('@')[1];
+      return `${pkgName}>=${version} # not directly required, pinned by Snyk to avoid a vulnerability`;
+    })
+    .filter(isDefined);
+
+  let updatedManifest = [...updatedRequirements, ...pinnedRequirements].join(
+    '\n'
+  );
+
+  if (endsWithNewLine) {
+    updatedManifest += '\n';
+  }
+
+  return { [requirementsFileName]: updatedManifest };
+}
+
+// TS is not capable of determining when Array.filter has removed undefined
+// values without a manual Type Guard, so thats what this does
+function isDefined<T>(t: T | undefined): t is T {
+  return typeof t !== 'undefined';
 }
