@@ -35,7 +35,7 @@ export function parseRequirementsFile(requirementsFile: string): Requirement[] {
 
     // Regex to match against a Python package specifier. Any invalid lines (or
     // lines we can't handle) should have been returned this point.
-    const regex = /([A-Z0-9]*)(===|==|>=|<=|>|<|~=)(\d\.?\d?\.?\d?)(.*)/i;
+    const regex = /([A-Z0-9]*)(!=|==|>=|<=|>|<|~=)(\d*\.?\d*\.?\d*)(.*)/i;
     const result = regex.exec(requirementText);
 
     if (result !== null) {
