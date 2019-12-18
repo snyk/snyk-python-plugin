@@ -60,6 +60,24 @@ describe('remediation', () => {
     expect(result).toEqual(expectedManifests);
   });
 
+  it('matches a package with multiple digit versions i.e. 12.123.14', () => {
+    const upgrades = {
+      'foo@12.123.14': { upgradeTo: 'foo@55.66.7' },
+    };
+
+    const manifests = {
+      'requirements.txt': 'foo==12.123.14\n',
+    };
+
+    const expectedManifests = {
+      'requirements.txt': 'foo==55.66.7\n',
+    };
+
+    const result = applyRemediationToManifests(manifests, upgrades);
+
+    expect(result).toEqual(expectedManifests);
+  });
+
   it('maintains comments when upgrading', () => {
     const upgrades = {
       'django@1.6.1': { upgradeTo: 'django@2.0.1' },
