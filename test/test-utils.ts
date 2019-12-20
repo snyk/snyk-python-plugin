@@ -12,6 +12,7 @@ export {
   ensureVirtualenv,
   pipInstall,
   pipUninstall,
+  pipInstallE,
   pipenvInstall,
   setWorkonHome,
 };
@@ -129,6 +130,22 @@ function pipInstall() {
     'install',
     '-r',
     'requirements.txt',
+    '--disable-pip-version-check',
+  ]);
+  if (proc.status !== 0) {
+    throw new Error(
+      'Failed to install requirements with pip.' +
+        ' venv = ' +
+        JSON.stringify(getActiveVenvName())
+    );
+  }
+}
+
+function pipInstallE() {
+  const proc = subProcess.executeSync('pip', [
+    'install',
+    '-e',
+    '.',
     '--disable-pip-version-check',
   ]);
   if (proc.status !== 0) {
