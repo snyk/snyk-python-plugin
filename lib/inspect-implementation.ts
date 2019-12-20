@@ -122,10 +122,15 @@ export async function getDependencies(
   } catch (error) {
     if (typeof error === 'string') {
       if (error.indexOf('Required packages missing') !== -1) {
-        let errMsg = error + '\nPlease run `pip install -r ' + targetFile + '`';
+        let errMsg = error;
         if (path.basename(targetFile) === 'Pipfile') {
-          errMsg = error + '\nPlease run `pipenv update`';
+          errMsg += '\nPlease run `pipenv update`.';
+        } else if (path.basename(targetFile) === 'setup.py') {
+          errMsg += '\nPlease run `pip install -e .`.';
+        } else {
+          errMsg += '\nPlease run `pip install -r ' + targetFile + '`.';
         }
+        errMsg += ' If the issue persists try again with --allow-missing.';
         throw new Error(errMsg);
       }
     }

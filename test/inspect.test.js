@@ -364,6 +364,20 @@ test('inspect setup.py', (t) => {
     });
 });
 
+test('inspect setup.py with missing deps', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('setup_py-app');
+      t.teardown(testUtils.activateVirtualenv('setup_py-app'));
+    })
+    .then(() => {
+      return plugin.inspect('.', 'setup.py');
+    })
+    .catch((error) => {
+      t.match(normalize(error.message), 'pip install -e .');
+    });
+});
+
 test('transitive dep not installed', (t) => {
   return Promise.resolve()
     .then(() => {
@@ -386,7 +400,8 @@ test('transitive dep not installed', (t) => {
         .catch((error) => {
           t.equal(
             normalize(error.message),
-            'Required packages missing: markupsafe\n\nPlease run `pip install -r requirements.txt`'
+            'Required packages missing: markupsafe\n\nPlease run `pip install -r requirements.txt`. ' +
+              'If the issue persists try again with --allow-missing.'
           );
           t.end();
         });
@@ -502,7 +517,8 @@ test('deps not installed', (t) => {
     .catch((error) => {
       t.equal(
         normalize(error.message),
-        'Required packages missing: awss\n\nPlease run `pip install -r requirements.txt`'
+        'Required packages missing: awss\n\nPlease run `pip install -r requirements.txt`. ' +
+          'If the issue persists try again with --allow-missing.'
       );
       t.end();
     });
