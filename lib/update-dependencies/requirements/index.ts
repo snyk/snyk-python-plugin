@@ -1,7 +1,8 @@
-import * as path from 'path';
-
-import { ManifestFiles, DependencyUpdates } from '../../types';
-import { parseRequirementsFile } from '../../requirements-file-parser';
+import { DependencyUpdates } from '../../types';
+import {
+  parseRequirementsFile,
+  Requirement,
+} from '../../requirements-file-parser';
 
 /**
  * Given contents of manifest file(s) and a set of upgrades, apply the given
@@ -11,43 +12,15 @@ import { parseRequirementsFile } from '../../requirements-file-parser';
  * `requirements.txt` must be in the manifests.
  **/
 export function updateDependencies(
-  manifests: ManifestFiles,
+  requirementsTxt: string,
   upgrades: DependencyUpdates
 ) {
-  const manifestNames = Object.keys(manifests);
-  const targetFile = manifestNames.find(
-    (fn) => path.basename(fn) === 'requirements.txt'
-  );
-  if (
-    !targetFile ||
-    !manifestNames.every((fn) => path.basename(fn) === 'requirements.txt')
-  ) {
-    throw new Error('Remediation only supported for requirements.txt file');
-  }
-
   if (Object.keys(upgrades).length === 0) {
-    return manifests;
+    return requirementsTxt;
   }
 
-  const requirementsFileName = Object.keys(manifests).find(
-    (fn) => path.basename(fn) === 'requirements.txt'
-  );
-
-  // If there is no usable manifest, return
-  if (typeof requirementsFileName === 'undefined') {
-    return manifests;
-  }
-
-  const requirementsFile = manifests[requirementsFileName];
-
-  const requirements = parseRequirementsFile(requirementsFile);
-
-  // This is a bit of a hack, but an easy one to follow. If a file ends with a
-  // new line, ensure we keep it this way. Don't hijack customers formatting.
-  let endsWithNewLine = false;
-  if (requirements[requirements.length - 1].originalText === '\n') {
-    endsWithNewLine = true;
-  }
+  const requirements = parseRequirementsFile(requirementsTxt);
+  const endsWithNewLine = fileEndsWithNewLine(requirements);
 
   const topLevelDeps = requirements
     .map(({ name }) => name && name.toLowerCase())
@@ -108,11 +81,21 @@ export function updateDependencies(
     updatedManifest += '\n';
   }
 
-  return { [requirementsFileName]: updatedManifest };
+  return updatedManifest;
 }
 
 // TS is not capable of determining when Array.filter has removed undefined
 // values without a manual Type Guard, so thats what this does
 function isDefined<T>(t: T | undefined): t is T {
   return typeof t !== 'undefined';
+}
+
+function fileEndsWithNewLine(sanitisedFile: Requirement[]): boolean {
+  // This is a bit of a hack, but an easy one to follow. If a file ends with a
+  // new line, ensure we keep it this way. Don't hijack customers formatting.
+  let endsWithNewLine = false;
+  if (sanitisedFile[sanitisedFile.length - 1].originalText === '\n') {
+    endsWithNewLine = true;
+  }
+  return endsWithNewLine;
 }
