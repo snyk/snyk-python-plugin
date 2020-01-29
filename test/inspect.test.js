@@ -3,7 +3,7 @@ const fs = require('fs');
 const sinon = require('sinon');
 
 const plugin = require('../lib');
-const subProcess = require('../lib/sub-process');
+const subProcess = require('../lib/dependencies/sub-process');
 const testUtils = require('./test-utils');
 const os = require('os');
 

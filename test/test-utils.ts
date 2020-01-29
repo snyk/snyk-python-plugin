@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as process from 'process';
 
-import subProcess = require('../lib/sub-process');
+import subProcess = require('../lib/dependencies/sub-process');
 
 export {
   getActiveVenvName,

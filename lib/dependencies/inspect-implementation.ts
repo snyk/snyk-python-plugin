@@ -29,24 +29,24 @@ export function getMetaData(
 // https://www.npmjs.com/package/pkg#detecting-assets-in-source-code
 function createAssets() {
   return [
-    path.join(__dirname, '../pysrc/pip_resolve.py'),
-    path.join(__dirname, '../pysrc/distPackage.py'),
-    path.join(__dirname, '../pysrc/package.py'),
-    path.join(__dirname, '../pysrc/pipfile.py'),
-    path.join(__dirname, '../pysrc/reqPackage.py'),
-    path.join(__dirname, '../pysrc/setup_file.py'),
-    path.join(__dirname, '../pysrc/utils.py'),
+    path.join(__dirname, '../../pysrc/pip_resolve.py'),
+    path.join(__dirname, '../../pysrc/distPackage.py'),
+    path.join(__dirname, '../../pysrc/package.py'),
+    path.join(__dirname, '../../pysrc/pipfile.py'),
+    path.join(__dirname, '../../pysrc/reqPackage.py'),
+    path.join(__dirname, '../../pysrc/setup_file.py'),
+    path.join(__dirname, '../../pysrc/utils.py'),
 
-    path.join(__dirname, '../pysrc/requirements/fragment.py'),
-    path.join(__dirname, '../pysrc/requirements/parser.py'),
-    path.join(__dirname, '../pysrc/requirements/requirement.py'),
-    path.join(__dirname, '../pysrc/requirements/vcs.py'),
-    path.join(__dirname, '../pysrc/requirements/__init__.py'),
+    path.join(__dirname, '../../pysrc/requirements/fragment.py'),
+    path.join(__dirname, '../../pysrc/requirements/parser.py'),
+    path.join(__dirname, '../../pysrc/requirements/requirement.py'),
+    path.join(__dirname, '../../pysrc/requirements/vcs.py'),
+    path.join(__dirname, '../../pysrc/requirements/__init__.py'),
 
-    path.join(__dirname, '../pysrc/pytoml/__init__.py'),
-    path.join(__dirname, '../pysrc/pytoml/core.py'),
-    path.join(__dirname, '../pysrc/pytoml/parser.py'),
-    path.join(__dirname, '../pysrc/pytoml/writer.py'),
+    path.join(__dirname, '../../pysrc/pytoml/__init__.py'),
+    path.join(__dirname, '../../pysrc/pytoml/core.py'),
+    path.join(__dirname, '../../pysrc/pytoml/parser.py'),
+    path.join(__dirname, '../../pysrc/pytoml/writer.py'),
   ];
 }
 
@@ -88,7 +88,7 @@ function dumpAllFilesInTempDir(tempDirName: string) {
   });
 }
 
-export async function getDependencies(
+export async function inspectInstalledDeps(
   command: string,
   baseargs: string[],
   root: string,
@@ -103,7 +103,7 @@ export async function getDependencies(
 
   dumpAllFilesInTempDir(tempDirObj.name);
   try {
-    // See ../pysrc/README.md
+    // See ../../pysrc/README.md
     const output = await subProcess.execute(
       command,
       [
