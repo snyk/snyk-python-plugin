@@ -1,6 +1,6 @@
 type VersionComparator = '<' | '<=' | '!=' | '==' | '>=' | '>' | '~=';
 
-interface Requirement {
+export interface Requirement {
   originalText: string;
   line: number;
   name?: string;

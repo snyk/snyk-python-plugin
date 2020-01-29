@@ -3,4 +3,4 @@ export {
   PythonInspectOptions,
 } from './dependencies';
 
-export { updateDependencies as applyRemediationToManifests } from './update-dependencies';
+export { updateDependencies } from './update-dependencies';
