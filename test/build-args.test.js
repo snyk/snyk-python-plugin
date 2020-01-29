@@ -1,5 +1,6 @@
 const test = require('tap').test;
-const buildArgs = require('../lib/inspect-implementation').buildArgs;
+const buildArgs = require('../lib/dependencies/inspect-implementation')
+  .buildArgs;
 
 test('check build args with array', (t) => {
   const result = buildArgs('requirements.txt', false, '../pysrc', false, [

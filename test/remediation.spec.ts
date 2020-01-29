@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import * as path from 'path';
-import { applyRemediationToManifests } from '../lib';
+import { updateDependencies as applyRemediationToManifests } from '../lib/update-dependencies';
 
 describe('remediation', () => {
   it('does not add extra new lines', () => {
