@@ -277,7 +277,7 @@ jobs:
   release:
     <<: *defaults
     docker:
-      - image: node:8
+      - image: node:10
     steps:
       - checkout_and_merge
       - run:
