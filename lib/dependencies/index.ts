@@ -6,6 +6,7 @@ import { getMetaData, inspectInstalledDeps } from './inspect-implementation';
 
 export interface PythonInspectOptions {
   command?: string; // `python` command override
+  python?: string;
   allowMissing?: boolean; // Allow skipping packages that are not found in the environment.
   args?: string[];
 }
@@ -22,7 +23,16 @@ export async function getDependencies(
   if (!options) {
     options = {};
   }
-  let command = options.command || 'python';
+
+  if (options.python && options.python !== '2' && options.python !== '3') {
+    throw new Error(
+      'The --python property can be used only as --python=2 or --python=3'
+    );
+  }
+
+  const python = options.python ? `python${options.python}` : 'python';
+
+  let command = options.command || python;
   const includeDevDeps = !!(options.dev || false);
   let baseargs: string[] = [];
 
