@@ -2,7 +2,7 @@ version: 2.1
 
 defaults: &defaults
   docker:
-    - image: node:6
+    - image: node:8
   working_directory: ~/snyk-python-plugin
 
 commands:
@@ -225,42 +225,6 @@ jobs:
       - test:
           pip_ver: '18.1.0'
           python_ver: '2.7'
-  test_node6_py3_pip9:
-    <<: *defaults
-    steps:
-      - test:
-          pip_ver: '9.0.3'
-          python_ver: '3.6'
-  test_node6_py2_pip9:
-    <<: *defaults
-    steps:
-      - test:
-          pip_ver: '9.0.3'
-          python_ver: '2.7'
-  test_node6_py3_pip10:
-    <<: *defaults
-    steps:
-      - test:
-          pip_ver: '10.0.0'
-          python_ver: '3.6'
-  test_node6_py2_pip10:
-    <<: *defaults
-    steps:
-      - test:
-          pip_ver: '10.0.0'
-          python_ver: '2.7'
-  test_node6_py3_pip18:
-    <<: *defaults
-    steps:
-      - test:
-          pip_ver: '18.1.0'
-          python_ver: '3.6'
-  test_node6_py2_pip18:
-    <<: *defaults
-    steps:
-      - test:
-          pip_ver: '18.1.0'
-          python_ver: '2.7'
   build:
     <<: *defaults
     steps:
@@ -473,60 +437,6 @@ workflows:
                 - master
       - test_node8_py2_pip18:
           name: Test (Node 8, Python 2.7, Pip 18.1.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node6_py3_pip9:
-          name: Test (Node 6, Python 3.6, Pip 9.0.3)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node6_py2_pip9:
-          name: Test (Node 6, Python 2.7, Pip 9.0.3)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node6_py3_pip10:
-          name: Test (Node 6, Python 3.6, Pip 10.0.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node6_py2_pip10:
-          name: Test (Node 6, Python 2.7, Pip 10.0.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node6_py3_pip18:
-          name: Test (Node 6, Python 3.6, Pip 18.1.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node6_py2_pip18:
-          name: Test (Node 6, Python 2.7, Pip 18.1.0)
           requires:
             - Lint
             - Build
