@@ -130,7 +130,7 @@ export async function inspectInstalledDeps(
         } else {
           errMsg += '\nPlease run `pip install -r ' + targetFile + '`.';
         }
-        errMsg += ' If the issue persists try again with --allow-missing.';
+        errMsg += ' If the issue persists try again with --skip-unresolved.';
         throw new Error(errMsg);
       }
     }
