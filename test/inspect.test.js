@@ -401,7 +401,7 @@ test('transitive dep not installed', (t) => {
           t.equal(
             normalize(error.message),
             'Required packages missing: markupsafe\n\nPlease run `pip install -r requirements.txt`. ' +
-              'If the issue persists try again with --allow-missing.'
+              'If the issue persists try again with --skip-unresolved.'
           );
           t.end();
         });
@@ -518,7 +518,7 @@ test('deps not installed', (t) => {
       t.equal(
         normalize(error.message),
         'Required packages missing: awss\n\nPlease run `pip install -r requirements.txt`. ' +
-          'If the issue persists try again with --allow-missing.'
+          'If the issue persists try again with --skip-unresolved.'
       );
       t.end();
     });
