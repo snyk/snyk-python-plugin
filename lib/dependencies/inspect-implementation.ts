@@ -133,6 +133,11 @@ export async function inspectInstalledDeps(
         errMsg += ' If the issue persists try again with --skip-unresolved.';
         throw new Error(errMsg);
       }
+
+      // The error most likely comes from python/pip.
+      // Ensure we don't just throw a string as the exception object
+      // otherwise we cannot render anything meaningful with Snyk CLI (we get undefined).
+      throw new Error(error + '\nIs pip installed in your environment?');
     }
     throw error;
   } finally {
