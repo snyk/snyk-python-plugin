@@ -20,3 +20,6 @@ reports/
 
 # Generic venv directory for experimenting / testing
 venv/
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
