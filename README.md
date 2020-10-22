@@ -12,7 +12,8 @@ Snyk helps you find, fix and monitor for known vulnerabilities in your dependenc
 This plugin provides dependency metadata for Python projects that use one of the following dependency management methods:
 
 * `pip` with a `requirements.txt` file
-* `pipenv` with a `Pipefile` file
+* `pipenv` with a `Pipfile` file
+* `poetry` with `pyproject.toml` and `poetry.lock`
 
 There's a special `only-provenance` mode that allows extracting of top-level dependencies with
 their corresponding positions in the original manifest file.
@@ -24,7 +25,7 @@ their corresponding positions in the original manifest file.
 ### Developing and Testing
 
 Prerequisites:
-- Node.js 6+
+- Node.js 8+
 - Python 2.7 or 3.6+
 - Installed outside of any virtualenv:
     - [pip](https://pip.pypa.io/en/stable/installing/)
@@ -32,7 +33,8 @@ Prerequisites:
       ```
       pip install --user -r dev-requirements.txt
       ``` 
-
+- if in linux, `python-dev` installed with apt, or see [here](https://stackoverflow.com/a/21530768).
+ 
 Tests can be run against multiple python versions by using tox:
 
 ```

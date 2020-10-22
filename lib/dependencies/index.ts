@@ -3,6 +3,8 @@ import * as subProcess from './sub-process';
 
 import { legacyPlugin as api } from '@snyk/cli-interface';
 import { getMetaData, inspectInstalledDeps } from './inspect-implementation';
+import { getPoetryDependencies } from './poetry';
+import { FILENAMES } from '../types';
 
 export interface PythonInspectOptions {
   command?: string; // `python` command override
@@ -24,9 +26,14 @@ export async function getDependencies(
   }
   let command = options.command || 'python';
   const includeDevDeps = !!(options.dev || false);
-  let baseargs: string[] = [];
 
-  if (path.basename(targetFile) === 'Pipfile') {
+  // handle poetry projects by parsing manifest & lockfile and return a dep-graph
+  if (path.basename(targetFile) === FILENAMES.poetry.manifest) {
+    return getPoetryDependencies(command, root, targetFile, includeDevDeps);
+  }
+
+  let baseargs: string[] = [];
+  if (path.basename(targetFile) === FILENAMES.pipenv.manifest) {
     // Check that pipenv is available by running it.
     const pipenvCheckProc = subProcess.executeSync('pipenv', ['--version']);
     if (pipenvCheckProc.status !== 0) {
