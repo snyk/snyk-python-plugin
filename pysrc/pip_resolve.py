@@ -20,8 +20,10 @@ except ImportError:
         raise ImportError(
             "Could not import pkg_resources; please install setuptools or pip.")
 
-PYTHON_MARKER_REGEX = re.compile(r'python_version\s*(?P<operator>==|<=|=>|>|<)\s*[\'"](?P<python_version>.+?)[\'"]')
+PYTHON_MARKER_REGEX = re.compile(
+    r'python_version\s*(?P<operator>==|<=|=>|>|<)\s*[\'"](?P<python_version>.+?)[\'"]')
 SYSTEM_MARKER_REGEX = re.compile(r'sys_platform\s*==\s*[\'"](.+)[\'"]')
+
 
 def format_provenance_label(prov_tuple):
     fn, ln1, ln2 = prov_tuple
@@ -30,13 +32,14 @@ def format_provenance_label(prov_tuple):
     else:
         return fn + ':' + str(ln1) + '-' + str(ln2)
 
+
 def create_tree_of_packages_dependencies(
-        dist_tree,
-        top_level_requirements,
-        req_file_path,
-        allow_missing=False,
-        only_provenance=False
-    ):
+    dist_tree,
+    top_level_requirements,
+    req_file_path,
+    allow_missing=False,
+    only_provenance=False
+):
     """Create packages dependencies tree
     :param dict tree: the package tree
     :param set packages_names: set of select packages to be shown in the output.
@@ -57,11 +60,12 @@ def create_tree_of_packages_dependencies(
     key_tree = dict((k.key, v) for k, v in tree.items())
 
     lowercase_pkgs_names = [p.name.lower() for p in top_level_requirements]
-    tlr_by_key = dict((tlr.name.lower(), tlr) for tlr in top_level_requirements)
+    tlr_by_key = dict((tlr.name.lower(), tlr)
+                      for tlr in top_level_requirements)
     packages_as_dist_obj = [
         p for p in nodes if
-            p.key.lower() in lowercase_pkgs_names or
-            (p.project_name and p.project_name.lower()) in lowercase_pkgs_names]
+        p.key.lower() in lowercase_pkgs_names or
+        (p.project_name and p.project_name.lower()) in lowercase_pkgs_names]
 
     def create_children_recursive(root_package, key_tree, ancestors):
         root_name = root_package[NAME].lower()
@@ -95,7 +99,8 @@ def create_tree_of_packages_dependencies(
         name, version = None, None
         if os.path.basename(req_file_path) == 'setup.py':
             with open(req_file_path, "r") as setup_py_file:
-                name, version = setup_file.parse_name_and_version(setup_py_file.read())
+                name, version = setup_file.parse_name_and_version(
+                    setup_py_file.read())
 
         dir_as_root = {
             NAME: name or os.path.basename(os.path.dirname(os.path.abspath(req_file_path))),
@@ -116,12 +121,15 @@ def create_tree_of_packages_dependencies(
     for package in packages_as_dist_obj:
         package_as_root = create_package_as_root(package, dir_as_root)
         if only_provenance:
-            package_as_root[LABELS] = {PROVENANCE: format_provenance_label(tlr_by_key[package_as_root[NAME]].provenance)}
+            package_as_root[LABELS] = {PROVENANCE: format_provenance_label(
+                tlr_by_key[package_as_root[NAME]].provenance)}
             dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_as_root
         else:
-            package_tree = create_children_recursive(package_as_root, key_tree, set([]))
+            package_tree = create_children_recursive(
+                package_as_root, key_tree, set([]))
             dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
     return dir_as_root
+
 
 def satisfies_python_requirement(parsed_operator, py_version_str):
     # TODO: use python semver library to compare versions
@@ -134,19 +142,21 @@ def satisfies_python_requirement(parsed_operator, py_version_str):
         '!=': ne,
     }[parsed_operator]
     system_py_version_tuple = (sys.version_info[0], sys.version_info[1])
-    py_version_tuple = tuple(py_version_str.split('.')) # string tuple
+    py_version_tuple = tuple(py_version_str.split('.'))  # string tuple
     if py_version_tuple[-1] == '*':
         system_py_version_tuple = system_py_version_tuple[0]
-        py_version_tuple = int(py_version_tuple[0]) # int tuple
+        py_version_tuple = int(py_version_tuple[0])  # int tuple
     else:
-        py_version_tuple = tuple(int(x) for x in py_version_tuple) # int tuple
+        py_version_tuple = tuple(int(x) for x in py_version_tuple)  # int tuple
 
     return operator_func(system_py_version_tuple, py_version_tuple)
+
 
 def get_markers_text(requirement):
     if isinstance(requirement, pipfile.PipfileRequirement):
         return requirement.markers
     return requirement.line
+
 
 def matches_python_version(requirement):
     """Filter out requirements that should not be installed
@@ -168,9 +178,9 @@ def matches_python_version(requirement):
             match_dict = match.groupdict()
 
             if len(match_dict) == 2 and satisfies_python_requirement(
-                    match_dict['operator'],
-                    match_dict['python_version']
-                ):
+                match_dict['operator'],
+                match_dict['python_version']
+            ):
                 return True
 
     return False
@@ -190,8 +200,10 @@ def matches_environment(requirement):
             return match[0].lower() == sys_platform
     return True
 
+
 def is_testable(requirement):
     return requirement.editable == False and requirement.vcs is None
+
 
 def get_requirements_list(requirements_file_path, dev_deps=False):
     # TODO: refactor recognizing the dependency manager to a single place
@@ -199,15 +211,32 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
         with io.open(requirements_file_path, 'r', encoding='utf-8') as f:
             requirements_data = f.read()
         parsed_reqs = pipfile.parse(requirements_data)
-        req_list = list(parsed_reqs.get('packages', []))
+
+        # Error informatively if there are no dependencies in scope
+        # if not parsed_reqs.get('packages'):
+        #     if not parsed_reqs.get('dev-packages'):
+        #         msg = 'No requirements found.\n\nPlease try running on a package with dependencies.'
+        #         sys.exit(msg)
+        #     elif not dev_deps:
+        #         msg = 'No requirements found. Note: dev-dependencies present but skipped as --dev flag is false.\n\nPlease try running on a package with dependencies.'
+        #         sys.exit(msg)
+
+        req_list = list(parsed_reqs.get('packages') or [])
         if dev_deps:
-            req_list.extend(parsed_reqs.get('dev-packages', []))
+            req_list.extend(parsed_reqs.get('dev-packages') or [])
+
+        if not req_list:
+            msg = 'No requirements found.\n\nPlease try running on a package with dependencies.'
+            sys.exit(msg)
+
         for r in req_list:
-            r.provenance = (requirements_file_path, r.provenance[1], r.provenance[2])
+            r.provenance = (requirements_file_path,
+                            r.provenance[1], r.provenance[2])
     elif os.path.basename(requirements_file_path) == 'setup.py':
         with open(requirements_file_path, 'r') as f:
             setup_py_file_content = f.read()
-        requirements_data = setup_file.parse_requirements(setup_py_file_content)
+        requirements_data = setup_file.parse_requirements(
+            setup_py_file_content)
         req_list = list(requirements.parse(requirements_data))
 
         provenance = setup_file.get_provenance(setup_py_file_content)
@@ -263,7 +292,8 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path,
         else:
             top_level_requirements.append(r)
     if missing_package_names:
-        msg = 'Required packages missing: ' + (', '.join(missing_package_names))
+        msg = 'Required packages missing: ' + \
+            (', '.join(missing_package_names))
         if allow_missing:
             sys.stderr.write(msg + "\n")
         else:
@@ -290,17 +320,17 @@ def main():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("requirements",
-        help="dependencies file path (requirements.txt or Pipfile)")
+                        help="dependencies file path (requirements.txt or Pipfile)")
     parser.add_argument("--allow-missing",
-        action="store_true",
-        help="don't fail if some packages listed in the dependencies file " +
-             "are not installed")
+                        action="store_true",
+                        help="don't fail if some packages listed in the dependencies file " +
+                        "are not installed")
     parser.add_argument("--dev-deps",
-        action="store_true",
-        help="resolve dev dependencies")
+                        action="store_true",
+                        help="resolve dev dependencies")
     parser.add_argument("--only-provenance",
-        action="store_true",
-        help="only return top level deps with provenance information")
+                        action="store_true",
+                        help="only return top level deps with provenance information")
     args = parser.parse_args()
 
     create_dependencies_tree_by_req_file_path(
@@ -309,6 +339,7 @@ def main():
         dev_deps=args.dev_deps,
         only_provenance=args.only_provenance,
     )
+
 
 if __name__ == '__main__':
     sys.exit(main())

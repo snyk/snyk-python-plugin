@@ -1,0 +1,2 @@
+This is a small pipenv-based config containing no dependencies or
+dev-dependencies keys or values, based on pip-app and the pipenv example files.

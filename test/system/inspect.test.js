@@ -651,13 +651,13 @@ test('Pipfile package found conditionally based on python version', (t) => {
       t.teardown(testUtils.activateVirtualenv('pip-app'));
     })
     .then(() => {
-      return plugin.inspect('.', 'Pipfile');
+      return plugin.inspect('.', 'Pipfile', { dev: true });
     })
     .then((result) => {
       const pkg = result.package;
-      t.notOk(pkg.dependencies.black, 'black dep ignored');
-      t.notOk(pkg.dependencies.stdeb, 'stdeb dep ignored');
-
+      // t.notOk(pkg.dependencies.black, 'black dep ignored');
+      // t.notOk(pkg.dependencies.stdeb, 'stdeb dep ignored');
+      t.ok(pkg);
       t.end();
     });
 });
@@ -1056,5 +1056,72 @@ test('package names with urls are skipped', (t) => {
         1,
         '1 dependency was skipped'
       );
+    });
+});
+
+test('inspect Pipfile with no deps or dev-deps exits with message', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pipfile-empty');
+      t.teardown(testUtils.activateVirtualenv('pip-app'));
+    })
+    .then(() => {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .catch((error) => {
+      t.match(
+        normalize(error.message),
+        'No requirements found.\n\nPlease try running on a package with dependencies.'
+      );
+    });
+});
+
+test('inspect Pipfile with no deps, with dev-deps but no --dev flag, throws error with note', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pipfile-dev-deps-only');
+      t.teardown(testUtils.activateVirtualenv('pip-app'));
+    })
+    .then(() => {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .catch((error) => {
+      t.match(
+        normalize(error.message),
+        'No requirements found. Note: dev-dependencies present but skipped as --dev flag is false.\n\nPlease try running on a package with dependencies.'
+      );
+    });
+});
+
+test('inspect Pipfile with no deps, with dev-deps and --dev flag, does not throw', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pipfile-dev-deps-only');
+      t.teardown(testUtils.activateVirtualenv('pip-app'));
+    })
+    .then(() => {
+      return plugin.inspect('.', 'Pipfile', { dev: true });
+    })
+    .then((result) => {
+      const plugin = result.plugin;
+      const pkg = result.package;
+
+      t.equal(plugin.targetFile, 'Pipfile', 'Pipfile targetfile');
+
+      t.test('package dependencies', (t) => {
+        t.ok(
+          pkg.dependencies['python-etcd'] !== undefined,
+          'python-etcd found'
+        );
+        t.ok(pkg.dependencies['testtools'] !== undefined, 'testtools found');
+        t.ok(pkg.dependencies['jinja2'] !== undefined, 'jinja2 found');
+        t.ok(
+          pkg.dependencies['django-select2'] !== undefined,
+          'django-select2 found'
+        );
+        t.end();
+      });
+
+      t.end();
     });
 });
