@@ -1058,3 +1058,64 @@ test('package names with urls are skipped', (t) => {
       );
     });
 });
+
+test('inspect Pipfile with no deps or dev-deps exits with message', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pipfile-empty');
+      t.teardown(testUtils.activateVirtualenv('pip-app'));
+    })
+    .then(() => {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .catch((error) => {
+      t.match(
+        normalize(error.message),
+        `We couldn't find any dependencies in the Pipfile.`
+      );
+    });
+});
+
+test('inspect Pipfile with no deps, with dev-deps but no --dev flag, throws error with note', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pipfile-dev-deps-only');
+      t.teardown(testUtils.activateVirtualenv('pip-app'));
+    })
+    .then(() => {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .catch((error) => {
+      t.match(
+        normalize(error.message),
+        `We couldn't find any dependencies in the Pipfile.`
+      );
+    });
+});
+
+test('inspect Pipfile with no deps, with dev-deps and --dev flag, does not throw', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pipfile-dev-deps-only');
+      t.teardown(testUtils.activateVirtualenv('pip-app'));
+    })
+    .then(() => {
+      return plugin.inspect('.', 'Pipfile', { dev: true });
+    })
+    .then((result) => {
+      const plugin = result.plugin;
+      const pkg = result.package;
+
+      t.equal(plugin.targetFile, 'Pipfile', 'Pipfile targetfile');
+
+      t.test('package dependencies', (t) => {
+        t.ok(pkg.dependencies['python-etcd'], 'python-etcd found');
+        t.ok(pkg.dependencies['testtools'], 'testtools found');
+        t.ok(pkg.dependencies['jinja2'], 'jinja2 found');
+        t.ok(pkg.dependencies['django-select2'], 'django-select2 found');
+        t.end();
+      });
+
+      t.end();
+    });
+});

@@ -202,6 +202,9 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
         req_list = list(parsed_reqs.get('packages', []))
         if dev_deps:
             req_list.extend(parsed_reqs.get('dev-packages', []))
+        if not req_list:
+            sys.stdout.write('We couldn\'t find any dependencies in the Pipfile.\n')
+            return
         for r in req_list:
             r.provenance = (requirements_file_path, r.provenance[1], r.provenance[2])
     elif os.path.basename(requirements_file_path) == 'setup.py':
