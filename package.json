@@ -16,6 +16,7 @@
     "prepare": "npm run build",
     "test": "npm run test:pysrc && npm run test:tap && npm run test:jest",
     "test:tap": "cross-env TS_NODE_PROJECT=tsconfig-test.json tap --node-arg=-r --node-arg=ts-node/register ./test/**/*.test.{js,ts} -R spec --timeout=900",
+    "test:custom": "cross-env TS_NODE_PROJECT=tsconfig-test.json tap --node-arg=-r --node-arg=ts-node/register ./test/**/*.test.{js,ts} -R spec --timeout=900 --grep='Pipfile package found conditionally based on python version'",
     "test:jest": "jest",
     "test:pysrc": "python -m unittest discover pysrc",
     "lint": "npm run build-tests && npm run format:check && eslint --cache '{lib,test}/**/*.{js,ts}'"
