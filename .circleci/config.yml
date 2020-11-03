@@ -156,13 +156,16 @@ workflows:
       - test:
           name: Node << matrix.node_version >>, Python << matrix.python_version >>, Pip << matrix.pip_version >>
           requires:
-            - Lint
+#            - Lint
             - Build
           matrix:
             parameters:
-              node_version: ['8','10','12']
-              pip_version: ['9.0.3','10.0.0','18.1.0']
+              node_version: ['10']
+#              node_version: ['8','10','12']
+#              pip_version: ['9.0.3','10.0.0','18.1.0']
+              pip_version: ['9.0.3']
               python_version: ['2.7','3.6']
+#              python_version: ['2.7','3.6']
           filters:
             branches:
               ignore:
