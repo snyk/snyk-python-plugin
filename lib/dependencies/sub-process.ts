@@ -19,7 +19,7 @@ function makeSpawnOptions(options?: ProcessOptions) {
 export function execute(
   command: string,
   args: string[],
-  options?: ProcessOptions
+  options?: ProcessOptions,
 ): Promise<string> {
   const spawnOptions = makeSpawnOptions(options);
 
@@ -41,13 +41,21 @@ export function execute(
       }
       resolve(stdout || stderr);
     });
+    proc.on('end', (code) => {
+      console.log('end',{ code });
+      resolve(stdout || stderr);
+    });
+    proc.on('error', (code) => {
+      console.log('This is error capture', { code });
+      return reject(stdout || stderr);
+    });
   });
 }
 
 export function executeSync(
   command: string,
   args: string[],
-  options?: SpawnOptions
+  options?: SpawnOptions,
 ) {
   const spawnOptions = makeSpawnOptions(options);
 
