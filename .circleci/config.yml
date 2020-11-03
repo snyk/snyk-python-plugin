@@ -136,15 +136,15 @@ workflows:
             branches:
               ignore:
                 - master
-      - lint:
-          name: Lint
-          context: nodejs-install
-          requires:
-            - Install
-          filters:
-            branches:
-              ignore:
-                - master
+#      - lint:
+#          name: Lint
+#          context: nodejs-install
+#          requires:
+#            - Install
+#          filters:
+#            branches:
+#              ignore:
+#                - master
       - build:
           name: Build
           requires:
