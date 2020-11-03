@@ -6,6 +6,8 @@ import * as subProcess from './sub-process';
 import { legacyCommon } from '@snyk/cli-interface';
 import { FILENAMES } from '../types';
 
+const NO_DEPS_ERROR = `We couldn't find any dependencies in the Pipfile`;
+
 export function getMetaData(
   command: string,
   baseargs: string[],
@@ -137,6 +139,8 @@ export async function inspectInstalledDeps(
         }
         errMsg += ' If the issue persists try again with --skip-unresolved.';
         throw new Error(errMsg);
+      }else if(error.includes(NO_DEPS_ERROR)){
+        throw new Error(NO_DEPS_ERROR);
       }
     }
     throw error;
