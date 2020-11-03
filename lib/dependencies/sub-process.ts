@@ -29,13 +29,16 @@ export function execute(
 
     const proc = spawn(command, args, spawnOptions);
     proc.stdout.on('data', (data) => {
+      console.log('stdout', { data });
       stdout = stdout + data;
     });
     proc.stderr.on('data', (data) => {
+      console.log('stderr', { data });
       stderr = stderr + data;
     });
 
     proc.on('close', (code) => {
+      console.log('close', { code });
       if (code !== 0) {
         return reject(stdout || stderr);
       }
