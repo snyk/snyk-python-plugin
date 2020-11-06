@@ -121,9 +121,17 @@ export async function inspectInstalledDeps(
       ],
       { cwd: root }
     );
+
     return JSON.parse(output) as legacyCommon.DepTree;
   } catch (error) {
     if (typeof error === 'string') {
+      const emptyManifestMsg = 'No dependencies detected in manifest.';
+      const noDependenciesDetected = error.includes(emptyManifestMsg);
+
+      if (noDependenciesDetected) {
+        throw new Error(emptyManifestMsg);
+      }
+
       if (error.indexOf('Required packages missing') !== -1) {
         let errMsg = error;
         if (path.basename(targetFile) === FILENAMES.pipenv.manifest) {
@@ -139,6 +147,7 @@ export async function inspectInstalledDeps(
         throw new Error(errMsg);
       }
     }
+
     throw error;
   } finally {
     tempDirObj.removeCallback();
