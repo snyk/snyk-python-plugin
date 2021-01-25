@@ -2,9 +2,9 @@ const test = require('tap').test;
 const fs = require('fs');
 const sinon = require('sinon');
 
-const plugin = require('../lib');
-const subProcess = require('../lib/dependencies/sub-process');
-const testUtils = require('./test-utils');
+const plugin = require('../../lib');
+const subProcess = require('../../lib/dependencies/sub-process');
+const testUtils = require('../test-utils');
 const os = require('os');
 
 const chdirWorkspaces = testUtils.chdirWorkspaces;
@@ -401,7 +401,7 @@ test('transitive dep not installed', (t) => {
           t.equal(
             normalize(error.message),
             'Required packages missing: markupsafe\n\nPlease run `pip install -r requirements.txt`. ' +
-              'If the issue persists try again with --allow-missing.'
+              'If the issue persists try again with --skip-unresolved.'
           );
           t.end();
         });
@@ -518,7 +518,7 @@ test('deps not installed', (t) => {
       t.equal(
         normalize(error.message),
         'Required packages missing: awss\n\nPlease run `pip install -r requirements.txt`. ' +
-          'If the issue persists try again with --allow-missing.'
+          'If the issue persists try again with --skip-unresolved.'
       );
       t.end();
     });
@@ -653,12 +653,11 @@ test('Pipfile package found conditionally based on python version', (t) => {
     .then(() => {
       return plugin.inspect('.', 'Pipfile');
     })
-    .then((result) => {
-      const pkg = result.package;
-      t.notOk(pkg.dependencies.black, 'black dep ignored');
-      t.notOk(pkg.dependencies.stdeb, 'stdeb dep ignored');
-
-      t.end();
+    .catch((error) => {
+      t.match(
+        normalize(error.message),
+        'No dependencies detected in manifest.'
+      );
     });
 });
 
@@ -1055,6 +1054,23 @@ test('package names with urls are skipped', (t) => {
         Object.keys(pkg.dependencies).length,
         1,
         '1 dependency was skipped'
+      );
+    });
+});
+
+test('inspect Pipfile with no deps or dev-deps exits with message', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pipfile-empty');
+      t.teardown(testUtils.activateVirtualenv('pip-app'));
+    })
+    .then(() => {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .catch((error) => {
+      t.match(
+        normalize(error.message),
+        'No dependencies detected in manifest.'
       );
     });
 });

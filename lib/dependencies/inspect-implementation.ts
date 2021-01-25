@@ -4,6 +4,7 @@ import * as tmp from 'tmp';
 
 import * as subProcess from './sub-process';
 import { legacyCommon } from '@snyk/cli-interface';
+import { FILENAMES } from '../types';
 
 export function getMetaData(
   command: string,
@@ -18,7 +19,9 @@ export function getMetaData(
         name: 'snyk-python-plugin',
         runtime: output.replace('\n', ''),
         // specify targetFile only in case of Pipfile or setup.py
-        targetFile: path.basename(targetFile).match(/^(Pipfile|setup\.py)$/)
+        targetFile: path
+          .basename(targetFile)
+          .match(/^(Pipfile|setup\.py|pyproject\.toml)$/)
           ? targetFile
           : undefined,
       };
@@ -118,22 +121,33 @@ export async function inspectInstalledDeps(
       ],
       { cwd: root }
     );
+
     return JSON.parse(output) as legacyCommon.DepTree;
   } catch (error) {
     if (typeof error === 'string') {
+      const emptyManifestMsg = 'No dependencies detected in manifest.';
+      const noDependenciesDetected = error.includes(emptyManifestMsg);
+
+      if (noDependenciesDetected) {
+        throw new Error(emptyManifestMsg);
+      }
+
       if (error.indexOf('Required packages missing') !== -1) {
         let errMsg = error;
-        if (path.basename(targetFile) === 'Pipfile') {
+        if (path.basename(targetFile) === FILENAMES.pipenv.manifest) {
           errMsg += '\nPlease run `pipenv update`.';
-        } else if (path.basename(targetFile) === 'setup.py') {
+        } else if (
+          path.basename(targetFile) === FILENAMES.setuptools.manifest
+        ) {
           errMsg += '\nPlease run `pip install -e .`.';
         } else {
           errMsg += '\nPlease run `pip install -r ' + targetFile + '`.';
         }
-        errMsg += ' If the issue persists try again with --allow-missing.';
+        errMsg += ' If the issue persists try again with --skip-unresolved.';
         throw new Error(errMsg);
       }
     }
+
     throw error;
   } finally {
     tempDirObj.removeCallback();

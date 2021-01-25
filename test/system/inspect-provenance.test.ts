@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { test } from 'tap';
-import { chdirWorkspaces, activateVirtualenv } from './test-utils';
+import { chdirWorkspaces, activateVirtualenv } from '../test-utils';
 
-import pluginImpl = require('../lib');
+import pluginImpl = require('../../lib');
 
 const pipAppExpectedDependenciesOnlyProvenance = {
   django: {

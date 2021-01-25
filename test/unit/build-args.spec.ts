@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { buildArgs } from '../lib/dependencies/inspect-implementation';
+import { buildArgs } from '../../lib/dependencies/inspect-implementation';
 
 describe('build args', () => {
   it('should return expected args', () => {

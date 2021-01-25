@@ -56,6 +56,7 @@ function activateVirtualenv(venvName: string) {
 function deactivateVirtualenv() {
   if (getActiveVenvName() === null) {
     console.warn('Attempted to deactivate a virtualenv when none was active.');
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     return () => {};
   }
 
@@ -98,6 +99,7 @@ function ensureVirtualenv(venvName: string) {
 }
 
 function createVenv(venvDir: string) {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   let revert = () => {};
   if (process.env.VIRTUAL_ENV) {
     revert = deactivateVirtualenv();
