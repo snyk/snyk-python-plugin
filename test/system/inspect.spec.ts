@@ -26,8 +26,8 @@ describe('inspect', () => {
     const expected = builder
       .addPkgNode({ name: 'jinja2', version: '2.11.2' }, 'jinja2')
       .connectDep(builder.rootNodeId, 'jinja2')
-      .addPkgNode({ name: 'MarkupSafe', version: '1.1.1' }, 'MarkupSafe')
-      .connectDep('jinja2', 'MarkupSafe')
+      .addPkgNode({ name: 'markupsafe', version: '1.1.1' }, 'markupsafe')
+      .connectDep('jinja2', 'markupsafe')
       .build();
 
     expect(result.dependencyGraph).toEqualDepGraph(expected);
