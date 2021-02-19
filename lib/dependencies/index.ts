@@ -43,6 +43,12 @@ export async function getDependencies(
     }
     command = 'pipenv';
     baseargs = ['run', 'python'];
+    // Pipenv assumes it is in the directory with the Pipfile
+    // --file generates a phantom pipfile if it's not
+    root = path.dirname(targetFile)
+    // and drop the directory name from the targetFile path
+    targetFile = path.basename(targetFile)
+
   }
 
   const [plugin, pkg] = await Promise.all([
