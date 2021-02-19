@@ -12,8 +12,10 @@ export function getMetaData(
   root: string,
   targetFile: string
 ) {
+  const pythonEnv = getPythonEnv(targetFile);
+
   return subProcess
-    .execute(command, [...baseargs, '--version'], { cwd: root })
+    .execute(command, [...baseargs, '--version'], { cwd: root, env: pythonEnv })
     .then((output) => {
       return {
         name: 'snyk-python-plugin',
@@ -106,6 +108,7 @@ export async function inspectInstalledDeps(
 
   dumpAllFilesInTempDir(tempDirObj.name);
   try {
+    const pythonEnv = getPythonEnv(targetFile);
     // See ../../pysrc/README.md
     const output = await subProcess.execute(
       command,
@@ -119,7 +122,7 @@ export async function inspectInstalledDeps(
           args
         ),
       ],
-      { cwd: root }
+      { cwd: root, env: pythonEnv }
     );
 
     return JSON.parse(output) as legacyCommon.DepTree;
@@ -151,6 +154,17 @@ export async function inspectInstalledDeps(
     throw error;
   } finally {
     tempDirObj.removeCallback();
+  }
+}
+
+export function getPythonEnv(targetFile: string) {
+  if (path.basename(targetFile) === 'Pipfile') {
+    const envOverrides = {
+      PIPENV_PIPFILE: targetFile,
+    };
+    return { ...process.env, ...envOverrides };
+  } else {
+    return process.env;
   }
 }
 

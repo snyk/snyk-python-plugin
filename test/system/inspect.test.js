@@ -909,6 +909,66 @@ const pipenvAppExpectedDependencies = {
   },
 };
 
+test('inspect Pipfile in nested directory', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pipfile-nested-dirs');
+      t.teardown(testUtils.activateVirtualenv('pip-app'));
+    })
+    .then(() => {
+      return plugin.inspect('.', 'nested/directory/Pipfile');
+    })
+    .then((result) => {
+      const plugin = result.plugin;
+      const pkg = result.package;
+
+      t.equal(
+        plugin.targetFile,
+        'nested/directory/Pipfile',
+        'Pipfile targetfile'
+      );
+
+      t.test('package dependencies', (t) => {
+        t.notOk(pkg.dependencies['django'], 'django skipped (editable)');
+
+        t.match(
+          pkg.dependencies['django-select2'],
+          {
+            name: 'django-select2',
+            version: '6.0.1',
+            dependencies: {
+              'django-appconf': {
+                name: 'django-appconf',
+              },
+            },
+          },
+          'django-select2 looks ok'
+        );
+
+        t.match(
+          pkg.dependencies['python-etcd'],
+          {
+            name: 'python-etcd',
+            version: /^0\.4.*$/,
+          },
+          'python-etcd looks ok'
+        );
+
+        t.notOk(
+          pkg.dependencies['e1839a8'],
+          'dummy local package skipped (editable)'
+        );
+
+        t.ok(pkg.dependencies['jinja2'] !== undefined, 'jinja2 found');
+        t.ok(pkg.dependencies['testtools'] !== undefined, 'testtools found');
+
+        t.end();
+      });
+
+      t.end();
+    });
+});
+
 test('inspect pipenv app with user-created virtualenv', (t) => {
   return Promise.resolve()
     .then(() => {
