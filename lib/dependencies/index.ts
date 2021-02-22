@@ -43,7 +43,6 @@ export async function getDependencies(
     }
     command = 'pipenv';
     baseargs = ['run', 'python'];
-
   }
 
   const [plugin, pkg] = await Promise.all([
