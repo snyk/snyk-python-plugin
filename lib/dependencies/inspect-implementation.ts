@@ -15,14 +15,10 @@ export function getMetaData(
 
   // if we're dealing with a Pipfile, lets not assume its in CWD, this
   // ensures pipenv is always dealing with pipfile we want it to
-  if ( path.basename(targetFile) === 'Pipfile') {
-    var PIPENV_OVERRIDE = { ...process.env, "PIPENV_PIPFILE": targetFile };
-  } else {
-    var PIPENV_OVERRIDE = { ...process.env, "PIPENV_PIPFILE": "" };
-  }
+  const pythonEnv = getPythonEnv(targetFile)
 
   return subProcess
-    .execute(command, [...baseargs, '--version'], { cwd: root, env: PIPENV_OVERRIDE })
+    .execute(command, [...baseargs, '--version'], { cwd: root, env: pythonEnv })
     .then((output) => {
       return {
         name: 'snyk-python-plugin',
@@ -115,11 +111,8 @@ export async function inspectInstalledDeps(
 
   dumpAllFilesInTempDir(tempDirObj.name);
   try {
-    if ( path.basename(targetFile) === 'Pipfile') {
-      var PIPENV_OVERRIDE = { ...process.env, "PIPENV_PIPFILE": targetFile };
-    } else {
-      var PIPENV_OVERRIDE = { ...process.env, "PIPENV_PIPFILE": "" };
-    }
+    
+    const pythonEnv = getPythonEnv(targetFile)
 
     // See ../../pysrc/README.md
     const output = await subProcess.execute(
@@ -134,7 +127,7 @@ export async function inspectInstalledDeps(
           args
         ),
       ],
-      { cwd: root, env: PIPENV_OVERRIDE }
+      { cwd: root, env: pythonEnv }
     );
 
     return JSON.parse(output) as legacyCommon.DepTree;
@@ -167,6 +160,17 @@ export async function inspectInstalledDeps(
   } finally {
     tempDirObj.removeCallback();
   }
+}
+
+// this enforces PIPENV_PIPFILE if dealing with a Pipfile
+// if PIPENV_PIPFILE is exported/-x and not the same as 
+// targetfile we will still fail however
+export function getPythonEnv(targetFile: string) {
+  if ( path.basename(targetFile) === 'Pipfile') {
+    return {...process.env, "PIPENV_PIPFILE": targetFile }
+  } else {
+    return process.env
+  } 
 }
 
 // Exported for tests only
