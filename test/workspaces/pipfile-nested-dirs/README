@@ -1,0 +1,5 @@
+This is a small pipenv-based config with a variety of types of dependency
+defintions, based on pip-app and the pipenv example files.
+
+This puts the Pipfile in a nested/directory/ to ensure that we can handle
+cwd changes properly (issue 133)
