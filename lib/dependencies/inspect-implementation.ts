@@ -167,7 +167,8 @@ export async function inspectInstalledDeps(
 // targetfile we will still fail however
 export function getPythonEnv(targetFile: string) {
   if ( path.basename(targetFile) === 'Pipfile') {
-    return {...process.env, "PIPENV_PIPFILE": targetFile }
+    const envOverrides = {"PIPENV_PIPFILE": targetFile, "PIPENV_IGNORE_VIRTUALENVS": "1" }
+    return {...process.env, ...envOverrides }
   } else {
     return process.env
   } 
