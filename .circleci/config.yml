@@ -131,14 +131,12 @@ workflows:
     jobs:
       - install:
           name: Install
-          context: nodejs-install
           filters:
             branches:
               ignore:
                 - master
       - lint:
           name: Lint
-          context: nodejs-install
           requires:
             - Install
           filters:
