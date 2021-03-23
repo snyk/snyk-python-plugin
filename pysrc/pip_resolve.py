@@ -81,7 +81,7 @@ def create_tree_of_packages_dependencies(
                 continue
 
             child_package = {
-                NAME: child_dist.project_name,
+                NAME: child_dist.project_name.lower(),
                 VERSION: child_dist.installed_version,
             }
 
