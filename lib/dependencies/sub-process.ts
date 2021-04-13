@@ -22,7 +22,6 @@ export function execute(
   options?: ProcessOptions
 ): Promise<string> {
   const spawnOptions = makeSpawnOptions(options);
-
   return new Promise((resolve, reject) => {
     let stdout = '';
     let stderr = '';
