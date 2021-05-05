@@ -1,6 +1,7 @@
 import { inspect } from '../../lib';
 import { chdirWorkspaces } from '../test-utils';
 import { DepGraphBuilder } from '@snyk/dep-graph';
+import { FILENAMES } from '../../lib/types';
 
 // TODO: jestify tap tests in ./inspect.test.js here
 describe('inspect', () => {
@@ -8,12 +9,12 @@ describe('inspect', () => {
     const workspace = 'poetry-app';
     chdirWorkspaces(workspace);
 
-    const result = await inspect('.', 'pyproject.toml');
+    const result = await inspect('.', FILENAMES.poetry.lockfile);
     expect(result).toMatchObject({
       plugin: {
         name: 'snyk-python-plugin',
         runtime: expect.any(String), // any version of Python
-        targetFile: 'pyproject.toml',
+        targetFile: FILENAMES.poetry.lockfile,
       },
       package: null, // no dep-tree
       dependencyGraph: {}, // match any dep-graph (equality checked below)

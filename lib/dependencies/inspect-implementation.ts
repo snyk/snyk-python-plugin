@@ -23,7 +23,7 @@ export function getMetaData(
         // specify targetFile only in case of Pipfile or setup.py
         targetFile: path
           .basename(targetFile)
-          .match(/^(Pipfile|setup\.py|pyproject\.toml)$/)
+          .match(/^(Pipfile|setup\.py|poetry\.lock)$/)
           ? targetFile
           : undefined,
       };
