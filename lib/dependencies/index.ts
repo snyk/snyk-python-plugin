@@ -28,7 +28,7 @@ export async function getDependencies(
   const includeDevDeps = !!(options.dev || false);
 
   // handle poetry projects by parsing manifest & lockfile and return a dep-graph
-  if (path.basename(targetFile) === FILENAMES.poetry.manifest) {
+  if (path.basename(targetFile) === FILENAMES.poetry.lockfile) {
     return getPoetryDependencies(command, root, targetFile, includeDevDeps);
   }
 

@@ -11,7 +11,7 @@ describe('getPoetryDepencies', () => {
     try {
       await getPoetryDependencies('python', root, targetFile);
     } catch (e) {
-      const expectedPath = path.join(root, targetFile);
+      const expectedPath = path.join(root, FILENAMES.poetry.manifest);
       const expected = new Error(`Cannot find manifest file ${expectedPath}`);
       expect(e).toEqual(expected);
     }
@@ -25,7 +25,7 @@ describe('getPoetryDepencies', () => {
       'workspaces',
       'poetry-app-without-lockfile'
     );
-    const targetFile = 'pyproject.toml';
+    const targetFile = FILENAMES.poetry.lockfile;
     try {
       await getPoetryDependencies('python', root, targetFile);
     } catch (e) {
