@@ -11,10 +11,11 @@ export async function getPoetryDependencies(
   targetFile: string,
   includeDevDeps = false
 ): Promise<SinglePackageResult> {
-  const manifestPath = path.join(root, targetFile);
-  const baseDir = path.dirname(manifestPath);
-  const lockfilePath = path.join(baseDir, FILENAMES.poetry.lockfile);
+  const lockfilePath = path.join(root, targetFile);
+  const baseDir = path.dirname(lockfilePath);
+  const manifestPath = path.join(baseDir, FILENAMES.poetry.manifest);
   const manifestExists = fs.existsSync(manifestPath);
+
   if (!manifestExists) {
     throw new Error('Cannot find manifest file ' + manifestPath);
   }
