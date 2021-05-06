@@ -2,7 +2,7 @@ version: 2.1
 
 defaults: &defaults
   docker:
-    - image: node:8
+    - image: node:10
   working_directory: ~/snyk-python-plugin
 
 commands:
@@ -158,9 +158,9 @@ workflows:
             - Build
           matrix:
             parameters:
-              node_version: ['8','10','12']
+              node_version: ['10','12', '14']
               pip_version: ['9.0.3','10.0.0','18.1.0']
-              python_version: ['2.7','3.6']
+              python_version: ['2.7','3.6', '3.7', '3.8', '3.9']
           filters:
             branches:
               ignore:
