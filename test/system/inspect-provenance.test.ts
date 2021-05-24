@@ -73,7 +73,7 @@ test('inspect --only-provenance', async (t) => {
 
   t.test('package', async (t) => {
     t.ok(pkg, 'package');
-    t.equal(pkg.name, 'pip-app', 'name');
+    t.equal(pkg.name, 'pip-app-SNYK-TEST', 'name');
     t.equal(pkg.version, '0.0.0', 'version');
   });
 
@@ -141,7 +141,7 @@ test('inspect --only-provenance for Pipfile', async (t) => {
 
   t.test('package', async (t) => {
     t.ok(pkg, 'package');
-    t.equal(pkg.name, 'pipfile-pipapp', 'name');
+    t.equal(pkg.name, 'pipfile-pipapp-SNYK-TEST', 'name');
     t.equal(pkg.version, '0.0.0', 'version');
   });
 

@@ -98,7 +98,7 @@ def create_tree_of_packages_dependencies(
                 name, version = setup_file.parse_name_and_version(setup_py_file.read())
 
         dir_as_root = {
-            NAME: name or os.path.basename(os.path.dirname(os.path.abspath(req_file_path))),
+            NAME: name or os.path.basename(os.path.dirname(os.path.abspath(req_file_path))) + '-SNYK-TEST',
             VERSION: version or DIR_VERSION,
             DEPENDENCIES: {},
             PACKAGE_FORMAT_VERSION: 'pip:0.0.1'

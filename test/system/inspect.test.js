@@ -300,7 +300,7 @@ test('inspect', (t) => {
 
       t.test('package', (t) => {
         t.ok(pkg, 'package');
-        t.equal(pkg.name, 'pip-app', 'name');
+        t.equal(pkg.name, 'pip-app-SNYK-TEST', 'name');
         t.equal(pkg.version, '0.0.0', 'version');
         t.end();
       });
@@ -437,7 +437,7 @@ test('transitive dep not installed, but with allowMissing option', (t) => {
 
       t.test('package', (t) => {
         t.ok(pkg, 'package');
-        t.equal(pkg.name, 'pip-app', 'name');
+        t.equal(pkg.name, 'pip-app-SNYK-TEST', 'name');
         t.equal(pkg.version, '0.0.0', 'version');
         t.end();
       });
@@ -546,7 +546,7 @@ test('deps not installed, but with allowMissing option', (t) => {
 
       t.test('package', (t) => {
         t.ok(pkg, 'package');
-        t.equal(pkg.name, 'pip-app-deps-not-installed', 'name');
+        t.equal(pkg.name, 'pip-app-deps-not-installed-SNYK-TEST', 'name');
         t.equal(pkg.version, '0.0.0', 'version');
         t.end();
       });
@@ -753,7 +753,7 @@ test('deps with options', (t) => {
 
       t.test('package', (t) => {
         t.ok(pkg, 'package');
-        t.equal(pkg.name, 'pip-app-with-options', 'name');
+        t.equal(pkg.name, 'pip-app-with-options-SNYK-TEST', 'name');
         t.equal(pkg.version, '0.0.0', 'version');
         t.end();
       });
