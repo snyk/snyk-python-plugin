@@ -57,5 +57,16 @@ export async function getDependencies(
       options.args
     ),
   ]);
+
+  if (!pkg.name) {
+    return {
+      plugin,
+      package: {
+        ...pkg,
+        ...(options['project-name'] && { name: options['project-name'] }),
+      },
+    };
+  }
+
   return { plugin, package: pkg };
 }
