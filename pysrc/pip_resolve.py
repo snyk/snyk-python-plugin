@@ -91,20 +91,6 @@ def create_tree_of_packages_dependencies(
             root_package[DEPENDENCIES][child_dist.project_name] = child_package
         return root_package
 
-    def create_dir_as_root():
-        name, version = None, None
-        if os.path.basename(req_file_path) == 'setup.py':
-            with open(req_file_path, "r") as setup_py_file:
-                name, version = setup_file.parse_name_and_version(setup_py_file.read())
-
-        dir_as_root = {
-            NAME: name or os.path.basename(os.path.dirname(os.path.abspath(req_file_path))),
-            VERSION: version or DIR_VERSION,
-            DEPENDENCIES: {},
-            PACKAGE_FORMAT_VERSION: 'pip:0.0.1'
-        }
-        return dir_as_root
-
     def create_package_as_root(package, dir_as_root):
         package_as_root = {
             NAME: package.project_name.lower(),
@@ -112,7 +98,7 @@ def create_tree_of_packages_dependencies(
             VERSION: package._obj._version,
         }
         return package_as_root
-    dir_as_root = create_dir_as_root()
+    dir_as_root = create_dir_as_root(req_file_path, NAME, VERSION, DIR_VERSION, DEPENDENCIES, PACKAGE_FORMAT_VERSION)
     for package in packages_as_dist_obj:
         package_as_root = create_package_as_root(package, dir_as_root)
         if only_provenance:
@@ -121,6 +107,20 @@ def create_tree_of_packages_dependencies(
         else:
             package_tree = create_children_recursive(package_as_root, key_tree, set([]))
             dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
+    return dir_as_root
+
+def create_dir_as_root(req_file_path, NAME, VERSION, DIR_VERSION, DEPENDENCIES, PACKAGE_FORMAT_VERSION):
+    name, version = None, None
+    if os.path.basename(req_file_path) == 'setup.py':
+        with open(req_file_path, "r") as setup_py_file:
+            name, version = setup_file.parse_name_and_version(setup_py_file.read())
+
+    dir_as_root = {
+        NAME: name or os.path.basename(os.path.dirname(os.path.abspath(req_file_path))) or '_root',
+        VERSION: version or DIR_VERSION,
+        DEPENDENCIES: {},
+        PACKAGE_FORMAT_VERSION: 'pip:0.0.1'
+    }
     return dir_as_root
 
 def satisfies_python_requirement(parsed_operator, py_version_str):

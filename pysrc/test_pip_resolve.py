@@ -4,7 +4,8 @@
 from pip_resolve import satisfies_python_requirement, \
                         matches_python_version, \
                         matches_environment, \
-                        canonicalize_package_name
+                        canonicalize_package_name, \
+                        create_dir_as_root
 from collections import namedtuple
 
 import unittest
@@ -15,6 +16,16 @@ except:
     from unittest.mock import patch
 
 class TestStringMethods(unittest.TestCase):
+
+    def test_create_dir_as_root(self):
+        DEPENDENCIES = 'dependencies'
+        VERSION = 'version'
+        NAME = 'name'
+        DIR_VERSION = '0.0.0'
+        PACKAGE_FORMAT_VERSION = 'packageFormatVersion'
+
+        self.assertEqual(create_dir_as_root("/requirements.txt", NAME, VERSION, DIR_VERSION, DEPENDENCIES, PACKAGE_FORMAT_VERSION)['name'], "_root")
+        self.assertEqual(create_dir_as_root("/some_dir/requirements.txt", NAME, VERSION, DIR_VERSION, DEPENDENCIES, PACKAGE_FORMAT_VERSION)['name'], "some_dir")
 
     def test_canonicalize_package_name(self):
         # https://packaging.python.org/guides/distributing-packages-using-setuptools/#name
