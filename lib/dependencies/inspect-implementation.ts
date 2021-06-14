@@ -4,6 +4,7 @@ import * as tmp from 'tmp';
 
 import * as subProcess from './sub-process';
 import { legacyCommon } from '@snyk/cli-interface';
+import { FILENAMES } from '../types';
 
 export function getMetaData(
   command: string,
@@ -11,14 +12,18 @@ export function getMetaData(
   root: string,
   targetFile: string
 ) {
+  const pythonEnv = getPythonEnv(targetFile);
+
   return subProcess
-    .execute(command, [...baseargs, '--version'], { cwd: root })
+    .execute(command, [...baseargs, '--version'], { cwd: root, env: pythonEnv })
     .then((output) => {
       return {
         name: 'snyk-python-plugin',
         runtime: output.replace('\n', ''),
         // specify targetFile only in case of Pipfile or setup.py
-        targetFile: path.basename(targetFile).match(/^(Pipfile|setup\.py)$/)
+        targetFile: path
+          .basename(targetFile)
+          .match(/^(Pipfile|setup\.py|poetry\.lock)$/)
           ? targetFile
           : undefined,
       };
@@ -103,6 +108,7 @@ export async function inspectInstalledDeps(
 
   dumpAllFilesInTempDir(tempDirObj.name);
   try {
+    const pythonEnv = getPythonEnv(targetFile);
     // See ../../pysrc/README.md
     const output = await subProcess.execute(
       command,
@@ -116,16 +122,26 @@ export async function inspectInstalledDeps(
           args
         ),
       ],
-      { cwd: root }
+      { cwd: root, env: pythonEnv }
     );
+
     return JSON.parse(output) as legacyCommon.DepTree;
   } catch (error) {
     if (typeof error === 'string') {
+      const emptyManifestMsg = 'No dependencies detected in manifest.';
+      const noDependenciesDetected = error.includes(emptyManifestMsg);
+
+      if (noDependenciesDetected) {
+        throw new Error(emptyManifestMsg);
+      }
+
       if (error.indexOf('Required packages missing') !== -1) {
         let errMsg = error;
-        if (path.basename(targetFile) === 'Pipfile') {
+        if (path.basename(targetFile) === FILENAMES.pipenv.manifest) {
           errMsg += '\nPlease run `pipenv update`.';
-        } else if (path.basename(targetFile) === 'setup.py') {
+        } else if (
+          path.basename(targetFile) === FILENAMES.setuptools.manifest
+        ) {
           errMsg += '\nPlease run `pip install -e .`.';
         } else {
           errMsg += '\nPlease run `pip install -r ' + targetFile + '`.';
@@ -134,9 +150,21 @@ export async function inspectInstalledDeps(
         throw new Error(errMsg);
       }
     }
+
     throw error;
   } finally {
     tempDirObj.removeCallback();
+  }
+}
+
+export function getPythonEnv(targetFile: string) {
+  if (path.basename(targetFile) === 'Pipfile') {
+    const envOverrides = {
+      PIPENV_PIPFILE: targetFile,
+    };
+    return { ...process.env, ...envOverrides };
+  } else {
+    return process.env;
   }
 }
 

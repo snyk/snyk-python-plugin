@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-etcd = ">=0.4,<0.5"
+testtools = "*"
+"Jinja2" = { version = "*" }
+django = { git = 'https://github.com/django/django.git', ref = '1.6.1', editable = true }
+"Django-Select2" = { version = "==6.0.1" }
+"e1839a8" = {path = ".", editable = true}
+
+[dev-packages]
+
+[requires]

@@ -2,7 +2,7 @@ version: 2.1
 
 defaults: &defaults
   docker:
-    - image: node:8
+    - image: node:10
   working_directory: ~/snyk-python-plugin
 
 commands:
@@ -20,11 +20,11 @@ commands:
             git merge --no-edit "$CIRCLE_BRANCH"
       - attach_workspace:
           at: ~/snyk-python-plugin
-  test:
+  test_python:
     parameters:
-      pip_ver:
+      pip_version:
         type: string
-      python_ver:
+      python_version:
         type: string
     steps:
       - checkout_and_merge
@@ -54,8 +54,8 @@ commands:
             python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
             npm run test
           environment:
-            PIP_VER: << parameters.pip_ver >>
-            PYTHON_VER: << parameters.python_ver >>
+            PIP_VER: << parameters.pip_version >>
+            PYTHON_VER: << parameters.python_version >>
 
 jobs:
   install:
@@ -81,150 +81,21 @@ jobs:
       - run:
           name: Run linting tasks
           command: npm run lint
-  test_node12_py3_pip9:
+  test:
     <<: *defaults
+    parameters:
+      node_version:
+        type: string
+      pip_version:
+        type: string
+      python_version:
+        type: string
     docker:
-      - image: node:12
+      - image: node:<< parameters.node_version >>
     steps:
-      - test:
-          pip_ver: '9.0.3'
-          python_ver: '3.6'
-  test_node12_py2_pip9:
-    <<: *defaults
-    docker:
-      - image: node:12
-    steps:
-      - test:
-          pip_ver: '9.0.3'
-          python_ver: '2.7'
-  test_node12_py3_pip10:
-    <<: *defaults
-    docker:
-      - image: node:12
-    steps:
-      - test:
-          pip_ver: '10.0.0'
-          python_ver: '3.6'
-  test_node12_py2_pip10:
-    <<: *defaults
-    docker:
-      - image: node:12
-    steps:
-      - test:
-          pip_ver: '10.0.0'
-          python_ver: '2.7'
-  test_node12_py3_pip18:
-    <<: *defaults
-    docker:
-      - image: node:12
-    steps:
-      - test:
-          pip_ver: '18.1.0'
-          python_ver: '3.6'
-  test_node12_py2_pip18:
-    <<: *defaults
-    docker:
-      - image: node:12
-    steps:
-      - test:
-          pip_ver: '18.1.0'
-          python_ver: '2.7'
-  test_node10_py3_pip9:
-    <<: *defaults
-    docker:
-      - image: node:10
-    steps:
-      - test:
-          pip_ver: '9.0.3'
-          python_ver: '3.6'
-  test_node10_py2_pip9:
-    <<: *defaults
-    docker:
-      - image: node:10
-    steps:
-      - test:
-          pip_ver: '9.0.3'
-          python_ver: '2.7'
-  test_node10_py3_pip10:
-    <<: *defaults
-    docker:
-      - image: node:10
-    steps:
-      - test:
-          pip_ver: '10.0.0'
-          python_ver: '3.6'
-  test_node10_py2_pip10:
-    <<: *defaults
-    docker:
-      - image: node:10
-    steps:
-      - test:
-          pip_ver: '10.0.0'
-          python_ver: '2.7'
-  test_node10_py3_pip18:
-    <<: *defaults
-    docker:
-      - image: node:10
-    steps:
-      - test:
-          pip_ver: '18.1.0'
-          python_ver: '3.6'
-  test_node10_py2_pip18:
-    <<: *defaults
-    docker:
-      - image: node:10
-    steps:
-      - test:
-          pip_ver: '18.1.0'
-          python_ver: '2.7'
-  test_node8_py3_pip9:
-    <<: *defaults
-    docker:
-      - image: node:8
-    steps:
-      - test:
-          pip_ver: '9.0.3'
-          python_ver: '3.6'
-  test_node8_py2_pip9:
-    <<: *defaults
-    docker:
-      - image: node:8
-    steps:
-      - test:
-          pip_ver: '9.0.3'
-          python_ver: '2.7'
-  test_node8_py3_pip10:
-    <<: *defaults
-    docker:
-      - image: node:8
-    steps:
-      - test:
-          pip_ver: '10.0.0'
-          python_ver: '3.6'
-  test_node8_py2_pip10:
-    <<: *defaults
-    docker:
-      - image: node:8
-    steps:
-      - test:
-          pip_ver: '10.0.0'
-          python_ver: '2.7'
-  test_node8_py3_pip18:
-    <<: *defaults
-    docker:
-      - image: node:8
-    steps:
-      - test:
-          pip_ver: '18.1.0'
-          python_ver: '3.6'
-  test_node8_py2_pip18:
-    <<: *defaults
-    docker:
-      - image: node:8
-    steps:
-      - test:
-          pip_ver: '18.1.0'
-          python_ver: '2.7'
+      - test_python:
+          pip_version: << parameters.pip_version >>
+          python_version: << parameters.python_version >>
   build:
     <<: *defaults
     steps:
@@ -260,14 +131,12 @@ workflows:
     jobs:
       - install:
           name: Install
-          context: nodejs-install
           filters:
             branches:
               ignore:
                 - master
       - lint:
           name: Lint
-          context: nodejs-install
           requires:
             - Install
           filters:
@@ -282,164 +151,16 @@ workflows:
             branches:
               ignore:
                 - master
-      - test_node12_py3_pip9:
-          name: Test (Node 12, Python 3.6, Pip 9.0.3)
+      - test:
+          name: Node << matrix.node_version >>, Python << matrix.python_version >>, Pip << matrix.pip_version >>
           requires:
             - Lint
             - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node12_py2_pip9:
-          name: Test (Node 12, Python 2.7, Pip 9.0.3)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node12_py3_pip10:
-          name: Test (Node 12, Python 3.6, Pip 10.0.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node12_py2_pip10:
-          name: Test (Node 12, Python 2.7, Pip 10.0.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node12_py3_pip18:
-          name: Test (Node 12, Python 3.6, Pip 18.1.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node12_py2_pip18:
-          name: Test (Node 12, Python 2.7, Pip 18.1.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node10_py3_pip9:
-          name: Test (Node 10, Python 3.6, Pip 9.0.3)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node10_py2_pip9:
-          name: Test (Node 10, Python 2.7, Pip 9.0.3)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node10_py3_pip10:
-          name: Test (Node 10, Python 3.6, Pip 10.0.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node10_py2_pip10:
-          name: Test (Node 10, Python 2.7, Pip 10.0.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node10_py3_pip18:
-          name: Test (Node 10, Python 3.6, Pip 18.1.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node10_py2_pip18:
-          name: Test (Node 10, Python 2.7, Pip 18.1.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node8_py3_pip9:
-          name: Test (Node 8, Python 3.6, Pip 9.0.3)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node8_py2_pip9:
-          name: Test (Node 8, Python 2.7, Pip 9.0.3)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node8_py3_pip10:
-          name: Test (Node 8, Python 3.6, Pip 10.0.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node8_py2_pip10:
-          name: Test (Node 8, Python 2.7, Pip 10.0.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node8_py3_pip18:
-          name: Test (Node 8, Python 3.6, Pip 18.1.0)
-          requires:
-            - Lint
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - test_node8_py2_pip18:
-          name: Test (Node 8, Python 2.7, Pip 18.1.0)
-          requires:
-            - Lint
-            - Build
+          matrix:
+            parameters:
+              node_version: ['10','12', '14']
+              pip_version: ['9.0.3','10.0.0','18.1.0']
+              python_version: ['2.7','3.6', '3.7', '3.8', '3.9']
           filters:
             branches:
               ignore:

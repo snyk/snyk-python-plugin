@@ -81,7 +81,7 @@ def create_tree_of_packages_dependencies(
                 continue
 
             child_package = {
-                NAME: child_dist.project_name,
+                NAME: child_dist.project_name.lower(),
                 VERSION: child_dist.installed_version,
             }
 
@@ -202,8 +202,11 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
         req_list = list(parsed_reqs.get('packages', []))
         if dev_deps:
             req_list.extend(parsed_reqs.get('dev-packages', []))
-        for r in req_list:
-            r.provenance = (requirements_file_path, r.provenance[1], r.provenance[2])
+        if not req_list:
+            return []
+        else:
+            for r in req_list:
+                r.provenance = (requirements_file_path, r.provenance[1], r.provenance[2])
     elif os.path.basename(requirements_file_path) == 'setup.py':
         with open(requirements_file_path, 'r') as f:
             setup_py_file_content = f.read()
@@ -254,25 +257,29 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path,
 
     # create a list of dependencies from the dependencies file
     required = get_requirements_list(requirements_file_path, dev_deps=dev_deps)
-    installed = [canonicalize_package_name(p) for p in dist_index]
-    top_level_requirements = []
-    missing_package_names = []
-    for r in required:
-        if canonicalize_package_name(r.name) not in installed:
-            missing_package_names.append(r.name)
-        else:
-            top_level_requirements.append(r)
-    if missing_package_names:
-        msg = 'Required packages missing: ' + (', '.join(missing_package_names))
-        if allow_missing:
-            sys.stderr.write(msg + "\n")
-        else:
-            sys.exit(msg)
+    if not required:
+        msg = 'No dependencies detected in manifest.'
+        sys.exit(msg)
+    else:
+        installed = [canonicalize_package_name(p) for p in dist_index]
+        top_level_requirements = []
+        missing_package_names = []
+        for r in required:
+            if canonicalize_package_name(r.name) not in installed:
+                missing_package_names.append(r.name)
+            else:
+                top_level_requirements.append(r)
+        if missing_package_names:
+            msg = 'Required packages missing: ' + (', '.join(missing_package_names))
+            if allow_missing:
+                sys.stderr.write(msg + "\n")
+            else:
+                sys.exit(msg)
 
-    # build a tree of dependencies
-    package_tree = create_tree_of_packages_dependencies(
-        dist_tree, top_level_requirements, requirements_file_path, allow_missing, only_provenance)
-    print(json.dumps(package_tree))
+        # build a tree of dependencies
+        package_tree = create_tree_of_packages_dependencies(
+            dist_tree, top_level_requirements, requirements_file_path, allow_missing, only_provenance)  
+        print(json.dumps(package_tree))
 
 
 def main():
