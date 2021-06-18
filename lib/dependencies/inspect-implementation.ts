@@ -6,6 +6,27 @@ import * as subProcess from './sub-process';
 import { legacyCommon } from '@snyk/cli-interface';
 import { FILENAMES } from '../types';
 
+const returnedTargetFile = (originalTargetFile) => {
+  const basename = path.basename(originalTargetFile);
+
+  switch (basename) {
+    case FILENAMES.poetry.lockfile: {
+      const dirname = path.dirname(originalTargetFile);
+      const pyprojectRelativePath = path.join(
+        dirname,
+        FILENAMES.poetry.manifest
+      );
+
+      return pyprojectRelativePath;
+    }
+    case FILENAMES.pipenv.manifest:
+    case FILENAMES.setuptools.manifest:
+      return originalTargetFile;
+    default:
+      return;
+  }
+};
+
 export function getMetaData(
   command: string,
   baseargs: string[],
@@ -20,12 +41,7 @@ export function getMetaData(
       return {
         name: 'snyk-python-plugin',
         runtime: output.replace('\n', ''),
-        // specify targetFile only in case of Pipfile or setup.py
-        targetFile: path
-          .basename(targetFile)
-          .match(/^(Pipfile|setup\.py|poetry\.lock)$/)
-          ? targetFile
-          : undefined,
+        targetFile: returnedTargetFile(targetFile),
       };
     });
 }
