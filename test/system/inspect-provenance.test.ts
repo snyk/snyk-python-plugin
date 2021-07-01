@@ -222,6 +222,7 @@ test('inspect setup.py', async (t) => {
 
   t.test('plugin', async (t) => {
     t.ok(plugin, 'plugin');
+
     t.equal(plugin.name, 'snyk-python-plugin', 'name');
     t.match(plugin.runtime, 'Python', 'runtime');
     t.equal(plugin.targetFile, 'setup.py', 'targetfile is setup.py');
