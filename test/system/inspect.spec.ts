@@ -1,4 +1,9 @@
-import { inspect } from '../../lib';
+import {
+  EmptyManifestError,
+  inspect,
+  PythonPluginErrorNames,
+  RequiredPackagesMissingError,
+} from '../../lib';
 import { chdirWorkspaces } from '../test-utils';
 import { DepGraphBuilder } from '@snyk/dep-graph';
 import { FILENAMES } from '../../lib/types';
@@ -98,6 +103,45 @@ describe('inspect', () => {
       const result = await inspect('.', manifestFilePath);
       const expectedTargetFile = `${dirname}/setup.py`;
       expect(result.plugin.targetFile).toEqual(expectedTargetFile);
+    });
+  });
+
+  describe('error scenarios', () => {
+    const mockedExecuteSync = jest.spyOn(subProcess, 'executeSync');
+    const mockedExecute = jest.spyOn(subProcess, 'execute');
+
+    afterEach(() => {
+      mockedExecuteSync.mockClear();
+      mockedExecute.mockClear();
+    });
+
+    describe('manifest file is empty', () => {
+      it('should throw EmptyManifestError', async () => {
+        mockedExecute.mockResolvedValueOnce('Python 3.9.5');
+        mockedExecute.mockRejectedValueOnce(
+          'No dependencies detected in manifest.'
+        );
+        const manifestFilePath = 'path/to/requirements.txt';
+
+        expect(inspect('.', manifestFilePath)).rejects.toThrowError(
+          new EmptyManifestError('No dependencies detected in manifest.')
+        );
+      });
+    });
+
+    describe('required packages were not installed', () => {
+      it('should throw RequiredPackagesMissingError', async () => {
+        mockedExecute.mockResolvedValueOnce('Python 3.9.5');
+        mockedExecute.mockRejectedValueOnce('Required packages missing');
+        const manifestFilePath = 'path/to/requirements.txt';
+
+        expect(inspect('.', manifestFilePath)).rejects.toThrowError(
+          new RequiredPackagesMissingError(
+            'Required packages missing\n' +
+              'Please run `pip install -r path/to/requirements.txt`. If the issue persists try again with --skip-unresolved.'
+          )
+        );
+      });
     });
   });
 });
