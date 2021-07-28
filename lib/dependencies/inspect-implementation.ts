@@ -5,6 +5,7 @@ import * as tmp from 'tmp';
 import * as subProcess from './sub-process';
 import { legacyCommon } from '@snyk/cli-interface';
 import { FILENAMES } from '../types';
+import { EmptyManifestError, RequiredPackagesMissingError } from '../errors';
 
 const returnedTargetFile = (originalTargetFile) => {
   const basename = path.basename(originalTargetFile);
@@ -138,7 +139,10 @@ export async function inspectInstalledDeps(
           args
         ),
       ],
-      { cwd: root, env: pythonEnv }
+      {
+        cwd: root,
+        env: pythonEnv,
+      }
     );
 
     return JSON.parse(output) as legacyCommon.DepTree;
@@ -148,7 +152,7 @@ export async function inspectInstalledDeps(
       const noDependenciesDetected = error.includes(emptyManifestMsg);
 
       if (noDependenciesDetected) {
-        throw new Error(emptyManifestMsg);
+        throw new EmptyManifestError(emptyManifestMsg);
       }
 
       if (error.indexOf('Required packages missing') !== -1) {
@@ -163,7 +167,8 @@ export async function inspectInstalledDeps(
           errMsg += '\nPlease run `pip install -r ' + targetFile + '`.';
         }
         errMsg += ' If the issue persists try again with --skip-unresolved.';
-        throw new Error(errMsg);
+
+        throw new RequiredPackagesMissingError(errMsg);
       }
     }
 
