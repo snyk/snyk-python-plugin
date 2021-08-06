@@ -1,0 +1,1 @@
+django-filter==1.0.2                        # Help filter the model queryset by it's fields

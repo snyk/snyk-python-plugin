@@ -321,6 +321,42 @@ test('inspect', (t) => {
     });
 });
 
+test('inspect django-app requirement.txt with comments, tabs & spaces', async (t) => {
+  const djangoAppExpectedDependencies = {
+    'django-filters': {
+      data: {
+        name: 'django-filter',
+        version: '1.0.2',
+      },
+      msg: 'django-filter looks ok',
+    },
+  };
+  chdirWorkspaces('django-app');
+  t.teardown(testUtils.activateVirtualenv('django-app'));
+
+  const result = plugin.inspect('.', 'requirements.txt');
+
+  const pluginRes = result.plugin;
+  const pkg = result.package;
+
+  t.ok(pluginRes, 'plugin');
+  t.equal(pluginRes.name, 'snyk-python-plugin', 'name');
+  t.match(pluginRes.runtime, 'Python', 'runtime');
+  t.notOk(pluginRes.targetFile, 'no targetfile for requirements.txt');
+
+  t.ok(pkg, 'package');
+  t.equal(pkg.name, 'django-app', 'name');
+  t.equal(pkg.version, '0.0.0', 'version');
+
+  Object.keys(djangoAppExpectedDependencies).forEach((depName) => {
+    t.match(
+      pkg.dependencies[depName],
+      djangoAppExpectedDependencies[depName].data,
+      djangoAppExpectedDependencies[depName].msg
+    );
+  });
+});
+
 test('inspect setup.py', (t) => {
   return Promise.resolve()
     .then(() => {
@@ -422,7 +458,9 @@ test('transitive dep not installed, but with allowMissing option', (t) => {
       }
     })
     .then(() => {
-      return plugin.inspect('.', 'requirements.txt', { allowMissing: true });
+      return plugin.inspect('.', 'requirements.txt', {
+        allowMissing: true,
+      });
     })
     .then((result) => {
       const plugin = result.plugin;
@@ -531,7 +569,9 @@ test('deps not installed, but with allowMissing option', (t) => {
       t.teardown(testUtils.activateVirtualenv('pip-app'));
     })
     .then(() => {
-      return plugin.inspect('.', 'requirements.txt', { allowMissing: true });
+      return plugin.inspect('.', 'requirements.txt', {
+        allowMissing: true,
+      });
     })
     .then((result) => {
       const plugin = result.plugin;
@@ -567,7 +607,9 @@ test('uses provided exec command', (t) => {
     .then((execute) => {
       const command = 'echo';
       return plugin
-        .inspect('.', 'requirements.txt', { command: command })
+        .inspect('.', 'requirements.txt', {
+          command: command,
+        })
         .then(() => {
           t.ok(execute.calledTwice, 'execute called twice');
           t.equal(execute.firstCall.args[0], command, 'uses command');
@@ -590,7 +632,9 @@ test('package name differs from requirement (- vs _)', (t) => {
       }
     })
     .then(() => {
-      return plugin.inspect('.', 'requirements.txt', { allowMissing: true });
+      return plugin.inspect('.', 'requirements.txt', {
+        allowMissing: true,
+      });
     })
     .then((result) => {
       const pkg = result.package;
@@ -674,7 +718,9 @@ test('package depends on platform', (t) => {
       }
     })
     .then(() => {
-      return plugin.inspect('.', 'requirements.txt', { allowMissing: true });
+      return plugin.inspect('.', 'requirements.txt', {
+        allowMissing: true,
+      });
     })
     .then((result) => {
       const pkg = result.package;
@@ -707,7 +753,9 @@ test('editables ignored', (t) => {
       }
     })
     .then(() => {
-      return plugin.inspect('.', 'requirements.txt', { allowMissing: true });
+      return plugin.inspect('.', 'requirements.txt', {
+        allowMissing: true,
+      });
     })
     .then((result) => {
       const pkg = result.package;
@@ -1086,7 +1134,9 @@ test('inspect pipenv app dev dependencies', (t) => {
           );
         });
 
-        t.match(pkg.dependencies.virtualenv, { name: 'virtualenv' });
+        t.match(pkg.dependencies.virtualenv, {
+          name: 'virtualenv',
+        });
 
         t.end();
       });
