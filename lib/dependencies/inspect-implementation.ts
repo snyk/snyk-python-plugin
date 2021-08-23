@@ -3,7 +3,8 @@ import * as path from 'path';
 import * as tmp from 'tmp';
 
 import * as subProcess from './sub-process';
-import { legacyCommon } from '@snyk/cli-interface';
+import { DepGraph } from '@snyk/dep-graph';
+import { buildDepGraph, PartialDepTree } from './build-dep-graph';
 import { FILENAMES } from '../types';
 import { EmptyManifestError, RequiredPackagesMissingError } from '../errors';
 
@@ -118,7 +119,7 @@ export async function inspectInstalledDeps(
   allowMissing: boolean,
   includeDevDeps: boolean,
   args?: string[]
-): Promise<legacyCommon.DepTree> {
+): Promise<DepGraph> {
   const tempDirObj = tmp.dirSync({
     unsafeCleanup: true,
   });
@@ -145,7 +146,8 @@ export async function inspectInstalledDeps(
       }
     );
 
-    return JSON.parse(output) as legacyCommon.DepTree;
+    const result = JSON.parse(output) as PartialDepTree;
+    return buildDepGraph(result);
   } catch (error) {
     if (typeof error === 'string') {
       const emptyManifestMsg = 'No dependencies detected in manifest.';

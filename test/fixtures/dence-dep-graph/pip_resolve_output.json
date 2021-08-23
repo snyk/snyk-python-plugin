@@ -1,0 +1,1546 @@
+{
+  "name": "pip--62-01iNczXpgA9L",
+  "version": "0.0.0",
+  "dependencies": {
+    "attrs": {
+      "name": "attrs",
+      "version": "20.2.0"
+    },
+    "aws-cdk.assets": {
+      "name": "aws-cdk.assets",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.core": {
+          "name": "aws-cdk.core",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.cloud-assembly-schema": {
+              "name": "aws-cdk.cloud-assembly-schema",
+              "version": "1.63.0",
+              "dependencies": {
+                "jsii": {
+                  "name": "jsii",
+                  "version": "1.12.0",
+                  "dependencies": {
+                    "attrs": {
+                      "name": "attrs",
+                      "version": "20.2.0"
+                    },
+                    "cattrs": {
+                      "name": "cattrs",
+                      "version": "1.0.0",
+                      "dependencies": {
+                        "attrs": "true"
+                      }
+                    },
+                    "python-dateutil": {
+                      "name": "python-dateutil",
+                      "version": "2.8.1",
+                      "dependencies": {
+                        "six": {
+                          "name": "six",
+                          "version": "1.15.0"
+                        }
+                      }
+                    },
+                    "typing-extensions": {
+                      "name": "typing-extensions",
+                      "version": "3.7.4.3"
+                    }
+                  }
+                },
+                "publication": {
+                  "name": "publication",
+                  "version": "0.0.3"
+                }
+              }
+            },
+            "aws-cdk.cx-api": {
+              "name": "aws-cdk.cx-api",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.cloud-assembly-schema": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "constructs": {
+              "name": "constructs",
+              "version": "3.0.4",
+              "dependencies": {
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.cx-api": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-apigateway": {
+      "name": "aws-cdk.aws-apigateway",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.assets": {
+          "name": "aws-cdk.assets",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.core": "true",
+            "aws-cdk.cx-api": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-certificatemanager": {
+          "name": "aws-cdk.aws-certificatemanager",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-iam": {
+              "name": "aws-cdk.aws-iam",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.core": "true",
+                "aws-cdk.region-info": {
+                  "name": "aws-cdk.region-info",
+                  "version": "1.63.0",
+                  "dependencies": {
+                    "jsii": "true",
+                    "publication": "true"
+                  }
+                },
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "aws-cdk.aws-lambda": {
+              "name": "aws-cdk.aws-lambda",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.aws-applicationautoscaling": {
+                  "name": "aws-cdk.aws-applicationautoscaling",
+                  "version": "1.63.0",
+                  "dependencies": {
+                    "aws-cdk.aws-autoscaling-common": {
+                      "name": "aws-cdk.aws-autoscaling-common",
+                      "version": "1.63.0",
+                      "dependencies": {
+                        "aws-cdk.aws-iam": "true",
+                        "aws-cdk.core": "true",
+                        "constructs": "true",
+                        "jsii": "true",
+                        "publication": "true"
+                      }
+                    },
+                    "aws-cdk.aws-cloudwatch": {
+                      "name": "aws-cdk.aws-cloudwatch",
+                      "version": "1.63.0",
+                      "dependencies": {
+                        "aws-cdk.aws-iam": "true",
+                        "aws-cdk.core": "true",
+                        "constructs": "true",
+                        "jsii": "true",
+                        "publication": "true"
+                      }
+                    },
+                    "aws-cdk.aws-iam": "true",
+                    "aws-cdk.core": "true",
+                    "constructs": "true",
+                    "jsii": "true",
+                    "publication": "true"
+                  }
+                },
+                "aws-cdk.aws-cloudwatch": "true",
+                "aws-cdk.aws-codeguruprofiler": {
+                  "name": "aws-cdk.aws-codeguruprofiler",
+                  "version": "1.63.0",
+                  "dependencies": {
+                    "aws-cdk.aws-iam": "true",
+                    "aws-cdk.core": "true",
+                    "constructs": "true",
+                    "jsii": "true",
+                    "publication": "true"
+                  }
+                },
+                "aws-cdk.aws-ec2": {
+                  "name": "aws-cdk.aws-ec2",
+                  "version": "1.63.0",
+                  "dependencies": {
+                    "aws-cdk.assets": "true",
+                    "aws-cdk.aws-cloudwatch": "true",
+                    "aws-cdk.aws-iam": "true",
+                    "aws-cdk.aws-kms": {
+                      "name": "aws-cdk.aws-kms",
+                      "version": "1.63.0",
+                      "dependencies": {
+                        "aws-cdk.aws-iam": "true",
+                        "aws-cdk.core": "true",
+                        "constructs": "true",
+                        "jsii": "true",
+                        "publication": "true"
+                      }
+                    },
+                    "aws-cdk.aws-logs": {
+                      "name": "aws-cdk.aws-logs",
+                      "version": "1.63.0",
+                      "dependencies": {
+                        "aws-cdk.aws-cloudwatch": "true",
+                        "aws-cdk.aws-iam": "true",
+                        "aws-cdk.aws-s3-assets": {
+                          "name": "aws-cdk.aws-s3-assets",
+                          "version": "1.63.0",
+                          "dependencies": {
+                            "aws-cdk.assets": "true",
+                            "aws-cdk.aws-iam": "true",
+                            "aws-cdk.aws-kms": "true",
+                            "aws-cdk.aws-s3": {
+                              "name": "aws-cdk.aws-s3",
+                              "version": "1.63.0",
+                              "dependencies": {
+                                "aws-cdk.aws-events": {
+                                  "name": "aws-cdk.aws-events",
+                                  "version": "1.63.0",
+                                  "dependencies": {
+                                    "aws-cdk.aws-iam": "true",
+                                    "aws-cdk.core": "true",
+                                    "constructs": "true",
+                                    "jsii": "true",
+                                    "publication": "true"
+                                  }
+                                },
+                                "aws-cdk.aws-iam": "true",
+                                "aws-cdk.aws-kms": "true",
+                                "aws-cdk.core": "true",
+                                "constructs": "true",
+                                "jsii": "true",
+                                "publication": "true"
+                              }
+                            },
+                            "aws-cdk.core": "true",
+                            "aws-cdk.cx-api": "true",
+                            "constructs": "true",
+                            "jsii": "true",
+                            "publication": "true"
+                          }
+                        },
+                        "aws-cdk.core": "true",
+                        "constructs": "true",
+                        "jsii": "true",
+                        "publication": "true"
+                      }
+                    },
+                    "aws-cdk.aws-s3": "true",
+                    "aws-cdk.aws-s3-assets": "true",
+                    "aws-cdk.aws-ssm": {
+                      "name": "aws-cdk.aws-ssm",
+                      "version": "1.63.0",
+                      "dependencies": {
+                        "aws-cdk.aws-iam": "true",
+                        "aws-cdk.aws-kms": "true",
+                        "aws-cdk.cloud-assembly-schema": "true",
+                        "aws-cdk.core": "true",
+                        "constructs": "true",
+                        "jsii": "true",
+                        "publication": "true"
+                      }
+                    },
+                    "aws-cdk.cloud-assembly-schema": "true",
+                    "aws-cdk.core": "true",
+                    "aws-cdk.cx-api": "true",
+                    "aws-cdk.region-info": "true",
+                    "constructs": "true",
+                    "jsii": "true",
+                    "publication": "true"
+                  }
+                },
+                "aws-cdk.aws-efs": {
+                  "name": "aws-cdk.aws-efs",
+                  "version": "1.63.0",
+                  "dependencies": {
+                    "aws-cdk.aws-ec2": "true",
+                    "aws-cdk.aws-kms": "true",
+                    "aws-cdk.cloud-assembly-schema": "true",
+                    "aws-cdk.core": "true",
+                    "aws-cdk.cx-api": "true",
+                    "constructs": "true",
+                    "jsii": "true",
+                    "publication": "true"
+                  }
+                },
+                "aws-cdk.aws-events": "true",
+                "aws-cdk.aws-iam": "true",
+                "aws-cdk.aws-logs": "true",
+                "aws-cdk.aws-s3": "true",
+                "aws-cdk.aws-s3-assets": "true",
+                "aws-cdk.aws-sqs": {
+                  "name": "aws-cdk.aws-sqs",
+                  "version": "1.63.0",
+                  "dependencies": {
+                    "aws-cdk.aws-cloudwatch": "true",
+                    "aws-cdk.aws-iam": "true",
+                    "aws-cdk.aws-kms": "true",
+                    "aws-cdk.core": "true",
+                    "constructs": "true",
+                    "jsii": "true",
+                    "publication": "true"
+                  }
+                },
+                "aws-cdk.core": "true",
+                "aws-cdk.cx-api": "true",
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "aws-cdk.aws-route53": {
+              "name": "aws-cdk.aws-route53",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.aws-ec2": "true",
+                "aws-cdk.aws-logs": "true",
+                "aws-cdk.cloud-assembly-schema": "true",
+                "aws-cdk.core": "true",
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "aws-cdk.core": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-elasticloadbalancingv2": {
+          "name": "aws-cdk.aws-elasticloadbalancingv2",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-certificatemanager": "true",
+            "aws-cdk.aws-cloudwatch": "true",
+            "aws-cdk.aws-ec2": "true",
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.aws-lambda": "true",
+            "aws-cdk.aws-s3": "true",
+            "aws-cdk.core": "true",
+            "aws-cdk.region-info": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-logs": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.aws-s3-assets": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.cx-api": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-applicationautoscaling": {
+      "name": "aws-cdk.aws-applicationautoscaling",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-autoscaling-common": "true",
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-autoscaling": {
+      "name": "aws-cdk.aws-autoscaling",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-autoscaling-common": "true",
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-elasticloadbalancing": {
+          "name": "aws-cdk.aws-elasticloadbalancing",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-ec2": "true",
+            "aws-cdk.core": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-elasticloadbalancingv2": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-sns": {
+          "name": "aws-cdk.aws-sns",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-cloudwatch": "true",
+            "aws-cdk.aws-events": "true",
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.aws-kms": "true",
+            "aws-cdk.aws-sqs": "true",
+            "aws-cdk.core": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-autoscaling-common": {
+      "name": "aws-cdk.aws-autoscaling-common",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-autoscaling-hooktargets": {
+      "name": "aws-cdk.aws-autoscaling-hooktargets",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-autoscaling": {
+          "name": "aws-cdk.aws-autoscaling",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-autoscaling-common": "true",
+            "aws-cdk.aws-cloudwatch": "true",
+            "aws-cdk.aws-ec2": "true",
+            "aws-cdk.aws-elasticloadbalancing": "true",
+            "aws-cdk.aws-elasticloadbalancingv2": "true",
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.aws-sns": "true",
+            "aws-cdk.core": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-sns": "true",
+        "aws-cdk.aws-sns-subscriptions": {
+          "name": "aws-cdk.aws-sns-subscriptions",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.aws-lambda": "true",
+            "aws-cdk.aws-sns": "true",
+            "aws-cdk.aws-sqs": "true",
+            "aws-cdk.core": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-sqs": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-batch": {
+      "name": "aws-cdk.aws-batch",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-ecr": {
+          "name": "aws-cdk.aws-ecr",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-events": "true",
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.core": "true",
+            "aws-cdk.custom-resources": {
+              "name": "aws-cdk.custom-resources",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.aws-cloudformation": {
+                  "name": "aws-cdk.aws-cloudformation",
+                  "version": "1.63.0",
+                  "dependencies": {
+                    "aws-cdk.aws-iam": "true",
+                    "aws-cdk.aws-lambda": "true",
+                    "aws-cdk.aws-s3": "true",
+                    "aws-cdk.aws-sns": "true",
+                    "aws-cdk.core": "true",
+                    "aws-cdk.cx-api": "true",
+                    "constructs": "true",
+                    "jsii": "true",
+                    "publication": "true"
+                  }
+                },
+                "aws-cdk.aws-iam": "true",
+                "aws-cdk.aws-lambda": "true",
+                "aws-cdk.aws-logs": "true",
+                "aws-cdk.aws-sns": "true",
+                "aws-cdk.core": "true",
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-ecs": {
+          "name": "aws-cdk.aws-ecs",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-applicationautoscaling": "true",
+            "aws-cdk.aws-autoscaling": "true",
+            "aws-cdk.aws-autoscaling-hooktargets": {
+              "name": "aws-cdk.aws-autoscaling-hooktargets",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.aws-autoscaling": "true",
+                "aws-cdk.aws-iam": "true",
+                "aws-cdk.aws-kms": "true",
+                "aws-cdk.aws-lambda": "true",
+                "aws-cdk.aws-sns": "true",
+                "aws-cdk.aws-sns-subscriptions": "true",
+                "aws-cdk.aws-sqs": "true",
+                "aws-cdk.core": "true",
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "aws-cdk.aws-certificatemanager": "true",
+            "aws-cdk.aws-cloudwatch": "true",
+            "aws-cdk.aws-ec2": "true",
+            "aws-cdk.aws-ecr": "true",
+            "aws-cdk.aws-ecr-assets": {
+              "name": "aws-cdk.aws-ecr-assets",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.assets": "true",
+                "aws-cdk.aws-ecr": "true",
+                "aws-cdk.aws-iam": "true",
+                "aws-cdk.aws-lambda": "true",
+                "aws-cdk.aws-s3": "true",
+                "aws-cdk.core": "true",
+                "aws-cdk.cx-api": "true",
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "aws-cdk.aws-elasticloadbalancing": "true",
+            "aws-cdk.aws-elasticloadbalancingv2": "true",
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.aws-kms": "true",
+            "aws-cdk.aws-lambda": "true",
+            "aws-cdk.aws-logs": "true",
+            "aws-cdk.aws-route53": "true",
+            "aws-cdk.aws-route53-targets": {
+              "name": "aws-cdk.aws-route53-targets",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.aws-apigateway": {
+                  "name": "aws-cdk.aws-apigateway",
+                  "version": "1.63.0",
+                  "dependencies": {
+                    "aws-cdk.assets": "true",
+                    "aws-cdk.aws-certificatemanager": "true",
+                    "aws-cdk.aws-ec2": "true",
+                    "aws-cdk.aws-elasticloadbalancingv2": "true",
+                    "aws-cdk.aws-iam": "true",
+                    "aws-cdk.aws-lambda": "true",
+                    "aws-cdk.aws-logs": "true",
+                    "aws-cdk.aws-s3": "true",
+                    "aws-cdk.aws-s3-assets": "true",
+                    "aws-cdk.core": "true",
+                    "aws-cdk.cx-api": "true",
+                    "constructs": "true",
+                    "jsii": "true",
+                    "publication": "true"
+                  }
+                },
+                "aws-cdk.aws-cloudfront": {
+                  "name": "aws-cdk.aws-cloudfront",
+                  "version": "1.63.0",
+                  "dependencies": {
+                    "aws-cdk.aws-certificatemanager": "true",
+                    "aws-cdk.aws-iam": "true",
+                    "aws-cdk.aws-kms": "true",
+                    "aws-cdk.aws-lambda": "true",
+                    "aws-cdk.aws-s3": "true",
+                    "aws-cdk.core": "true",
+                    "constructs": "true",
+                    "jsii": "true",
+                    "publication": "true"
+                  }
+                },
+                "aws-cdk.aws-cognito": {
+                  "name": "aws-cdk.aws-cognito",
+                  "version": "1.63.0",
+                  "dependencies": {
+                    "aws-cdk.aws-certificatemanager": "true",
+                    "aws-cdk.aws-iam": "true",
+                    "aws-cdk.aws-lambda": "true",
+                    "aws-cdk.core": "true",
+                    "aws-cdk.custom-resources": "true",
+                    "constructs": "true",
+                    "jsii": "true",
+                    "publication": "true"
+                  }
+                },
+                "aws-cdk.aws-ec2": "true",
+                "aws-cdk.aws-elasticloadbalancing": "true",
+                "aws-cdk.aws-elasticloadbalancingv2": "true",
+                "aws-cdk.aws-iam": "true",
+                "aws-cdk.aws-route53": "true",
+                "aws-cdk.aws-s3": "true",
+                "aws-cdk.core": "true",
+                "aws-cdk.region-info": "true",
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "aws-cdk.aws-secretsmanager": {
+              "name": "aws-cdk.aws-secretsmanager",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.aws-ec2": "true",
+                "aws-cdk.aws-iam": "true",
+                "aws-cdk.aws-kms": "true",
+                "aws-cdk.aws-lambda": "true",
+                "aws-cdk.aws-sam": {
+                  "name": "aws-cdk.aws-sam",
+                  "version": "1.63.0",
+                  "dependencies": {
+                    "aws-cdk.core": "true",
+                    "constructs": "true",
+                    "jsii": "true",
+                    "publication": "true"
+                  }
+                },
+                "aws-cdk.core": "true",
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "aws-cdk.aws-servicediscovery": {
+              "name": "aws-cdk.aws-servicediscovery",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.aws-ec2": "true",
+                "aws-cdk.aws-elasticloadbalancingv2": "true",
+                "aws-cdk.aws-route53": "true",
+                "aws-cdk.core": "true",
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "aws-cdk.aws-sns": "true",
+            "aws-cdk.aws-sqs": "true",
+            "aws-cdk.aws-ssm": "true",
+            "aws-cdk.core": "true",
+            "aws-cdk.cx-api": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-certificatemanager": {
+      "name": "aws-cdk.aws-certificatemanager",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-route53": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-cloudformation": {
+      "name": "aws-cdk.aws-cloudformation",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.aws-sns": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.cx-api": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-cloudfront": {
+      "name": "aws-cdk.aws-cloudfront",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-certificatemanager": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-cloudwatch": {
+      "name": "aws-cdk.aws-cloudwatch",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-codebuild": {
+      "name": "aws-cdk.aws-codebuild",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.assets": "true",
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-codecommit": {
+          "name": "aws-cdk.aws-codecommit",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-events": "true",
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.core": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-ecr": "true",
+        "aws-cdk.aws-ecr-assets": "true",
+        "aws-cdk.aws-events": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.aws-s3-assets": "true",
+        "aws-cdk.aws-secretsmanager": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.region-info": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-codecommit": {
+      "name": "aws-cdk.aws-codecommit",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-events": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-codedeploy": {
+      "name": "aws-cdk.aws-codedeploy",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-autoscaling": "true",
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-elasticloadbalancing": "true",
+        "aws-cdk.aws-elasticloadbalancingv2": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-codeguruprofiler": {
+      "name": "aws-cdk.aws-codeguruprofiler",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-codepipeline": {
+      "name": "aws-cdk.aws-codepipeline",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-events": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-codepipeline-actions": {
+      "name": "aws-cdk.aws-codepipeline-actions",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-cloudformation": "true",
+        "aws-cdk.aws-codebuild": {
+          "name": "aws-cdk.aws-codebuild",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.assets": "true",
+            "aws-cdk.aws-cloudwatch": "true",
+            "aws-cdk.aws-codecommit": "true",
+            "aws-cdk.aws-ec2": "true",
+            "aws-cdk.aws-ecr": "true",
+            "aws-cdk.aws-ecr-assets": "true",
+            "aws-cdk.aws-events": "true",
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.aws-kms": "true",
+            "aws-cdk.aws-s3": "true",
+            "aws-cdk.aws-s3-assets": "true",
+            "aws-cdk.aws-secretsmanager": "true",
+            "aws-cdk.core": "true",
+            "aws-cdk.region-info": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-codecommit": "true",
+        "aws-cdk.aws-codedeploy": {
+          "name": "aws-cdk.aws-codedeploy",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-autoscaling": "true",
+            "aws-cdk.aws-cloudwatch": "true",
+            "aws-cdk.aws-ec2": "true",
+            "aws-cdk.aws-elasticloadbalancing": "true",
+            "aws-cdk.aws-elasticloadbalancingv2": "true",
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.aws-lambda": "true",
+            "aws-cdk.aws-s3": "true",
+            "aws-cdk.core": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-codepipeline": {
+          "name": "aws-cdk.aws-codepipeline",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-events": "true",
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.aws-kms": "true",
+            "aws-cdk.aws-s3": "true",
+            "aws-cdk.core": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-ecr": "true",
+        "aws-cdk.aws-ecs": "true",
+        "aws-cdk.aws-events": "true",
+        "aws-cdk.aws-events-targets": {
+          "name": "aws-cdk.aws-events-targets",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-batch": {
+              "name": "aws-cdk.aws-batch",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.aws-ec2": "true",
+                "aws-cdk.aws-ecr": "true",
+                "aws-cdk.aws-ecs": "true",
+                "aws-cdk.aws-iam": "true",
+                "aws-cdk.core": "true",
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "aws-cdk.aws-codebuild": "true",
+            "aws-cdk.aws-codepipeline": "true",
+            "aws-cdk.aws-ec2": "true",
+            "aws-cdk.aws-ecs": "true",
+            "aws-cdk.aws-events": "true",
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.aws-kinesis": {
+              "name": "aws-cdk.aws-kinesis",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.aws-iam": "true",
+                "aws-cdk.aws-kms": "true",
+                "aws-cdk.aws-logs": "true",
+                "aws-cdk.core": "true",
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "aws-cdk.aws-lambda": "true",
+            "aws-cdk.aws-sns": "true",
+            "aws-cdk.aws-sns-subscriptions": "true",
+            "aws-cdk.aws-sqs": "true",
+            "aws-cdk.aws-stepfunctions": {
+              "name": "aws-cdk.aws-stepfunctions",
+              "version": "1.63.0",
+              "dependencies": {
+                "aws-cdk.aws-cloudwatch": "true",
+                "aws-cdk.aws-events": "true",
+                "aws-cdk.aws-iam": "true",
+                "aws-cdk.aws-logs": "true",
+                "aws-cdk.core": "true",
+                "constructs": "true",
+                "jsii": "true",
+                "publication": "true"
+              }
+            },
+            "aws-cdk.core": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.aws-servicecatalog": {
+          "name": "aws-cdk.aws-servicecatalog",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.core": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-sns": "true",
+        "aws-cdk.aws-sns-subscriptions": "true",
+        "aws-cdk.aws-stepfunctions": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-cognito": {
+      "name": "aws-cdk.aws-cognito",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-certificatemanager": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.custom-resources": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-dynamodb": {
+      "name": "aws-cdk.aws-dynamodb",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-applicationautoscaling": "true",
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.custom-resources": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-ec2": {
+      "name": "aws-cdk.aws-ec2",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.assets": "true",
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.aws-logs": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.aws-s3-assets": "true",
+        "aws-cdk.aws-ssm": "true",
+        "aws-cdk.cloud-assembly-schema": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.cx-api": "true",
+        "aws-cdk.region-info": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-ecr": {
+      "name": "aws-cdk.aws-ecr",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-events": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.custom-resources": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-ecr-assets": {
+      "name": "aws-cdk.aws-ecr-assets",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.assets": "true",
+        "aws-cdk.aws-ecr": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.cx-api": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-ecs": {
+      "name": "aws-cdk.aws-ecs",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-applicationautoscaling": "true",
+        "aws-cdk.aws-autoscaling": "true",
+        "aws-cdk.aws-autoscaling-hooktargets": "true",
+        "aws-cdk.aws-certificatemanager": "true",
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-ecr": "true",
+        "aws-cdk.aws-ecr-assets": "true",
+        "aws-cdk.aws-elasticloadbalancing": "true",
+        "aws-cdk.aws-elasticloadbalancingv2": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-logs": "true",
+        "aws-cdk.aws-route53": "true",
+        "aws-cdk.aws-route53-targets": "true",
+        "aws-cdk.aws-secretsmanager": "true",
+        "aws-cdk.aws-servicediscovery": "true",
+        "aws-cdk.aws-sns": "true",
+        "aws-cdk.aws-sqs": "true",
+        "aws-cdk.aws-ssm": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.cx-api": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-efs": {
+      "name": "aws-cdk.aws-efs",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.cloud-assembly-schema": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.cx-api": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-elasticloadbalancing": {
+      "name": "aws-cdk.aws-elasticloadbalancing",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-elasticloadbalancingv2": {
+      "name": "aws-cdk.aws-elasticloadbalancingv2",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-certificatemanager": "true",
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.region-info": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-events": {
+      "name": "aws-cdk.aws-events",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-events-targets": {
+      "name": "aws-cdk.aws-events-targets",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-batch": "true",
+        "aws-cdk.aws-codebuild": "true",
+        "aws-cdk.aws-codepipeline": "true",
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-ecs": "true",
+        "aws-cdk.aws-events": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kinesis": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-sns": "true",
+        "aws-cdk.aws-sns-subscriptions": "true",
+        "aws-cdk.aws-sqs": "true",
+        "aws-cdk.aws-stepfunctions": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-iam": {
+      "name": "aws-cdk.aws-iam",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.core": "true",
+        "aws-cdk.region-info": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-kinesis": {
+      "name": "aws-cdk.aws-kinesis",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.aws-logs": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-kms": {
+      "name": "aws-cdk.aws-kms",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-lambda": {
+      "name": "aws-cdk.aws-lambda",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-applicationautoscaling": "true",
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-codeguruprofiler": "true",
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-efs": "true",
+        "aws-cdk.aws-events": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-logs": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.aws-s3-assets": "true",
+        "aws-cdk.aws-sqs": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.cx-api": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-logs": {
+      "name": "aws-cdk.aws-logs",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-s3-assets": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-route53": {
+      "name": "aws-cdk.aws-route53",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-logs": "true",
+        "aws-cdk.cloud-assembly-schema": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-route53-targets": {
+      "name": "aws-cdk.aws-route53-targets",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-apigateway": "true",
+        "aws-cdk.aws-cloudfront": "true",
+        "aws-cdk.aws-cognito": "true",
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-elasticloadbalancing": "true",
+        "aws-cdk.aws-elasticloadbalancingv2": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-route53": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.region-info": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-s3": {
+      "name": "aws-cdk.aws-s3",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-events": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-s3-assets": {
+      "name": "aws-cdk.aws-s3-assets",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.assets": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.aws-s3": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.cx-api": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-sam": {
+      "name": "aws-cdk.aws-sam",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-secretsmanager": {
+      "name": "aws-cdk.aws-secretsmanager",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-sam": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-servicecatalog": {
+      "name": "aws-cdk.aws-servicecatalog",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-servicediscovery": {
+      "name": "aws-cdk.aws-servicediscovery",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-ec2": "true",
+        "aws-cdk.aws-elasticloadbalancingv2": "true",
+        "aws-cdk.aws-route53": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-sns": {
+      "name": "aws-cdk.aws-sns",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-events": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.aws-sqs": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-sns-subscriptions": {
+      "name": "aws-cdk.aws-sns-subscriptions",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-sns": "true",
+        "aws-cdk.aws-sqs": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-sqs": {
+      "name": "aws-cdk.aws-sqs",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-ssm": {
+      "name": "aws-cdk.aws-ssm",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-kms": "true",
+        "aws-cdk.cloud-assembly-schema": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.aws-stepfunctions": {
+      "name": "aws-cdk.aws-stepfunctions",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-cloudwatch": "true",
+        "aws-cdk.aws-events": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-logs": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.cloud-assembly-schema": {
+      "name": "aws-cdk.cloud-assembly-schema",
+      "version": "1.63.0",
+      "dependencies": {
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.core": {
+      "name": "aws-cdk.core",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.cloud-assembly-schema": "true",
+        "aws-cdk.cx-api": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.custom-resources": {
+      "name": "aws-cdk.custom-resources",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-cloudformation": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-lambda": "true",
+        "aws-cdk.aws-logs": "true",
+        "aws-cdk.aws-sns": "true",
+        "aws-cdk.core": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.cx-api": {
+      "name": "aws-cdk.cx-api",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.cloud-assembly-schema": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.pipelines": {
+      "name": "aws-cdk.pipelines",
+      "version": "1.63.0",
+      "dependencies": {
+        "aws-cdk.aws-cloudformation": "true",
+        "aws-cdk.aws-codebuild": "true",
+        "aws-cdk.aws-codepipeline": "true",
+        "aws-cdk.aws-codepipeline-actions": {
+          "name": "aws-cdk.aws-codepipeline-actions",
+          "version": "1.63.0",
+          "dependencies": {
+            "aws-cdk.aws-cloudformation": "true",
+            "aws-cdk.aws-codebuild": "true",
+            "aws-cdk.aws-codecommit": "true",
+            "aws-cdk.aws-codedeploy": "true",
+            "aws-cdk.aws-codepipeline": "true",
+            "aws-cdk.aws-ec2": "true",
+            "aws-cdk.aws-ecr": "true",
+            "aws-cdk.aws-ecs": "true",
+            "aws-cdk.aws-events": "true",
+            "aws-cdk.aws-events-targets": "true",
+            "aws-cdk.aws-iam": "true",
+            "aws-cdk.aws-lambda": "true",
+            "aws-cdk.aws-s3": "true",
+            "aws-cdk.aws-servicecatalog": "true",
+            "aws-cdk.aws-sns": "true",
+            "aws-cdk.aws-sns-subscriptions": "true",
+            "aws-cdk.aws-stepfunctions": "true",
+            "aws-cdk.core": "true",
+            "constructs": "true",
+            "jsii": "true",
+            "publication": "true"
+          }
+        },
+        "aws-cdk.aws-events": "true",
+        "aws-cdk.aws-iam": "true",
+        "aws-cdk.aws-s3-assets": "true",
+        "aws-cdk.cloud-assembly-schema": "true",
+        "aws-cdk.core": "true",
+        "aws-cdk.cx-api": "true",
+        "constructs": "true",
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "aws-cdk.region-info": {
+      "name": "aws-cdk.region-info",
+      "version": "1.63.0",
+      "dependencies": {
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "cattrs": {
+      "name": "cattrs",
+      "version": "1.0.0",
+      "dependencies": {
+        "attrs": "true"
+      }
+    },
+    "constructs": {
+      "name": "constructs",
+      "version": "3.0.4",
+      "dependencies": {
+        "jsii": "true",
+        "publication": "true"
+      }
+    },
+    "jsii": {
+      "name": "jsii",
+      "version": "1.12.0",
+      "dependencies": {
+        "attrs": "true",
+        "cattrs": "true",
+        "python-dateutil": "true",
+        "typing-extensions": "true"
+      }
+    },
+    "publication": {
+      "name": "publication",
+      "version": "0.0.3"
+    },
+    "python-dateutil": {
+      "name": "python-dateutil",
+      "version": "2.8.1",
+      "dependencies": {
+        "six": "true"
+      }
+    },
+    "six": {
+      "name": "six",
+      "version": "1.15.0"
+    },
+    "typing-extensions": {
+      "name": "typing-extensions",
+      "version": "3.7.4.3"
+    }
+  },
+  "packageFormatVersion": "pip:0.0.1"
+}

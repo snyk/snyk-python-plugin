@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { test } from 'tap';
 import { chdirWorkspaces, activateVirtualenv } from '../test-utils';
+import * as depGraphLib from '@snyk/dep-graph';
 
 import pluginImpl = require('../../lib');
 
@@ -62,7 +63,8 @@ test('inspect --only-provenance', async (t) => {
     args: ['--only-provenance'],
   });
   const plugin = result.plugin;
-  const pkg = result.package;
+  const dependencyGraph = result.dependencyGraph;
+  const pkg = await depGraphLib.legacy.graphToDepTree(dependencyGraph, 'pip');
 
   t.test('plugin', async (t) => {
     t.ok(plugin, 'plugin');
@@ -130,7 +132,8 @@ test('inspect --only-provenance for Pipfile', async (t) => {
     args: ['--only-provenance'],
   });
   const plugin = result.plugin;
-  const pkg = result.package;
+  const dependencyGraph = result.dependencyGraph;
+  const pkg = await depGraphLib.legacy.graphToDepTree(dependencyGraph, 'pip');
 
   t.test('plugin', async (t) => {
     t.ok(plugin, 'plugin');
@@ -218,7 +221,8 @@ test('inspect setup.py', async (t) => {
     args: ['--only-provenance'],
   });
   const plugin = result.plugin;
-  const pkg = result.package;
+  const dependencyGraph = result.dependencyGraph;
+  const pkg = await depGraphLib.legacy.graphToDepTree(dependencyGraph, 'pip');
 
   t.test('plugin', async (t) => {
     t.ok(plugin, 'plugin');
