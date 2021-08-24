@@ -1,3 +1,5 @@
+import * as depGraphLib from '@snyk/dep-graph';
+
 const test = require('tap').test;
 const fs = require('fs');
 const sinon = require('sinon');
@@ -286,9 +288,13 @@ test('inspect', (t) => {
     .then(() => {
       return plugin.inspect('.', 'requirements.txt');
     })
-    .then((result) => {
+    .then(async (result) => {
       const plugin = result.plugin;
-      const pkg = result.package;
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
 
       t.test('plugin', (t) => {
         t.ok(plugin, 'plugin');
@@ -330,9 +336,13 @@ test('inspect setup.py', (t) => {
     .then(() => {
       return plugin.inspect('.', 'setup.py');
     })
-    .then((result) => {
+    .then(async (result) => {
       const plugin = result.plugin;
-      const pkg = result.package;
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
 
       t.test('plugin', (t) => {
         t.ok(plugin, 'plugin');
@@ -424,9 +434,13 @@ test('transitive dep not installed, but with allowMissing option', (t) => {
     .then(() => {
       return plugin.inspect('.', 'requirements.txt', { allowMissing: true });
     })
-    .then((result) => {
+    .then(async (result) => {
       const plugin = result.plugin;
-      const pkg = result.package;
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
 
       t.test('plugin', (t) => {
         t.ok(plugin, 'plugin');
@@ -533,9 +547,13 @@ test('deps not installed, but with allowMissing option', (t) => {
     .then(() => {
       return plugin.inspect('.', 'requirements.txt', { allowMissing: true });
     })
-    .then((result) => {
+    .then(async (result) => {
       const plugin = result.plugin;
-      const pkg = result.package;
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
 
       t.test('plugin', (t) => {
         t.ok(plugin, 'plugin');
@@ -592,8 +610,12 @@ test('package name differs from requirement (- vs _)', (t) => {
     .then(() => {
       return plugin.inspect('.', 'requirements.txt', { allowMissing: true });
     })
-    .then((result) => {
-      const pkg = result.package;
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
       t.same(
         pkg.dependencies['dj-database-url'],
         {
@@ -636,8 +658,12 @@ test('package installed conditionally based on python version', (t) => {
     .then(() => {
       return plugin.inspect('.', 'requirements.txt');
     })
-    .then((result) => {
-      const pkg = result.package;
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
       t.notOk(pkg.dependencies.enum34, 'enum34 dep ignored');
       t.ok(pkg.dependencies.click, 'click dep is present');
       t.end();
@@ -676,8 +702,12 @@ test('package depends on platform', (t) => {
     .then(() => {
       return plugin.inspect('.', 'requirements.txt', { allowMissing: true });
     })
-    .then((result) => {
-      const pkg = result.package;
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
       if (os.platform() !== 'win32') {
         t.notOk(pkg.dependencies.pypiwin32, 'win32 dep ignored');
         t.same(
@@ -709,8 +739,12 @@ test('editables ignored', (t) => {
     .then(() => {
       return plugin.inspect('.', 'requirements.txt', { allowMissing: true });
     })
-    .then((result) => {
-      const pkg = result.package;
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
       t.notOk(pkg.dependencies['simple'], 'editable dep ignored');
       t.notOk(pkg.dependencies['sample'], 'editable subdir dep ignored');
       if (os.platform() !== 'win32') {
@@ -740,9 +774,13 @@ test('deps with options', (t) => {
     .then(() => {
       return plugin.inspect('.', 'requirements.txt');
     })
-    .then((result) => {
+    .then(async (result) => {
       const plugin = result.plugin;
-      const pkg = result.package;
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
 
       t.test('plugin', (t) => {
         t.ok(plugin, 'plugin');
@@ -796,8 +834,13 @@ test('trusted host ignored', (t) => {
     .then(() => {
       return plugin.inspect('.', 'requirements.txt');
     })
-    .then((result) => {
-      t.ok(result.package.dependencies, 'does not error');
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
+      t.ok(pkg.dependencies, 'does not error');
       t.end();
     });
 });
@@ -811,9 +854,13 @@ test('inspect Pipfile', (t) => {
     .then(() => {
       return plugin.inspect('.', 'Pipfile');
     })
-    .then((result) => {
+    .then(async (result) => {
       const plugin = result.plugin;
-      const pkg = result.package;
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
 
       t.equal(plugin.targetFile, 'Pipfile', 'Pipfile targetfile');
 
@@ -867,8 +914,12 @@ test('inspect Pipfile with pinned versions', (t) => {
     .then(() => {
       return plugin.inspect('.', 'Pipfile');
     })
-    .then((result) => {
-      const pkg = result.package;
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
 
       t.test('package dependencies', (t) => {
         Object.keys(pipfilePinnedExpectedDependencies).forEach((depName) => {
@@ -918,9 +969,13 @@ test('inspect Pipfile in nested directory', (t) => {
     .then(() => {
       return plugin.inspect('.', 'nested/directory/Pipfile');
     })
-    .then((result) => {
+    .then(async (result) => {
       const plugin = result.plugin;
-      const pkg = result.package;
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
 
       t.equal(
         plugin.targetFile,
@@ -983,8 +1038,12 @@ test('inspect pipenv app with user-created virtualenv', (t) => {
     .then(() => {
       return plugin.inspect('.', 'Pipfile');
     })
-    .then((result) => {
-      const pkg = result.package;
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
 
       t.test('package dependencies', (t) => {
         Object.keys(pipenvAppExpectedDependencies).forEach((depName) => {
@@ -1039,8 +1098,12 @@ test('inspect pipenv app with auto-created virtualenv', (t) => {
     .then(() => {
       return plugin.inspect('.', 'Pipfile');
     })
-    .then((result) => {
-      const pkg = result.package;
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
 
       t.test('package dependencies', (t) => {
         Object.keys(pipenvAppExpectedDependencies).forEach((depName) => {
@@ -1074,8 +1137,12 @@ test('inspect pipenv app dev dependencies', (t) => {
         dev: true,
       });
     })
-    .then((result) => {
-      const pkg = result.package;
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
 
       t.test('package dependencies', (t) => {
         Object.keys(pipenvAppExpectedDependencies).forEach((depName) => {
@@ -1108,8 +1175,12 @@ test('package names with urls are skipped', (t) => {
     .then(() => {
       return plugin.inspect('.', 'requirements.txt');
     })
-    .then((result) => {
-      const pkg = result.package;
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
       t.equal(
         Object.keys(pkg.dependencies).length,
         1,

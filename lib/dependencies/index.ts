@@ -45,7 +45,7 @@ export async function getDependencies(
     baseargs = ['run', 'python'];
   }
 
-  const [plugin, pkg] = await Promise.all([
+  const [plugin, dependencyGraph] = await Promise.all([
     getMetaData(command, baseargs, root, targetFile),
     inspectInstalledDeps(
       command,
@@ -57,5 +57,5 @@ export async function getDependencies(
       options.args
     ),
   ]);
-  return { plugin, package: pkg };
+  return { plugin, dependencyGraph };
 }

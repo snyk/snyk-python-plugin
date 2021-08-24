@@ -63,7 +63,7 @@ def create_tree_of_packages_dependencies(
             p.key.lower() in lowercase_pkgs_names or
             (p.project_name and p.project_name.lower()) in lowercase_pkgs_names]
 
-    def create_children_recursive(root_package, key_tree, ancestors):
+    def create_children_recursive(root_package, key_tree, ancestors, all_packages_map):
         root_name = root_package[NAME].lower()
         if root_name not in key_tree:
             msg = 'Required packages missing: ' + root_name
@@ -80,15 +80,21 @@ def create_tree_of_packages_dependencies(
             if child_dist.project_name.lower() in ancestors:
                 continue
 
+            if DEPENDENCIES not in root_package:
+                root_package[DEPENDENCIES] = {}
+
+            if child_dist.project_name.lower() in all_packages_map:
+                root_package[DEPENDENCIES][child_dist.project_name] = 'true'
+                continue
+
             child_package = {
                 NAME: child_dist.project_name.lower(),
                 VERSION: child_dist.installed_version,
             }
 
-            create_children_recursive(child_package, key_tree, ancestors)
-            if DEPENDENCIES not in root_package:
-                root_package[DEPENDENCIES] = {}
+            create_children_recursive(child_package, key_tree, ancestors, all_packages_map)
             root_package[DEPENDENCIES][child_dist.project_name] = child_package
+            all_packages_map[child_dist.project_name.lower()] = 'true'
         return root_package
 
     def create_dir_as_root():
@@ -113,13 +119,14 @@ def create_tree_of_packages_dependencies(
         }
         return package_as_root
     dir_as_root = create_dir_as_root()
+    all_packages_map = {}
     for package in packages_as_dist_obj:
         package_as_root = create_package_as_root(package, dir_as_root)
         if only_provenance:
             package_as_root[LABELS] = {PROVENANCE: format_provenance_label(tlr_by_key[package_as_root[NAME]].provenance)}
             dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_as_root
         else:
-            package_tree = create_children_recursive(package_as_root, key_tree, set([]))
+            package_tree = create_children_recursive(package_as_root, key_tree, set([]), all_packages_map)
             dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
     return dir_as_root
 
@@ -278,7 +285,7 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path,
 
         # build a tree of dependencies
         package_tree = create_tree_of_packages_dependencies(
-            dist_tree, top_level_requirements, requirements_file_path, allow_missing, only_provenance)  
+            dist_tree, top_level_requirements, requirements_file_path, allow_missing, only_provenance)
         print(json.dumps(package_tree))
 
 

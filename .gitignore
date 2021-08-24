@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 npm-debug.log
+.idea
 
 # tox testing
 /.tox/

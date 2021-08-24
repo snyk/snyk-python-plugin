@@ -9,6 +9,8 @@ import { DepGraphBuilder } from '@snyk/dep-graph';
 import { FILENAMES } from '../../lib/types';
 import * as subProcess from '../../lib/dependencies/sub-process';
 import { SpawnSyncReturns } from 'child_process';
+import * as depGraphLib from '@snyk/dep-graph';
+import * as fs from 'fs';
 
 // TODO: jestify tap tests in ./inspect.test.js here
 describe('inspect', () => {
@@ -103,6 +105,36 @@ describe('inspect', () => {
       const result = await inspect('.', manifestFilePath);
       const expectedTargetFile = `${dirname}/setup.py`;
       expect(result.plugin.targetFile).toEqual(expectedTargetFile);
+    });
+  });
+
+  describe('dep-graph', () => {
+    const mockedExecuteSync = jest.spyOn(subProcess, 'executeSync');
+    const mockedExecute = jest.spyOn(subProcess, 'execute');
+
+    afterEach(() => {
+      mockedExecuteSync.mockClear();
+      mockedExecute.mockClear();
+    });
+    it('should return dep graph for very dence input', async () => {
+      mockedExecuteSync.mockReturnValueOnce({ status: 0 } as SpawnSyncReturns<
+        Buffer
+      >);
+      mockedExecute.mockResolvedValueOnce('Python 3.9.5');
+      mockedExecute.mockResolvedValueOnce(
+        fs.readFileSync(
+          'test/fixtures/dence-dep-graph/pip_resolve_output.json',
+          'utf8'
+        )
+      );
+      const dirname = 'test/fixtures/pipenv-project';
+      const manifestFilePath = `${dirname}/Pipfile`;
+      const result = await inspect('.', manifestFilePath);
+
+      const expectedDepGraphData = require('../fixtures/dence-dep-graph/expected.json');
+      const expectedDepGraph = depGraphLib.createFromJSON(expectedDepGraphData);
+
+      expect(result.dependencyGraph).toEqualDepGraph(expectedDepGraph);
     });
   });
 
