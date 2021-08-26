@@ -77,24 +77,25 @@ def create_tree_of_packages_dependencies(
         ancestors.add(root_name)
         children_packages_as_dist = key_tree[root_name]
         for child_dist in children_packages_as_dist:
-            if child_dist.project_name.lower() in ancestors:
+            child_project_name = child_dist.project_name.lower()
+            if child_project_name in ancestors:
                 continue
 
             if DEPENDENCIES not in root_package:
                 root_package[DEPENDENCIES] = {}
 
-            if child_dist.project_name.lower() in all_packages_map:
-                root_package[DEPENDENCIES][child_dist.project_name] = 'true'
+            if child_project_name in all_packages_map:
+                root_package[DEPENDENCIES][child_project_name] = 'true'
                 continue
 
             child_package = {
-                NAME: child_dist.project_name.lower(),
+                NAME: child_project_name,
                 VERSION: child_dist.installed_version,
             }
 
             create_children_recursive(child_package, key_tree, ancestors, all_packages_map)
-            root_package[DEPENDENCIES][child_dist.project_name] = child_package
-            all_packages_map[child_dist.project_name.lower()] = 'true'
+            root_package[DEPENDENCIES][child_project_name] = child_package
+            all_packages_map[child_project_name] = 'true'
         return root_package
 
     def create_dir_as_root():
