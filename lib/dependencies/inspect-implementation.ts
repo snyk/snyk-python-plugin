@@ -118,7 +118,8 @@ export async function inspectInstalledDeps(
   targetFile: string,
   allowMissing: boolean,
   includeDevDeps: boolean,
-  args?: string[]
+  args?: string[],
+  projectName?: string
 ): Promise<DepGraph> {
   const tempDirObj = tmp.dirSync({
     unsafeCleanup: true,
@@ -147,7 +148,7 @@ export async function inspectInstalledDeps(
     );
 
     const result = JSON.parse(output) as PartialDepTree;
-    return buildDepGraph(result);
+    return buildDepGraph(result, projectName);
   } catch (error) {
     if (typeof error === 'string') {
       const emptyManifestMsg = 'No dependencies detected in manifest.';
