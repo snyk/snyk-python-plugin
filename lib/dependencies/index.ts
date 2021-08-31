@@ -10,6 +10,7 @@ export interface PythonInspectOptions {
   command?: string; // `python` command override
   allowMissing?: boolean; // Allow skipping packages that are not found in the environment.
   args?: string[];
+  projectName?: string; // Allow providing a project name for the root node and package
 }
 
 type Options = api.SingleSubprojectInspectOptions & PythonInspectOptions;
@@ -54,7 +55,8 @@ export async function getDependencies(
       targetFile,
       options.allowMissing || false,
       includeDevDeps,
-      options.args
+      options.args,
+      options.projectName
     ),
   ]);
   return { plugin, dependencyGraph };

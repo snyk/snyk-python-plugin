@@ -11,6 +11,7 @@ import * as subProcess from '../../lib/dependencies/sub-process';
 import { SpawnSyncReturns } from 'child_process';
 import * as depGraphLib from '@snyk/dep-graph';
 import * as fs from 'fs';
+import * as path from 'path';
 
 // TODO: jestify tap tests in ./inspect.test.js here
 describe('inspect', () => {
@@ -111,12 +112,12 @@ describe('inspect', () => {
   describe('dep-graph', () => {
     const mockedExecuteSync = jest.spyOn(subProcess, 'executeSync');
     const mockedExecute = jest.spyOn(subProcess, 'execute');
+    const expectedDepGraphPath = path.resolve(
+      __dirname,
+      '../fixtures/dence-dep-graph/expected.json'
+    );
 
-    afterEach(() => {
-      mockedExecuteSync.mockClear();
-      mockedExecute.mockClear();
-    });
-    it('should return dep graph for very dence input', async () => {
+    beforeEach(() => {
       mockedExecuteSync.mockReturnValueOnce({ status: 0 } as SpawnSyncReturns<
         Buffer
       >);
@@ -127,11 +128,33 @@ describe('inspect', () => {
           'utf8'
         )
       );
-      const dirname = 'test/fixtures/pipenv-project';
-      const manifestFilePath = `${dirname}/Pipfile`;
+    });
+
+    afterEach(() => {
+      mockedExecuteSync.mockClear();
+      mockedExecute.mockClear();
+    });
+
+    it('should return dep graph for very dence input', async () => {
+      const manifestFilePath = `test/fixtures/pipenv-project/Pipfile`;
       const result = await inspect('.', manifestFilePath);
 
-      const expectedDepGraphData = require('../fixtures/dence-dep-graph/expected.json');
+      const expectedDepGraphData = require(expectedDepGraphPath);
+      const expectedDepGraph = depGraphLib.createFromJSON(expectedDepGraphData);
+
+      expect(result.dependencyGraph).toEqualDepGraph(expectedDepGraph);
+    });
+
+    it('projectName option should set the dep graph root node name', async () => {
+      const manifestFilePath = `test/fixtures/pipenv-project/Pipfile`;
+      const projectName = `${Date.now()}`;
+      const result = await inspect('.', manifestFilePath, { projectName });
+
+      const expectedDepGraphData = JSON.parse(
+        fs
+          .readFileSync(expectedDepGraphPath, 'utf8')
+          .replace(/pip--62-01iNczXpgA9L/g, projectName)
+      );
       const expectedDepGraph = depGraphLib.createFromJSON(expectedDepGraphData);
 
       expect(result.dependencyGraph).toEqualDepGraph(expectedDepGraph);
