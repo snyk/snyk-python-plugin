@@ -40,7 +40,7 @@ export async function getPoetryDependencies(
     };
   } catch (error) {
     throw new Error(
-      'Error processing poetry project. ' + error.message || error
+      'Error processing poetry project. ' + (error.message || error)
     );
   }
 }
