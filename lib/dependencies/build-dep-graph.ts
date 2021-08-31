@@ -18,7 +18,8 @@ type Dependencies = {
 };
 
 export function buildDepGraph(
-  partialDepTree: PartialDepTree
+  partialDepTree: PartialDepTree,
+  projectName?: string
 ): Promise<DepGraph> {
   const packageToDepTreeMap = new Map<PackageName, PartialDepTree>();
 
@@ -45,6 +46,8 @@ export function buildDepGraph(
     }
     dependencies[key] = packageToDepTreeMap.get(key);
   });
+
+  if (projectName) partialDepTree.name = projectName;
 
   return depTreeToGraph(partialDepTree as DepTree, 'pip');
 }
