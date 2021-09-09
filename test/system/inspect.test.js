@@ -670,6 +670,29 @@ test('package installed conditionally based on python version', (t) => {
     });
 });
 
+test('should return correct package info when a single package has a dependency more than once', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pip-app-with-repeating-dependency');
+      const venvCreated = testUtils.ensureVirtualenv(
+        'pip-app-with-repeating-dependency'
+      );
+      t.teardown(
+        testUtils.activateVirtualenv('pip-app-with-repeating-dependency')
+      );
+      if (venvCreated) {
+        testUtils.pipInstall();
+      }
+    })
+    .then(() => {
+      return plugin.inspect('.', 'requirements.txt');
+    })
+    .then(async (result) => {
+      t.ok(result.dependencyGraph, 'graph generated');
+      t.end();
+    });
+});
+
 test('Pipfile package found conditionally based on python version', (t) => {
   return Promise.resolve()
     .then(() => {
