@@ -1,4 +1,4 @@
 --trusted-host pypi.fury.io
 
-Jinja2==2.7.2
-Django==1.6.1
+Jinja2==2.11.3
+Django==2.2.24
