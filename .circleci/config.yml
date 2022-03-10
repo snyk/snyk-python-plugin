@@ -44,6 +44,7 @@ commands:
             # Install the specific release of Python if it isn't already installed
             pyenv install -s $PYTHON_VER_FULL
             pyenv sh-shell $PYTHON_VER_FULL
+            export PATH=/root/.pyenv/versions/$PYTHON_VER_FULL/bin:$PATH
             python --version
             export PATH=$HOME/.local/bin:$PATH
             python -m pip install --user --quiet pip==$PIP_VER
@@ -123,7 +124,7 @@ jobs:
           command: npm run build
       - run:
           name: Release
-          command: npx semantic-release
+          command: npx semantic-release@15
 
 workflows:
   version: 2
