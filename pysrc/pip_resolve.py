@@ -20,7 +20,7 @@ except ImportError:
         raise ImportError(
             "Could not import pkg_resources; please install setuptools or pip.")
 
-PYTHON_MARKER_REGEX = re.compile(r'python_version\s*(?P<operator>==|<=|=>|>|<)\s*[\'"](?P<python_version>.+?)[\'"]')
+PYTHON_MARKER_REGEX = re.compile(r'python_version\s*(?P<operator>==|<=|>=|>|<)\s*[\'"](?P<python_version>.+?)[\'"]')
 SYSTEM_MARKER_REGEX = re.compile(r'sys_platform\s*==\s*[\'"](.+)[\'"]')
 
 def format_provenance_label(prov_tuple):
