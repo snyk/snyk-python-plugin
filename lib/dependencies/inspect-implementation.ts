@@ -118,6 +118,7 @@ export async function inspectInstalledDeps(
   targetFile: string,
   allowMissing: boolean,
   includeDevDeps: boolean,
+  allowEmpty: boolean,
   args?: string[],
   projectName?: string
 ): Promise<DepGraph> {
@@ -136,6 +137,7 @@ export async function inspectInstalledDeps(
         ...buildArgs(
           targetFile,
           allowMissing,
+          allowEmpty,
           tempDirObj.name,
           includeDevDeps,
           args
@@ -196,6 +198,7 @@ export function getPythonEnv(targetFile: string) {
 export function buildArgs(
   targetFile: string,
   allowMissing: boolean,
+  allowEmpty: boolean,
   tempDirPath: string,
   includeDevDeps: boolean,
   extraArgs?: string[]
@@ -207,6 +210,9 @@ export function buildArgs(
   }
   if (allowMissing) {
     args.push('--allow-missing');
+  }
+  if (allowEmpty) {
+    args.push('--allow-empty');
   }
   if (includeDevDeps) {
     args.push('--dev-deps');

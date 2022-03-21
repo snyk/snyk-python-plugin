@@ -253,7 +253,8 @@ def canonicalize_package_name(name):
 def create_dependencies_tree_by_req_file_path(requirements_file_path,
                                               allow_missing=False,
                                               dev_deps=False,
-                                              only_provenance=False):
+                                              only_provenance=False,
+                                              allow_empty=False):
     # get all installed packages
     pkgs = list(pkg_resources.working_set)
 
@@ -265,7 +266,7 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path,
 
     # create a list of dependencies from the dependencies file
     required = get_requirements_list(requirements_file_path, dev_deps=dev_deps)
-    if not required:
+    if not required and not allow_empty:
         msg = 'No dependencies detected in manifest.'
         sys.exit(msg)
     else:
@@ -316,6 +317,9 @@ def main():
     parser.add_argument("--only-provenance",
         action="store_true",
         help="only return top level deps with provenance information")
+    parser.add_argument("--allow-empty",
+        action="store_true",
+        help="return empty dep tree instead of throwing")
     args = parser.parse_args()
 
     create_dependencies_tree_by_req_file_path(
@@ -323,6 +327,7 @@ def main():
         allow_missing=args.allow_missing,
         dev_deps=args.dev_deps,
         only_provenance=args.only_provenance,
+        allow_empty=args.allow_empty,
     )
 
 if __name__ == '__main__':
