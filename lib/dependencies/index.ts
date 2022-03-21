@@ -11,6 +11,7 @@ export interface PythonInspectOptions {
   allowMissing?: boolean; // Allow skipping packages that are not found in the environment.
   args?: string[];
   projectName?: string; // Allow providing a project name for the root node and package
+  allowEmpty?: boolean; // Allow manifest without dependencies (mostly for SCM)
 }
 
 type Options = api.SingleSubprojectInspectOptions & PythonInspectOptions;
@@ -55,6 +56,7 @@ export async function getDependencies(
       targetFile,
       options.allowMissing || false,
       includeDevDeps,
+      options.allowEmpty,
       options.args,
       options.projectName
     ),
