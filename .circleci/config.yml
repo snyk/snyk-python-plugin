@@ -123,7 +123,7 @@ jobs:
           command: npm run build
       - run:
           name: Release
-          command: npx semantic-release
+          command: npx semantic-release@15
 
 workflows:
   version: 2
