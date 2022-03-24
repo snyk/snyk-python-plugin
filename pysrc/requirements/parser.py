@@ -55,7 +55,7 @@ def parse(req_str_or_file):
             # unsupported
             continue
         elif line.startswith('-r') or line.startswith('--requirement'):
-            _, new_filename = line.split()
+            new_filename = line.split()[1]
             new_file_path = os.path.join(os.path.dirname(filename or '.'),
                                          new_filename)
             with open(new_file_path) as f:
