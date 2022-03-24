@@ -3,10 +3,14 @@ import { buildArgs } from '../../lib/dependencies/inspect-implementation';
 
 describe('build args', () => {
   it('should return expected args', () => {
-    const result = buildArgs('requirements.txt', false, '../pysrc', false, [
-      '-argOne',
-      '-argTwo',
-    ]);
+    const result = buildArgs(
+      'requirements.txt',
+      false,
+      false,
+      '../pysrc',
+      false,
+      ['-argOne', '-argTwo']
+    );
     expect(result).toEqual([
       `..${path.sep}pysrc${path.sep}pip_resolve.py`,
       'requirements.txt',
@@ -16,10 +20,14 @@ describe('build args', () => {
   });
 
   it('should return expected args when allowMissing is true', () => {
-    const result = buildArgs('requirements.txt', true, '../pysrc', false, [
-      '-argOne',
-      '-argTwo',
-    ]);
+    const result = buildArgs(
+      'requirements.txt',
+      true,
+      false,
+      '../pysrc',
+      false,
+      ['-argOne', '-argTwo']
+    );
     expect(result).toEqual([
       `..${path.sep}pysrc${path.sep}pip_resolve.py`,
       'requirements.txt',
@@ -30,10 +38,14 @@ describe('build args', () => {
   });
 
   it('should return expected args when includeDevDeps is true', () => {
-    const result = buildArgs('requirements.txt', false, '../pysrc', true, [
-      '-argOne',
-      '-argTwo',
-    ]);
+    const result = buildArgs(
+      'requirements.txt',
+      false,
+      false,
+      '../pysrc',
+      true,
+      ['-argOne', '-argTwo']
+    );
     expect(result).toEqual([
       `..${path.sep}pysrc${path.sep}pip_resolve.py`,
       'requirements.txt',
@@ -44,10 +56,14 @@ describe('build args', () => {
   });
 
   it('should return expected args when allowMissing and includeDevDeps are true', () => {
-    const result = buildArgs('requirements.txt', true, '../pysrc', true, [
-      '-argOne',
-      '-argTwo',
-    ]);
+    const result = buildArgs(
+      'requirements.txt',
+      true,
+      false,
+      '../pysrc',
+      true,
+      ['-argOne', '-argTwo']
+    );
     expect(result).toEqual([
       `..${path.sep}pysrc${path.sep}pip_resolve.py`,
       'requirements.txt',
