@@ -54,9 +54,13 @@ commands:
             # Call `pyenv rehash` to avoid issues after installing a new version of pip.
             # see: https://github.com/pyenv/pyenv/issues/1141#issuecomment-383092896
             pyenv rehash
+            python -m pip install --user -r dev-requirements.txt --disable-pip-version-check
             python -m pip --version
-            python -m pip uninstall -y pipenv
             python -m pip install --user -r dev-requirements.txt --disable-pip-version-check --force-reinstall
+            python -m pip --version
+            python -m pip install --user pip==$PIP_VER
+            pyenv rehash
+            python -m pip --version
             python -m pipenv --version
             npm run test
           environment:
