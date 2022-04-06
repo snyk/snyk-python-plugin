@@ -36,7 +36,6 @@ commands:
             apt -qq update
             apt -qq install python3-pip python-pip -y &> /dev/null
             curl https://pyenv.run | $SHELL
-            export PATH="/root/.pyenv/bin:$PATH"
             export PATH="$HOME/.pyenv/bin:$PATH"
             eval "$(pyenv init -)"
             eval "$(pyenv virtualenv-init -)"
@@ -47,7 +46,8 @@ commands:
             pyenv shell $PYTHON_VER_FULL
             python --version
             export PATH=$HOME/.local/bin:$PATH
-            python -m pip install --user --quiet pip==$PIP_VER
+            export PATH="$HOME/.local/lib/:$PATH"
+            python -m pip install --user pip==$PIP_VER
             # Call `pyenv rehash` to avoid issues after installing a new version of pip.
             # see: https://github.com/pyenv/pyenv/issues/1141#issuecomment-383092896
             pyenv rehash
