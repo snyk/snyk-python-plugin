@@ -84,6 +84,9 @@ def create_tree_of_packages_dependencies(
             if DEPENDENCIES not in root_package:
                 root_package[DEPENDENCIES] = {}
 
+            if child_project_name in root_package[DEPENDENCIES]:
+                continue
+
             if child_project_name in all_packages_map and child_project_name not in root_package[DEPENDENCIES]:
                 root_package[DEPENDENCIES][child_project_name] = 'true'
                 continue
