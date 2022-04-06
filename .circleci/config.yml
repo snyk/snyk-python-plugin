@@ -52,7 +52,6 @@ commands:
             # see: https://github.com/pyenv/pyenv/issues/1141#issuecomment-383092896
             pyenv rehash
             python -m pip --version
-            python -m pipenv --version
             python -m pip install --user -r dev-requirements.txt --disable-pip-version-check --force-reinstall
             npm run test
           environment:
