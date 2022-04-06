@@ -1054,9 +1054,9 @@ test('inspect pipenv app with user-created virtualenv', (t) => {
 
       const venvCreated = testUtils.ensureVirtualenv('pipenv-app');
       t.teardown(testUtils.activateVirtualenv('pipenv-app'));
-      if (venvCreated) {
-        return testUtils.pipenvInstall();
-      }
+      // if (venvCreated) {
+      //   return testUtils.pipenvInstall();
+      // }
     })
     .then(() => {
       return plugin.inspect('.', 'Pipfile');
@@ -1151,9 +1151,9 @@ test('inspect pipenv app dev dependencies', (t) => {
 
       const venvCreated = testUtils.ensureVirtualenv('pipenv-app');
       t.teardown(testUtils.activateVirtualenv('pipenv-app'));
-      if (venvCreated) {
-        return testUtils.pipenvInstall();
-      }
+      // if (venvCreated) {
+      //   return testUtils.pipenvInstall();
+      // }
     })
     .then(() => {
       return plugin.inspect('.', 'Pipfile', {
