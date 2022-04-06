@@ -58,11 +58,13 @@ commands:
             python -m pip --version
             python -m pip install --user -r dev-requirements.txt --disable-pip-version-check --force-reinstall
             python -m pip --version
-            python -m pip install --user pip==$PIP_VER
+            python -m pip install --user pip==$PIP_VER --force-reinstall
             pyenv rehash
             python -m pip --version
             python -m pipenv --version
             npm run test
+            python -m pip --version
+            python -m pipenv --version
           environment:
             PIP_VER: << parameters.pip_version >>
             PYTHON_VER: << parameters.python_version >>
@@ -168,9 +170,9 @@ workflows:
             - Build
           matrix:
             parameters:
-              node_version: ['10','12', '14']
-              pip_version: ['9.0.3','10.0.0','18.1.0']
-              python_version: ['2.7','3.6', '3.7', '3.8', '3.9']
+              node_version: ['14']
+              pip_version: ['10.0.0']
+              python_version: ['3.6']
           filters:
             branches:
               ignore:
