@@ -173,7 +173,7 @@ function pipUninstall(pkgName: string) {
 }
 
 function pipenvInstall() {
-  subProcess.executeSync('pip', ['install', 'pipenv']);
+  // subProcess.executeSync('pip', ['install', 'pipenv']);
   try {
     subProcess.executeSync('pipenv', ['update']);
   } finally {
