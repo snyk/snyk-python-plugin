@@ -36,7 +36,9 @@ commands:
             apt -qq update
             apt -qq install python3-pip python-pip -y &> /dev/null
             curl https://pyenv.run | $SHELL
-            export PATH="$HOME/.pyenv/bin:$PATH"
+            echo $PATH
+            export PATH=$HOME/.pyenv/bin:$PATH
+            echo $PATH
             eval "$(pyenv init -)"
             eval "$(pyenv virtualenv-init -)"
             export PYTHON_VER_FULL=`pyenv install --list | grep -v 'Available versions' | awk '{$1=$1};1' | grep "^$PYTHON_VER\.[0-9]\+$" | tail -1`
@@ -44,15 +46,17 @@ commands:
             # Install the specific release of Python if it isn't already installed
             pyenv install -s $PYTHON_VER_FULL
             pyenv shell $PYTHON_VER_FULL
+            # pyenv local $PYTHON_VER_FULL
+            pyenv version
             python --version
             export PATH=$HOME/.local/bin:$PATH
-            export PATH="$HOME/.local/lib/:$PATH"
             python -m pip install --user pip==$PIP_VER
             # Call `pyenv rehash` to avoid issues after installing a new version of pip.
             # see: https://github.com/pyenv/pyenv/issues/1141#issuecomment-383092896
             pyenv rehash
             python -m pip --version
-            python -m pip install --user -r dev-requirements.txt --disable-pip-version-check
+            pythom -m pipenv --version
+            python -m pip install --user -r dev-requirements.txt --disable-pip-version-check --force-reinstall
             npm run test
           environment:
             PIP_VER: << parameters.pip_version >>
