@@ -36,9 +36,7 @@ commands:
             apt -qq update
             apt -qq install python3-pip python-pip -y &> /dev/null
             curl https://pyenv.run | $SHELL
-            echo $PATH
             export PATH=$HOME/.pyenv/bin:$PATH
-            echo $PATH
             eval "$(pyenv init -)"
             eval "$(pyenv virtualenv-init -)"
             export PYTHON_VER_FULL=`pyenv install --list | grep -v 'Available versions' | awk '{$1=$1};1' | grep "^$PYTHON_VER\.[0-9]\+$" | tail -1`
@@ -47,6 +45,9 @@ commands:
             pyenv install -s $PYTHON_VER_FULL
             pyenv shell $PYTHON_VER_FULL
             pyenv version
+            python --version
+            export PATH=/root/.pyenv/versions/$PYTHON_VER_FULL/bin:$PATH
+            python --version
             echo $PATH
             export PATH=$HOME/.local/bin:$PATH
             echo $PATH
@@ -55,16 +56,14 @@ commands:
             # see: https://github.com/pyenv/pyenv/issues/1141#issuecomment-383092896
             pyenv rehash
             python -m pip install --user -r dev-requirements.txt --disable-pip-version-check
-            python -m pip --version
-            python -m pip install --user -r dev-requirements.txt --disable-pip-version-check --force-reinstall
-            python -m pip --version
-            python -m pip install --user pip==$PIP_VER --force-reinstall
+            # python -m pip --version
+            # python -m pip install --user -r dev-requirements.txt --disable-pip-version-check --force-reinstall
+            # python -m pip --version
+            # python -m pip install --user pip==$PIP_VER --force-reinstall
             pyenv rehash
             python -m pip --version
             python -m pipenv --version
             npm run test
-            python -m pip --version
-            python -m pipenv --version
           environment:
             PIP_VER: << parameters.pip_version >>
             PYTHON_VER: << parameters.python_version >>
