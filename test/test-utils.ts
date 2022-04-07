@@ -14,6 +14,7 @@ export {
   pipUninstall,
   pipInstallE,
   pipenvInstall,
+  pipenvUpdate,
   setWorkonHome,
 };
 
@@ -173,7 +174,11 @@ function pipUninstall(pkgName: string) {
 }
 
 function pipenvInstall() {
-  // subProcess.executeSync('pip', ['install', 'pipenv']);
+  subProcess.executeSync('pip', ['install', 'pipenv']);
+  pipenvUpdate();
+}
+
+function pipenvUpdate() {
   try {
     subProcess.executeSync('pipenv', ['update']);
   } finally {

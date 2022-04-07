@@ -1056,6 +1056,8 @@ test('inspect pipenv app with user-created virtualenv', (t) => {
       t.teardown(testUtils.activateVirtualenv('pipenv-app'));
       if (venvCreated) {
         return testUtils.pipenvInstall();
+      } else {
+        testUtils.pipenvUpdate();
       }
     })
     .then(() => {
