@@ -51,6 +51,8 @@ commands:
             echo $PATH
             export PATH=$HOME/.local/bin:$PATH
             echo $PATH
+            export LC_ALL=C.UTF-8
+            export LANG=C.UTF-8
             python -m pip install --user pip==$PIP_VER
             # Call `pyenv rehash` to avoid issues after installing a new version of pip.
             # see: https://github.com/pyenv/pyenv/issues/1141#issuecomment-383092896
