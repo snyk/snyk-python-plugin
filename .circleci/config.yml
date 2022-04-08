@@ -35,8 +35,12 @@ commands:
           command: |
             apt -qq update
             apt -qq install python3-pip python-pip -y &> /dev/null
-            curl https://pyenv.run | $SHELL
+            git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+            cd ~/.pyenv
+            git checkout tags/v2.0.5
+            cd ~/snyk-python-plugin
             export PATH="/root/.pyenv/bin:$PATH"
+            git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
             eval "$(pyenv init -)"
             eval "$(pyenv virtualenv-init -)"
             export PYTHON_VER_FULL=`pyenv install --list | grep -v 'Available versions' | awk '{$1=$1};1' | grep "^$PYTHON_VER\.[0-9]\+$" | tail -1`
@@ -51,6 +55,7 @@ commands:
             # see: https://github.com/pyenv/pyenv/issues/1141#issuecomment-383092896
             pyenv sh-rehash
             python -m pip --version
+            python -m pip install pipenv
             python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
             npm run test
           environment:
