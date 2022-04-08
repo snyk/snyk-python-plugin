@@ -118,9 +118,9 @@ describe('inspect', () => {
     );
 
     beforeEach(() => {
-      mockedExecuteSync.mockReturnValueOnce({ status: 0 } as SpawnSyncReturns<
-        Buffer
-      >);
+      mockedExecuteSync.mockReturnValueOnce({
+        status: 0,
+      } as SpawnSyncReturns<Buffer>);
       mockedExecute.mockResolvedValueOnce('Python 3.9.5');
       mockedExecute.mockResolvedValueOnce(
         fs.readFileSync(

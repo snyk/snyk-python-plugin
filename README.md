@@ -33,7 +33,6 @@ Snyk helps you find, fix and monitor for known vulnerabilities in your dependenc
 
 | Pip / Python   |2.7|3.6|3.7|3.8|3.9|
 |----------------|---|---|---|---|---|
-| 9.0.3          | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 10.0.0         | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 18.1.0         | ✅ | ✅ | ✅ | ✅ | ✅ |
 
@@ -58,7 +57,7 @@ their corresponding positions in the original manifest file.
 ### Developing and Testing
 
 Prerequisites:
-- Node.js 8+
+- Node.js 10+
 - Python 2.7 or 3.6+
 - Installed outside of any virtualenv:
     - [pip](https://pip.pypa.io/en/stable/installing/)
@@ -79,5 +78,5 @@ Linting and testing:
 ```
 npm i
 npm run lint
-npm test
+npm run test
 ```

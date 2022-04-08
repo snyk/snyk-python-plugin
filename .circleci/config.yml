@@ -36,22 +36,24 @@ commands:
             apt -qq update
             apt -qq install python3-pip python-pip -y &> /dev/null
             curl https://pyenv.run | $SHELL
-            export PATH="/root/.pyenv/bin:$PATH"
+            export PATH=$HOME/.pyenv/bin:$PATH
             eval "$(pyenv init -)"
             eval "$(pyenv virtualenv-init -)"
             export PYTHON_VER_FULL=`pyenv install --list | grep -v 'Available versions' | awk '{$1=$1};1' | grep "^$PYTHON_VER\.[0-9]\+$" | tail -1`
             echo $PYTHON_VER_FULL
             # Install the specific release of Python if it isn't already installed
             pyenv install -s $PYTHON_VER_FULL
-            pyenv sh-shell $PYTHON_VER_FULL
+            export PATH=$HOME/.pyenv/versions/$PYTHON_VER_FULL/bin:$PATH
+            pyenv shell $PYTHON_VER_FULL
             python --version
             export PATH=$HOME/.local/bin:$PATH
-            python -m pip install --user --quiet pip==$PIP_VER
-            # Call `pyenv rehash` to avoid issues after installing a new version of pip.
-            # see: https://github.com/pyenv/pyenv/issues/1141#issuecomment-383092896
-            pyenv sh-rehash
-            python -m pip --version
+            export LC_ALL=C.UTF-8
+            export LANG=C.UTF-8
             python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
+            # pipenv installation always bumps pip version to >18.0.0, we manually install the desired pip version again
+            python -m pip install --user --quiet pip==$PIP_VER
+            export PATH=$HOME/.pyenv/shims:$PATH
+            pyenv rehash
             npm run test
           environment:
             PIP_VER: << parameters.pip_version >>
@@ -159,7 +161,7 @@ workflows:
           matrix:
             parameters:
               node_version: ['10','12', '14']
-              pip_version: ['9.0.3','10.0.0','18.1.0']
+              pip_version: ['10.0.0','18.1.0']
               python_version: ['2.7','3.6', '3.7', '3.8', '3.9']
           filters:
             branches:
