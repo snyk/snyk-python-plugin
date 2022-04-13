@@ -16,7 +16,7 @@ export const FILENAMES: {
   [key in PackageManagers]: { manifest: string; lockfile?: string };
 } = {
   pip: {
-    manifest: 'requirementes.txt',
+    manifest: 'requirements.txt',
   },
   setuptools: {
     manifest: 'setup.py',

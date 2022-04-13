@@ -823,7 +823,7 @@ test('deps with options', (t) => {
           pkg.dependencies.markupsafe,
           {
             name: 'markupsafe',
-            version: '1.0',
+            version: '1.1.1',
           },
           'MarkupSafe looks ok'
         );
@@ -971,9 +971,9 @@ const pipenvAppExpectedDependencies = {
   jinja2: {
     data: {
       name: 'jinja2',
-      version: /^0|1|2\.[0-6]/,
+      version: /^0|1|2|3\.[0-9]/,
     },
-    msg: 'jinja2 found with version <2.7',
+    msg: 'jinja2 found',
   },
   testtools: {
     data: {
@@ -1047,144 +1047,6 @@ test('inspect Pipfile in nested directory', (t) => {
     });
 });
 
-test('inspect pipenv app with user-created virtualenv', (t) => {
-  return Promise.resolve()
-    .then(() => {
-      chdirWorkspaces('pipenv-app');
-
-      const venvCreated = testUtils.ensureVirtualenv('pipenv-app');
-      t.teardown(testUtils.activateVirtualenv('pipenv-app'));
-      if (venvCreated) {
-        return testUtils.pipenvInstall();
-      }
-    })
-    .then(() => {
-      return plugin.inspect('.', 'Pipfile');
-    })
-    .then(async (result) => {
-      const dependencyGraph = result.dependencyGraph;
-      const pkg = await depGraphLib.legacy.graphToDepTree(
-        dependencyGraph,
-        'pip'
-      );
-
-      t.test('package dependencies', (t) => {
-        Object.keys(pipenvAppExpectedDependencies).forEach((depName) => {
-          t.match(
-            pkg.dependencies[depName],
-            pipenvAppExpectedDependencies[depName].data,
-            pipenvAppExpectedDependencies[depName].msg
-          );
-        });
-
-        t.end();
-      });
-
-      t.end();
-    });
-});
-
-test('inspect pipenv app with auto-created virtualenv', (t) => {
-  return Promise.resolve()
-    .then(() => {
-      chdirWorkspaces('pipenv-app');
-
-      // Use several teardown callbacks, called in reverse order.
-      const teardowns = [];
-      t.teardown(() => {
-        while (teardowns.length > 0) {
-          teardowns.pop()();
-        }
-      });
-
-      if (testUtils.getActiveVenvName() !== null) {
-        teardowns.push(testUtils.deactivateVirtualenv());
-      }
-
-      // Set the WORKON_HOME env var to make pipenv put its auto-created
-      // virtualenv where we want it.
-      teardowns.push(testUtils.setWorkonHome());
-
-      // Have pipenv create and update a virtualenv if it doesn't exist.
-      subProcess.executeSync('pip', ['install', 'pipenv']);
-      const proc = subProcess.executeSync('pipenv', ['--venv']);
-      if (proc.status !== 0) {
-        teardowns.push(() => {
-          fs.unlinkSync('Pipfile.lock');
-        });
-        const updateProc = subProcess.executeSync('pipenv', ['update']);
-        if (updateProc.status !== 0) {
-          t.bailout('Failed to install dependencies using `pipenv update`');
-        }
-      }
-    })
-    .then(() => {
-      return plugin.inspect('.', 'Pipfile');
-    })
-    .then(async (result) => {
-      const dependencyGraph = result.dependencyGraph;
-      const pkg = await depGraphLib.legacy.graphToDepTree(
-        dependencyGraph,
-        'pip'
-      );
-
-      t.test('package dependencies', (t) => {
-        Object.keys(pipenvAppExpectedDependencies).forEach((depName) => {
-          t.match(
-            pkg.dependencies[depName],
-            pipenvAppExpectedDependencies[depName].data,
-            pipenvAppExpectedDependencies[depName].msg
-          );
-        });
-
-        t.end();
-      });
-
-      t.end();
-    });
-});
-
-test('inspect pipenv app dev dependencies', (t) => {
-  return Promise.resolve()
-    .then(() => {
-      chdirWorkspaces('pipenv-app');
-
-      const venvCreated = testUtils.ensureVirtualenv('pipenv-app');
-      t.teardown(testUtils.activateVirtualenv('pipenv-app'));
-      if (venvCreated) {
-        return testUtils.pipenvInstall();
-      }
-    })
-    .then(() => {
-      return plugin.inspect('.', 'Pipfile', {
-        dev: true,
-      });
-    })
-    .then(async (result) => {
-      const dependencyGraph = result.dependencyGraph;
-      const pkg = await depGraphLib.legacy.graphToDepTree(
-        dependencyGraph,
-        'pip'
-      );
-
-      t.test('package dependencies', (t) => {
-        Object.keys(pipenvAppExpectedDependencies).forEach((depName) => {
-          t.match(
-            pkg.dependencies[depName],
-            pipenvAppExpectedDependencies[depName].data,
-            pipenvAppExpectedDependencies[depName].msg
-          );
-        });
-
-        t.match(pkg.dependencies.virtualenv, { name: 'virtualenv' });
-
-        t.end();
-      });
-
-      t.end();
-    });
-});
-
 test('package names with urls are skipped', (t) => {
   return Promise.resolve()
     .then(() => {
@@ -1226,5 +1088,142 @@ test('inspect Pipfile with no deps or dev-deps exits with message', (t) => {
         normalize(error.message),
         'No dependencies detected in manifest.'
       );
+    });
+});
+
+test('inspect pipenv app dev dependencies', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pipenv-app');
+
+      const venvCreated = testUtils.ensureVirtualenv('pipenv-app');
+      t.teardown(testUtils.activateVirtualenv('pipenv-app'));
+      if (venvCreated) {
+        return testUtils.pipenvInstall({ dev: true });
+      }
+    })
+    .then(() => {
+      return plugin.inspect('.', 'Pipfile', {
+        dev: true,
+      });
+    })
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
+
+      t.test('package dependencies', (t) => {
+        Object.keys(pipenvAppExpectedDependencies).forEach((depName) => {
+          t.match(
+            pkg.dependencies[depName],
+            pipenvAppExpectedDependencies[depName].data,
+            pipenvAppExpectedDependencies[depName].msg
+          );
+        });
+
+        t.match(pkg.dependencies.bs4, { name: 'bs4' });
+
+        t.end();
+      });
+
+      t.end();
+    });
+});
+
+test('inspect pipenv app with auto-created virtualenv', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pipenv-app');
+
+      // Use several teardown callbacks, called in reverse order.
+      const teardowns = [];
+      t.teardown(() => {
+        while (teardowns.length > 0) {
+          teardowns.pop()();
+        }
+      });
+
+      if (testUtils.getActiveVenvName() !== null) {
+        teardowns.push(testUtils.deactivateVirtualenv());
+      }
+
+      // Set the WORKON_HOME env var to make pipenv put its auto-created
+      // virtualenv where we want it.
+      teardowns.push(testUtils.setWorkonHome());
+
+      // Have pipenv create and update a virtualenv if it doesn't exist.
+      const proc = subProcess.executeSync('pipenv', ['--venv']);
+      if (proc.status !== 0) {
+        teardowns.push(() => {
+          fs.unlinkSync('Pipfile.lock');
+        });
+        const updateProc = subProcess.executeSync('pipenv', ['update']);
+        if (updateProc.status !== 0) {
+          t.bailout('Failed to install dependencies using `pipenv update`');
+        }
+      }
+    })
+    .then(() => {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
+
+      t.test('package dependencies', (t) => {
+        Object.keys(pipenvAppExpectedDependencies).forEach((depName) => {
+          t.match(
+            pkg.dependencies[depName],
+            pipenvAppExpectedDependencies[depName].data,
+            pipenvAppExpectedDependencies[depName].msg
+          );
+        });
+
+        t.end();
+      });
+
+      t.end();
+    });
+});
+
+test('inspect pipenv app with user-created virtualenv', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pipenv-app');
+
+      const venvCreated = testUtils.ensureVirtualenv('pipenv-app');
+      t.teardown(testUtils.activateVirtualenv('pipenv-app'));
+      if (venvCreated) {
+        return testUtils.pipenvInstall();
+      }
+    })
+    .then(() => {
+      return plugin.inspect('.', 'Pipfile');
+    })
+    .then(async (result) => {
+      const dependencyGraph = result.dependencyGraph;
+      const pkg = await depGraphLib.legacy.graphToDepTree(
+        dependencyGraph,
+        'pip'
+      );
+
+      t.test('package dependencies', (t) => {
+        Object.keys(pipenvAppExpectedDependencies).forEach((depName) => {
+          t.match(
+            pkg.dependencies[depName],
+            pipenvAppExpectedDependencies[depName].data,
+            pipenvAppExpectedDependencies[depName].msg
+          );
+        });
+
+        t.end();
+      });
+
+      t.end();
     });
 });

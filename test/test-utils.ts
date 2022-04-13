@@ -19,6 +19,10 @@ export {
 
 const binDirName = process.platform === 'win32' ? 'Scripts' : 'bin';
 
+interface PipenvOptions {
+  dev?: boolean;
+}
+
 function getActiveVenvName() {
   return process.env.VIRTUAL_ENV
     ? path.basename(process.env.VIRTUAL_ENV)
@@ -135,6 +139,7 @@ function pipInstall() {
     '--disable-pip-version-check',
   ]);
   if (proc.status !== 0) {
+    console.log('' + proc.stderr);
     throw new Error(
       'Failed to install requirements with pip.' +
         ' venv = ' +
@@ -172,10 +177,16 @@ function pipUninstall(pkgName: string) {
   }
 }
 
-function pipenvInstall() {
-  subProcess.executeSync('pip', ['install', 'pipenv']);
+function pipenvInstall(options?: PipenvOptions) {
   try {
-    subProcess.executeSync('pipenv', ['update']);
+    const args = ['update'];
+    if (options?.dev) {
+      args.push('--dev');
+    }
+    const proc = subProcess.executeSync('pipenv', [...args]);
+    if (proc.status !== 0) {
+      console.log('' + proc.stderr);
+    }
   } finally {
     try {
       fs.unlinkSync('Pipfile.lock');
