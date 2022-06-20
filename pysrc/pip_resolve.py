@@ -8,6 +8,7 @@ import utils
 import requirements
 import pipfile
 import setup_file
+import codecs
 from operator import le, lt, gt, ge, eq, ne
 
 try:
@@ -204,6 +205,18 @@ def matches_environment(requirement):
 def is_testable(requirement):
     return requirement.editable == False and requirement.vcs is None
 
+def detect_encoding_by_bom(path):
+    with open(path, 'rb') as f:
+        raw = f.read(4)    # will read less if the file is smaller
+    # BOM_UTF32_LE's start is equal to BOM_UTF16_LE so need to try the former first
+    for enc, boms in \
+            ('utf-8-sig', (codecs.BOM_UTF8,)), \
+            ('utf-32', (codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE)), \
+            ('utf-16', (codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)):
+        if any(raw.startswith(bom) for bom in boms):
+            return enc
+    return None
+
 def get_requirements_list(requirements_file_path, dev_deps=False):
     # TODO: refactor recognizing the dependency manager to a single place
     if os.path.basename(requirements_file_path) == 'Pipfile':
@@ -234,7 +247,8 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
     else:
         # assume this is a requirements.txt formatted file
         # Note: requirements.txt files are unicode and can be in any encoding.
-        with open(requirements_file_path, 'r') as f:
+        encoding = detect_encoding_by_bom(requirements_file_path)
+        with io.open(requirements_file_path, 'r', encoding=encoding) as f:
             req_list = list(requirements.parse(f))
 
     req_list = filter(matches_environment, req_list)

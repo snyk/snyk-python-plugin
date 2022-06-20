@@ -11,7 +11,7 @@ const os = require('os');
 
 const chdirWorkspaces = testUtils.chdirWorkspaces;
 
-function normalize(s) {
+function normalize(s = '') {
   return s.replace(/\r/g, '');
 }
 
@@ -324,6 +324,24 @@ test('inspect', (t) => {
       });
 
       t.end();
+    });
+});
+
+test('inspect requirements.txt with bom encoding', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pip-app-bom');
+      const venvCreated = testUtils.ensureVirtualenv('pip-app-bom');
+      t.teardown(testUtils.activateVirtualenv('pip-app-bom'));
+      if (venvCreated) {
+        testUtils.pipInstall();
+      }
+    })
+    .then(() => {
+      return plugin.inspect('.', 'requirements.txt').then(async (result) => {
+        t.ok('has dependencyGraph property', result.dependencyGraph);
+        t.end();
+      });
     });
 });
 
