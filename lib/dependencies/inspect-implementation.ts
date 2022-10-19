@@ -100,9 +100,8 @@ function dumpAllFilesInTempDir(tempDirName: string) {
       throw new Error('The file `' + currentReadFilePath + '` is missing');
     }
 
-    const relFilePathToDumpDir = getFilePathRelativeToDumpDir(
-      currentReadFilePath
-    );
+    const relFilePathToDumpDir =
+      getFilePathRelativeToDumpDir(currentReadFilePath);
 
     const writeFilePath = path.join(tempDirName, relFilePathToDumpDir);
 
