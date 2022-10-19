@@ -8,7 +8,6 @@ module.exports = {
   coverageDirectory: '<rootDir>/reports/coverage',
   testMatch: ['**/*.spec.ts'], // Remove when all tests are using Jest
   modulePathIgnorePatterns: ['<rootDir>/dist', '<rootDir/reports>'],
-  setupFilesAfterEnv: ['<rootDir>/test/matchers/setup.ts'],
   reporters: [
     'default',
     [

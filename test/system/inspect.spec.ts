@@ -1,7 +1,6 @@
 import {
   EmptyManifestError,
   inspect,
-  PythonPluginErrorNames,
   RequiredPackagesMissingError,
 } from '../../lib';
 import { chdirWorkspaces } from '../test-utils';
@@ -48,7 +47,7 @@ describe('inspect', () => {
         .connectDep('jinja2', 'markupsafe')
         .build();
 
-      expect(result.dependencyGraph).toEqualDepGraph(expected);
+      expect(result.dependencyGraph.equals(expected)).toBeTruthy();
     });
   });
 
@@ -142,7 +141,7 @@ describe('inspect', () => {
       const expectedDepGraphData = require(expectedDepGraphPath);
       const expectedDepGraph = depGraphLib.createFromJSON(expectedDepGraphData);
 
-      expect(result.dependencyGraph).toEqualDepGraph(expectedDepGraph);
+      expect(result.dependencyGraph.equals(expectedDepGraph)).toBeTruthy();
     });
 
     it('projectName option should set the dep graph root node name', async () => {
@@ -157,7 +156,7 @@ describe('inspect', () => {
       );
       const expectedDepGraph = depGraphLib.createFromJSON(expectedDepGraphData);
 
-      expect(result.dependencyGraph).toEqualDepGraph(expectedDepGraph);
+      expect(result.dependencyGraph.equals(expectedDepGraph)).toBeTruthy();
     });
   });
 

@@ -46,7 +46,7 @@ export function execute(
 export function executeSync(
   command: string,
   args: string[],
-  options?: SpawnOptions
+  options?: ProcessOptions
 ) {
   const spawnOptions = makeSpawnOptions(options);
 

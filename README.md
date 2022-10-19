@@ -23,11 +23,12 @@ Snyk helps you find, fix and monitor for known vulnerabilities in your dependenc
 
 ## Supported Node versions
 
-| Node  |  Supported |
-|-------|------------|
-| 10    | ✅          |
-| 12    | ✅          |
-| 14    | ✅          |
+| Node |  Supported |
+|------|------------|
+| 10   | ✅          |
+| 12   | ✅          |
+| 14   | ✅          |
+| 16   | ✅          |
 
 ## Supported Pip & Python versions (requirements.txt)
 

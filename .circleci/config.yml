@@ -2,7 +2,7 @@ version: 2.1
 
 defaults: &defaults
   docker:
-    - image: node:10
+    - image: node:16
   working_directory: ~/snyk-python-plugin
 
 commands:
@@ -52,7 +52,6 @@ commands:
             python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
             # pipenv installation always bumps pip version to >18.0.0, we manually install the desired pip version again
             python -m pip install --user --quiet pip==$PIP_VER
-            export PATH=$HOME/.pyenv/shims:$PATH
             pyenv rehash
             npm run test
           environment:
@@ -114,7 +113,7 @@ jobs:
   release:
     <<: *defaults
     docker:
-      - image: node:10
+      - image: node:16
     steps:
       - checkout_and_merge
       - run:
@@ -160,7 +159,7 @@ workflows:
             - Build
           matrix:
             parameters:
-              node_version: ['10','12', '14']
+              node_version: ['12','14', '16']
               pip_version: ['10.0.0','18.1.0']
               python_version: ['2.7','3.6', '3.7', '3.8', '3.9']
           filters:
