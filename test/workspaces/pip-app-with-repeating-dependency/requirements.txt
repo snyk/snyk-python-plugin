@@ -1,2 +1,2 @@
 # the gevent package  has 'psutil' twice as a dependency (probably with different requirements)
-gevent==21.1.2
+gevent==21.8.0
