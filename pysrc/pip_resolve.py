@@ -223,7 +223,10 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
         with io.open(requirements_file_path, 'r', encoding='utf-8') as f:
             requirements_data = f.read()
         parsed_reqs = pipfile.parse(requirements_data)
-        req_list = list(parsed_reqs.get('packages', []))
+        parsed_packages = parsed_reqs.get('packages', [])
+        if parsed_packages is None:
+            parsed_packages = []
+        req_list = list(parsed_packages)
         if dev_deps:
             req_list.extend(parsed_reqs.get('dev-packages', []))
         if not req_list:
