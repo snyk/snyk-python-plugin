@@ -1,5 +1,5 @@
 pipenv==2022.4.8; python_version >= '3.6'
-pipenv==2018.11.26; python_version == '2.7'
+pipenv==2022.1.8; python_version == '2.7'
 virtualenv==20.15.1; python_version >= '3.6'
 virtualenv==16.2.0; python_version == '2.7'
 mock
