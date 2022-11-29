@@ -12,6 +12,7 @@ export interface PythonInspectOptions {
   args?: string[];
   projectName?: string; // Allow providing a project name for the root node and package
   allowEmpty?: boolean; // Allow manifest without dependencies (mostly for SCM)
+  'enable-shell'?: boolean; // Allows nodejs to spawn child process with shell enabled
 }
 
 type Options = api.SingleSubprojectInspectOptions & PythonInspectOptions;
@@ -31,13 +32,21 @@ export async function getDependencies(
 
   // handle poetry projects by parsing manifest & lockfile and return a dep-graph
   if (path.basename(targetFile) === FILENAMES.poetry.lockfile) {
-    return getPoetryDependencies(command, root, targetFile, includeDevDeps);
+    return getPoetryDependencies(
+      command,
+      root,
+      targetFile,
+      includeDevDeps,
+      options['enable-shell']
+    );
   }
 
   let baseargs: string[] = [];
   if (path.basename(targetFile) === FILENAMES.pipenv.manifest) {
     // Check that pipenv is available by running it.
-    const pipenvCheckProc = subProcess.executeSync('pipenv', ['--version']);
+    const pipenvCheckProc = subProcess.executeSync('pipenv', ['--version'], {
+      shell: options['enable-shell'],
+    });
     if (pipenvCheckProc.status !== 0) {
       throw new Error(
         'Failed to run `pipenv`; please make sure it is installed.'
@@ -48,7 +57,7 @@ export async function getDependencies(
   }
 
   const [plugin, dependencyGraph] = await Promise.all([
-    getMetaData(command, baseargs, root, targetFile),
+    getMetaData(command, baseargs, root, targetFile, options['enable-shell']),
     inspectInstalledDeps(
       command,
       baseargs,
@@ -58,7 +67,8 @@ export async function getDependencies(
       includeDevDeps,
       options.allowEmpty,
       options.args,
-      options.projectName
+      options.projectName,
+      options['enable-shell']
     ),
   ]);
   return { plugin, dependencyGraph };

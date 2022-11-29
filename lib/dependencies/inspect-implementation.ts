@@ -33,12 +33,17 @@ export function getMetaData(
   command: string,
   baseargs: string[],
   root: string,
-  targetFile: string
+  targetFile: string,
+  shell = false
 ) {
   const pythonEnv = getPythonEnv(targetFile);
 
   return subProcess
-    .execute(command, [...baseargs, '--version'], { cwd: root, env: pythonEnv })
+    .execute(command, [...baseargs, '--version'], {
+      cwd: root,
+      env: pythonEnv,
+      shell,
+    })
     .then((output) => {
       return {
         name: 'snyk-python-plugin',
@@ -119,7 +124,8 @@ export async function inspectInstalledDeps(
   includeDevDeps: boolean,
   allowEmpty: boolean,
   args?: string[],
-  projectName?: string
+  projectName?: string,
+  shell = false
 ): Promise<DepGraph> {
   const tempDirObj = tmp.dirSync({
     unsafeCleanup: true,
@@ -145,6 +151,7 @@ export async function inspectInstalledDeps(
       {
         cwd: root,
         env: pythonEnv,
+        shell,
       }
     );
 

@@ -1,16 +1,21 @@
 import { spawn, spawnSync, SpawnOptions } from 'child_process';
+import { quoteAll } from 'shescape';
 
 interface ProcessOptions {
   cwd?: string;
   env?: { [name: string]: string };
+  shell?: boolean;
 }
 
 function makeSpawnOptions(options?: ProcessOptions) {
-  const spawnOptions: SpawnOptions = { shell: true };
-  if (options && options.cwd) {
+  const spawnOptions: SpawnOptions = {};
+  if (options?.shell) {
+    spawnOptions.shell = true;
+  }
+  if (options?.cwd) {
     spawnOptions.cwd = options.cwd;
   }
-  if (options && options.env) {
+  if (options?.env) {
     spawnOptions.env = options.env;
   }
   return spawnOptions;
@@ -22,11 +27,12 @@ export function execute(
   options?: ProcessOptions
 ): Promise<string> {
   const spawnOptions = makeSpawnOptions(options);
+  const quotedArgs = quoteAll(args, spawnOptions);
   return new Promise((resolve, reject) => {
     let stdout = '';
     let stderr = '';
 
-    const proc = spawn(command, args, spawnOptions);
+    const proc = spawn(command, quotedArgs, spawnOptions);
     proc.stdout.on('data', (data) => {
       stdout = stdout + data;
     });
@@ -49,6 +55,7 @@ export function executeSync(
   options?: ProcessOptions
 ) {
   const spawnOptions = makeSpawnOptions(options);
+  const quotedArgs = quoteAll(args, spawnOptions);
 
-  return spawnSync(command, args, spawnOptions);
+  return spawnSync(command, quotedArgs, spawnOptions);
 }

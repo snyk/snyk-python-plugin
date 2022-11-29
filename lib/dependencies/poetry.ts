@@ -9,7 +9,8 @@ export async function getPoetryDependencies(
   command: string,
   root: string,
   targetFile: string,
-  includeDevDeps = false
+  includeDevDeps = false,
+  shell = false
 ): Promise<SinglePackageResult> {
   const lockfilePath = path.join(root, targetFile);
   const baseDir = path.dirname(lockfilePath);
@@ -32,7 +33,7 @@ export async function getPoetryDependencies(
       lockfileContents,
       includeDevDeps
     );
-    const plugin = await getMetaData(command, [], root, targetFile);
+    const plugin = await getMetaData(command, [], root, targetFile, shell);
     return {
       plugin,
       package: null,
