@@ -3,3 +3,4 @@ pipenv==2018.11.26; python_version == '2.7'
 virtualenv==20.15.1; python_version >= '3.6'
 virtualenv==16.2.0; python_version == '2.7'
 mock
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
