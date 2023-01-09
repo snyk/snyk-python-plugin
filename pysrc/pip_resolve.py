@@ -57,14 +57,14 @@ def create_tree_of_packages_dependencies(
     nodes = tree.keys()
     key_tree = dict((k.key, v) for k, v in tree.items())
 
-    lowercase_pkgs_names = [p.name.lower() for p in top_level_requirements]
+    lowercase_pkgs_names = [utils.canonicalize_package_name(p.name) for p in top_level_requirements]
     tlr_by_key = dict((tlr.name.lower(), tlr) for tlr in top_level_requirements)
     packages_as_dist_obj = [
         p for p in nodes if
-            p.key.lower() in lowercase_pkgs_names or
-            (p.project_name and p.project_name.lower()) in lowercase_pkgs_names]
+            utils.canonicalize_package_name(p.key) in lowercase_pkgs_names or
+            (p.project_name and utils.canonicalize_package_name(p.project_name)) in lowercase_pkgs_names]
 
-    def create_children_recursive(root_package, key_tree, ancestors, all_packages_map):
+    def create_children_recursive(root_package, key_tree, cannonical_name_to_package_name, ancestors, all_packages_map):
         root_name = root_package[NAME].lower()
         if root_name not in key_tree:
             msg = 'Required packages missing: ' + root_name
@@ -79,27 +79,34 @@ def create_tree_of_packages_dependencies(
         children_packages_as_dist = key_tree[root_name]
         for child_dist in children_packages_as_dist:
             child_project_name = child_dist.project_name.lower()
-            if child_project_name in ancestors:
+            child_package_name = cannonical_name_to_package_name[utils.canonicalize_package_name(child_project_name)]
+            if child_package_name in ancestors:
                 continue
 
             if DEPENDENCIES not in root_package:
                 root_package[DEPENDENCIES] = {}
 
-            if child_project_name in root_package[DEPENDENCIES]:
+            if child_package_name in root_package[DEPENDENCIES]:
                 continue
 
-            if child_project_name in all_packages_map and child_project_name not in root_package[DEPENDENCIES]:
-                root_package[DEPENDENCIES][child_project_name] = 'true'
+            if child_package_name in all_packages_map and child_package_name not in root_package[DEPENDENCIES]:
+                root_package[DEPENDENCIES][child_package_name] = 'true'
                 continue
 
             child_package = {
-                NAME: child_project_name,
+                NAME: child_package_name,
                 VERSION: child_dist.installed_version,
             }
 
-            create_children_recursive(child_package, key_tree, ancestors, all_packages_map)
-            root_package[DEPENDENCIES][child_project_name] = child_package
-            all_packages_map[child_project_name] = 'true'
+            create_children_recursive(
+                root_package=child_package,
+                key_tree=key_tree,
+                cannonical_name_to_package_name=cannonical_name_to_package_name,
+                ancestors=ancestors,
+                all_packages_map=all_packages_map,
+            )
+            root_package[DEPENDENCIES][child_package_name] = child_package
+            all_packages_map[child_package_name] = 'true'
         return root_package
 
     def create_dir_as_root():
@@ -131,7 +138,14 @@ def create_tree_of_packages_dependencies(
             package_as_root[LABELS] = {PROVENANCE: format_provenance_label(tlr_by_key[package_as_root[NAME]].provenance)}
             dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_as_root
         else:
-            package_tree = create_children_recursive(package_as_root, key_tree, set([]), all_packages_map)
+            cannonical_name_to_package_name = { utils.canonicalize_package_name(k): k for k in key_tree.keys() }
+            package_tree = create_children_recursive(
+                root_package=package_as_root,
+                key_tree=key_tree,
+                cannonical_name_to_package_name=cannonical_name_to_package_name,
+                ancestors=set([]),
+                all_packages_map=all_packages_map,
+            )
             dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
     return dir_as_root
 
@@ -263,13 +277,6 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
     return req_list
 
 
-def canonicalize_package_name(name):
-    # https://packaging.python.org/guides/distributing-packages-using-setuptools/#name
-    name = name.lower().replace('-', '.').replace('_', '.')
-    name = re.sub(r'\.+', '.', name)
-    return name
-
-
 def create_dependencies_tree_by_req_file_path(requirements_file_path,
                                               allow_missing=False,
                                               dev_deps=False,
@@ -290,11 +297,11 @@ def create_dependencies_tree_by_req_file_path(requirements_file_path,
         msg = 'No dependencies detected in manifest.'
         sys.exit(msg)
     else:
-        installed = [canonicalize_package_name(p) for p in dist_index]
+        installed = [utils.canonicalize_package_name(p) for p in dist_index]
         top_level_requirements = []
         missing_package_names = []
         for r in required:
-            if canonicalize_package_name(r.name) not in installed:
+            if utils.canonicalize_package_name(r.name) not in installed:
                 missing_package_names.append(r.name)
             else:
                 top_level_requirements.append(r)

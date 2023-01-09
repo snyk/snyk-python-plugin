@@ -1,5 +1,6 @@
 from importlib import import_module
 from operator import attrgetter
+import re
 try:
     from collections import OrderedDict
 except ImportError:
@@ -27,7 +28,7 @@ def construct_tree(index):
     :returns: tree of pkgs and their dependencies
     :rtype: dict
     """
-    return dict((p, [ReqPackage(r, index.get(r.key))
+    return dict((p, [ReqPackage(r, index.get(r.key) or index.get(canonicalize_package_name(r.key)))
                      for r in p.requires()])
                 for p in index.values())
 
@@ -68,3 +69,10 @@ def is_string(obj):
         return isinstance(obj, basestring)
     else:
         return isinstance(obj, str)
+
+
+def canonicalize_package_name(name):
+    # https://packaging.python.org/guides/distributing-packages-using-setuptools/#name
+    name = name.lower().replace('-', '.').replace('_', '.')
+    name = re.sub(r'\.+', '.', name)
+    return name
