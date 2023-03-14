@@ -41,9 +41,13 @@ describe('inspect', () => {
         { name: 'poetry-fixtures-project', version: '0.1.0' }
       );
       const expected = builder
-        .addPkgNode({ name: 'jinja2', version: '2.11.2' }, 'jinja2')
+        .addPkgNode({ name: 'jinja2', version: '2.11.2' }, 'jinja2', {
+          labels: { scope: 'prod' },
+        })
         .connectDep(builder.rootNodeId, 'jinja2')
-        .addPkgNode({ name: 'markupsafe', version: '1.1.1' }, 'markupsafe')
+        .addPkgNode({ name: 'markupsafe', version: '1.1.1' }, 'markupsafe', {
+          labels: { scope: 'prod' },
+        })
         .connectDep('jinja2', 'markupsafe')
         .build();
 
