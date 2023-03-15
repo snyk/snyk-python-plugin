@@ -12,7 +12,7 @@ describe('build args', () => {
       ['-argOne', '-argTwo']
     );
     expect(result).toEqual([
-      `..${path.sep}pysrc${path.sep}pip_resolve.py`,
+      `..${path.sep}pysrc${path.sep}pysrc${path.sep}pip_resolve.py`,
       'requirements.txt',
       '-argOne',
       '-argTwo',
@@ -29,7 +29,7 @@ describe('build args', () => {
       ['-argOne', '-argTwo']
     );
     expect(result).toEqual([
-      `..${path.sep}pysrc${path.sep}pip_resolve.py`,
+      `..${path.sep}pysrc${path.sep}pysrc${path.sep}pip_resolve.py`,
       'requirements.txt',
       '--allow-missing',
       '-argOne',
@@ -47,7 +47,7 @@ describe('build args', () => {
       ['-argOne', '-argTwo']
     );
     expect(result).toEqual([
-      `..${path.sep}pysrc${path.sep}pip_resolve.py`,
+      `..${path.sep}pysrc${path.sep}pysrc${path.sep}pip_resolve.py`,
       'requirements.txt',
       '--dev-deps',
       '-argOne',
@@ -65,7 +65,7 @@ describe('build args', () => {
       ['-argOne', '-argTwo']
     );
     expect(result).toEqual([
-      `..${path.sep}pysrc${path.sep}pip_resolve.py`,
+      `..${path.sep}pysrc${path.sep}pysrc${path.sep}pip_resolve.py`,
       'requirements.txt',
       '--allow-missing',
       '--dev-deps',

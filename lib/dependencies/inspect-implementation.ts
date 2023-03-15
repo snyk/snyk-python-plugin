@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as tmp from 'tmp';
 
+import PySrcContents from './pysrc';
 import * as subProcess from './sub-process';
 import { DepGraph } from '@snyk/dep-graph';
 import { buildDepGraph, PartialDepTree } from './build-dep-graph';
@@ -51,26 +52,7 @@ export function getMetaData(
 // path.join calls have to be exactly in this format, needed by "pkg" to build a standalone Snyk CLI binary:
 // https://www.npmjs.com/package/pkg#detecting-assets-in-source-code
 function createAssets() {
-  return [
-    path.join(__dirname, '../../pysrc/pip_resolve.py'),
-    path.join(__dirname, '../../pysrc/distPackage.py'),
-    path.join(__dirname, '../../pysrc/package.py'),
-    path.join(__dirname, '../../pysrc/pipfile.py'),
-    path.join(__dirname, '../../pysrc/reqPackage.py'),
-    path.join(__dirname, '../../pysrc/setup_file.py'),
-    path.join(__dirname, '../../pysrc/utils.py'),
-
-    path.join(__dirname, '../../pysrc/requirements/fragment.py'),
-    path.join(__dirname, '../../pysrc/requirements/parser.py'),
-    path.join(__dirname, '../../pysrc/requirements/requirement.py'),
-    path.join(__dirname, '../../pysrc/requirements/vcs.py'),
-    path.join(__dirname, '../../pysrc/requirements/__init__.py'),
-
-    path.join(__dirname, '../../pysrc/pytoml/__init__.py'),
-    path.join(__dirname, '../../pysrc/pytoml/core.py'),
-    path.join(__dirname, '../../pysrc/pytoml/parser.py'),
-    path.join(__dirname, '../../pysrc/pytoml/writer.py'),
-  ];
+  return PySrcContents;
 }
 
 function writeFile(writeFilePath: string, contents: string) {
@@ -103,7 +85,14 @@ function dumpAllFilesInTempDir(tempDirName: string) {
     const relFilePathToDumpDir =
       getFilePathRelativeToDumpDir(currentReadFilePath);
 
-    const writeFilePath = path.join(tempDirName, relFilePathToDumpDir);
+    const writeFilePath = path.join(tempDirName, 'pysrc', relFilePathToDumpDir);
+
+    const writeFileDirName = path.dirname(writeFilePath);
+    if (!fs.existsSync(writeFileDirName)) {
+      fs.mkdirSync(writeFileDirName, {
+        recursive: true,
+      });
+    }
 
     const contents = fs.readFileSync(currentReadFilePath, 'utf8');
     writeFile(writeFilePath, contents);
@@ -202,7 +191,7 @@ export function buildArgs(
   includeDevDeps: boolean,
   extraArgs?: string[]
 ) {
-  const pathToRun = path.join(tempDirPath, 'pip_resolve.py');
+  const pathToRun = path.join(tempDirPath, 'pysrc', 'pip_resolve.py');
   let args = [pathToRun];
   if (targetFile) {
     args.push(targetFile);

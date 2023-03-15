@@ -1,4 +1,4 @@
-import pkg_resources
+from pysrc._vendor import pkg_resources
 import utils
 from package import Package
 

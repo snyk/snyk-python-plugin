@@ -1,0 +1,12 @@
+importlib_resources==5.0.7
+jaraco.context==4.3.0
+jaraco.functools==3.6.0
+jaraco.text==3.7.0
+more_itertools==8.8.0
+packaging==20.9
+platformdirs==2.0.2
+pyparsing==2.4.7
+setuptools==44.1.1
+six==1.16.0
+typing_extensions==4.4.0
+zipp==3.7.0

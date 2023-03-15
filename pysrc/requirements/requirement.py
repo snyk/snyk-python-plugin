@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 import re
-from pkg_resources import Requirement as Req
+from pysrc._vendor.pkg_resources import Requirement as Req
 
 from .fragment import get_hash_info, parse_fragment, parse_extras_require
 from .vcs import VCS, VCS_SCHEMES

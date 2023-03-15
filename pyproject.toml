@@ -1,0 +1,32 @@
+[tool.vendoring]
+destination = "src/pip/_vendor/"
+requirements = "src/pip/_vendor/vendor.txt"
+namespace = "pysrc._vendor"
+
+protected-files = ["__init__.py", "vendor.txt"]
+patches-dir = "tools/vendoring"
+
+[tool.vendoring.transformations]
+substitute = [
+  { match='pkg_resources\.extern', replace="pysrc._vendor" },
+  { match='__import__\(\'pkg_resources.py2_warn\'\)', replace="__import__('pysrc._vendor.pkg_resources.py2_warn')"},
+  { match='from \.extern', replace="from pysrc._vendor" },
+]
+drop = [
+  "bin/",
+  "easy_install.py",
+  "setuptools/",
+  "importlib_resources/tests/",
+  "pkg_resources/_vendor/",
+  "pkg_resources/extern/",
+  "pyparsing/diagram",
+  "_distutils_hack",
+  "distutils-precedence.pth",
+]
+
+[tool.vendoring.typing-stubs]
+six = ["six.__init__", "six.moves.__init__", "six.moves.configparser"]
+distro = []
+
+[tool.vendoring.license.directories]
+setuptools = "pkg_resources"
