@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 import re
-from pkg_resources import Requirement as Req
+from packaging.requirements import Requirement as Req
 
 from .fragment import get_hash_info, parse_fragment, parse_extras_require
 from .vcs import VCS, VCS_SCHEMES
@@ -32,6 +32,15 @@ NAME_EQ_REGEX = re.compile(r'name="(\S+)"')
 PER_REQ_PARAM_REGEX = re.compile(r'\s*--[a-z-]+=\S+')
 
 EDITABLE_REGEX = re.compile(r'^(-e|--editable=?)\s*')
+
+# The following was copied from pkg_resources in order to eliminate the usage of the package
+# https://github.com/pypa/pkg_resources/blob/6f81a44010d1266494025647dd1e1f0befa5b26b/pkg_resources/__init__.py#L1435
+def safe_extra(extra):
+    """Convert an arbitrary string to a standard 'extra' name
+    Any runs of non-alphanumeric characters are replaced with a single '_',
+    and the result is always lowercased.
+    """
+    return re.sub('[^A-Za-z0-9.-]+', '_', extra).lower()
 
 class Requirement(object):
     """
@@ -215,10 +224,17 @@ class Requirement(object):
             #   and https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode
             line = PER_REQ_PARAM_REGEX.sub('', line)
 
-            pkg_req = Req.parse(line)
-            req.name = pkg_req.unsafe_name
-            req.extras = list(pkg_req.extras)
-            req.specs = pkg_req.specs
+            # The following was copied from pkg_resources in order to eliminate the usage of the package
+            # https://github.com/pypa/pkg_resources/blob/6f81a44010d1266494025647dd1e1f0befa5b26b/pkg_resources/__init__.py#L3032
+            if ' #' in line:
+                line = line[:line.find(' #')]
+
+            # The following was copied from pkg_resources in order to eliminate the usage of the package
+            # https://github.com/pypa/pkg_resources/blob/6f81a44010d1266494025647dd1e1f0befa5b26b/pkg_resources/__init__.py#L3051-L3055
+            pkg_req = Req(line)
+            req.name = pkg_req.name
+            req.extras = list(tuple(map(safe_extra, req.extras)))
+            req.specs = [(spec.operator, spec.version) for spec in pkg_req.specifier]
         return req
 
     @classmethod
