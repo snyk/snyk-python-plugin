@@ -69,7 +69,6 @@ try:
 except ImportError:
     importlib_machinery = None
 
-from . import py31compat
 import appdirs
 import packaging.version
 import packaging.specifiers
@@ -3116,7 +3115,6 @@ def _find_adapter(registry, ob):
 def ensure_directory(path):
     """Ensure that the parent directory of `path` exists"""
     dirname = os.path.dirname(path)
-    py31compat.makedirs(dirname, exist_ok=True)
 
 
 def _bypass_ensure_directory(path):
