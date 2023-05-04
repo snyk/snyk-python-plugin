@@ -71,26 +71,56 @@ function createAssets() {
     path.join(__dirname, '../../pysrc/pytoml/parser.py'),
     path.join(__dirname, '../../pysrc/pytoml/writer.py'),
 
-    path.join(__dirname, '../../pysrc/packaging/tags.py'),
-    path.join(__dirname, '../../pysrc/packaging/_typing.py'),
-    path.join(__dirname, '../../pysrc/packaging/version.py'),
-    path.join(__dirname, '../../pysrc/packaging/__init__.py'),
-    path.join(__dirname, '../../pysrc/packaging/utils.py'),
-    path.join(__dirname, '../../pysrc/packaging/requirements.py'),
-    path.join(__dirname, '../../pysrc/packaging/_structures.py'),
-    path.join(__dirname, '../../pysrc/packaging/markers.py'),
-    path.join(__dirname, '../../pysrc/packaging/__about__.py'),
-    path.join(__dirname, '../../pysrc/packaging/_compat.py'),
-    path.join(__dirname, '../../pysrc/packaging/specifiers.py'),
-
-    path.join(__dirname, '../../pysrc/pyparsing.py'),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources/_vendor/packaging/version.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources/_vendor/packaging/__init__.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources/_vendor/packaging/utils.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources/_vendor/packaging/requirements.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources/_vendor/packaging/_structures.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources/_vendor/packaging/markers.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources/_vendor/packaging/__about__.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources/_vendor/packaging/_compat.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources/_vendor/packaging/specifiers.py'
+    ),
+    path.join(__dirname, '../../pysrc/pkg_resources/_vendor/__init__.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources/_vendor/appdirs.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources/_vendor/six.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources/_vendor/pyparsing.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources/extern/__init__.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources/py31compat.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources/__init__.py'),
   ];
 }
 
 function writeFile(writeFilePath: string, contents: string) {
   const dirPath = path.dirname(writeFilePath);
   if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath);
+    fs.mkdirSync(dirPath, { recursive: true });
   }
   fs.writeFileSync(writeFilePath, contents);
 }
