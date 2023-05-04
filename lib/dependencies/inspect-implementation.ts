@@ -85,6 +85,8 @@ function createAssets() {
 
     path.join(__dirname, '../../pysrc/pyparsing.py'),
 
+    path.join(__dirname, '../../pysrc/appdirs.py'),
+
     path.join(__dirname, '../../pysrc/six.py'),
   ];
 }
