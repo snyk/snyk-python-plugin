@@ -223,7 +223,10 @@ def parse_version(v):
     try:
         return SetuptoolsVersion(v)
     except packaging.version.InvalidVersion:
-        return SetuptoolsLegacyVersion(v)
+        try:
+            return SetuptoolsLegacyVersion(v)
+        except:
+            return "unknown"
 
 
 _state_vars = {}
