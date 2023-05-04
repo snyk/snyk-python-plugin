@@ -10,16 +10,7 @@ import pipfile
 import setup_file
 import codecs
 from operator import le, lt, gt, ge, eq, ne
-
-try:
-    import pkg_resources
-except ImportError:
-    # try using the version vendored by pip
-    try:
-        import pip._vendor.pkg_resources as pkg_resources
-    except ImportError:
-        raise ImportError(
-            "Could not import pkg_resources; please install setuptools or pip.")
+import pkg_resources
 
 PYTHON_MARKER_REGEX = re.compile(r'python_version\s*(?P<operator>==|<=|>=|>|<)\s*[\'"](?P<python_version>.+?)[\'"]')
 SYSTEM_MARKER_REGEX = re.compile(r'sys_platform\s*==\s*[\'"](.+)[\'"]')
