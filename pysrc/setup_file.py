@@ -10,7 +10,7 @@ def parse(setup_py_content):
 
     distutils.core.setup = _save_passed_args
     setuptools.setup = _save_passed_args
-    setup_py_content = setup_py_content.replace("setup(", "passed_arguments = setup(")
+    setup_py_content = re.sub(r"(setuptools\.)?setup\(", r"passed_arguments = \g<0>", setup_py_content)
 
     # Fetch the arguments that were passed to the setup.py
     exec(setup_py_content, globals())
