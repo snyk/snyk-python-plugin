@@ -70,50 +70,98 @@ function createAssets() {
     path.join(__dirname, '../../pysrc/pytoml/core.py'),
     path.join(__dirname, '../../pysrc/pytoml/parser.py'),
     path.join(__dirname, '../../pysrc/pytoml/writer.py'),
-
     path.join(
       __dirname,
-      '../../pysrc/pkg_resources/_vendor/packaging/version.py'
+      '../../pysrc/pkg_resources_py2/_vendor/packaging/version.py'
     ),
     path.join(
       __dirname,
-      '../../pysrc/pkg_resources/_vendor/packaging/__init__.py'
+      '../../pysrc/pkg_resources_py2/_vendor/packaging/__init__.py'
     ),
     path.join(
       __dirname,
-      '../../pysrc/pkg_resources/_vendor/packaging/utils.py'
+      '../../pysrc/pkg_resources_py2/_vendor/packaging/utils.py'
     ),
     path.join(
       __dirname,
-      '../../pysrc/pkg_resources/_vendor/packaging/requirements.py'
+      '../../pysrc/pkg_resources_py2/_vendor/packaging/requirements.py'
     ),
     path.join(
       __dirname,
-      '../../pysrc/pkg_resources/_vendor/packaging/_structures.py'
+      '../../pysrc/pkg_resources_py2/_vendor/packaging/_structures.py'
     ),
     path.join(
       __dirname,
-      '../../pysrc/pkg_resources/_vendor/packaging/markers.py'
+      '../../pysrc/pkg_resources_py2/_vendor/packaging/markers.py'
     ),
     path.join(
       __dirname,
-      '../../pysrc/pkg_resources/_vendor/packaging/__about__.py'
+      '../../pysrc/pkg_resources_py2/_vendor/packaging/__about__.py'
     ),
     path.join(
       __dirname,
-      '../../pysrc/pkg_resources/_vendor/packaging/_compat.py'
+      '../../pysrc/pkg_resources_py2/_vendor/packaging/_compat.py'
     ),
     path.join(
       __dirname,
-      '../../pysrc/pkg_resources/_vendor/packaging/specifiers.py'
+      '../../pysrc/pkg_resources_py2/_vendor/packaging/specifiers.py'
     ),
-    path.join(__dirname, '../../pysrc/pkg_resources/_vendor/__init__.py'),
-    path.join(__dirname, '../../pysrc/pkg_resources/_vendor/appdirs.py'),
-    path.join(__dirname, '../../pysrc/pkg_resources/_vendor/six.py'),
-    path.join(__dirname, '../../pysrc/pkg_resources/_vendor/pyparsing.py'),
-    path.join(__dirname, '../../pysrc/pkg_resources/extern/__init__.py'),
-    path.join(__dirname, '../../pysrc/pkg_resources/py31compat.py'),
-    path.join(__dirname, '../../pysrc/pkg_resources/__init__.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources_py2/_vendor/__init__.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources_py2/_vendor/appdirs.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources_py2/_vendor/six.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources_py2/_vendor/pyparsing.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources_py2/extern/__init__.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources_py2/py31compat.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources_py2/__init__.py'),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources_py3/_vendor/packaging/tags.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources_py3/_vendor/packaging/_musllinux.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources_py3/_vendor/packaging/version.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources_py3/_vendor/packaging/__init__.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources_py3/_vendor/packaging/utils.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources_py3/_vendor/packaging/requirements.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources_py3/_vendor/packaging/_structures.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources_py3/_vendor/packaging/markers.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources_py3/_vendor/packaging/__about__.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources_py3/_vendor/packaging/_manylinux.py'
+    ),
+    path.join(
+      __dirname,
+      '../../pysrc/pkg_resources_py3/_vendor/packaging/specifiers.py'
+    ),
+    path.join(__dirname, '../../pysrc/pkg_resources_py3/_vendor/__init__.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources_py3/_vendor/appdirs.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources_py3/_vendor/pyparsing.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources_py3/__init__.py'),
+    path.join(__dirname, '../../pysrc/pkg_resources_py3/extern/__init__.py'),
   ];
 }
 

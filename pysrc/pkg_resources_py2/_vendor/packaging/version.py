@@ -135,7 +135,7 @@ def _legacy_cmpkey(version):
     # as before all PEP 440 versions.
     epoch = -1
 
-    # This scheme is taken from pkg_resources.parse_version setuptools prior to
+    # This scheme is taken from pkg_resources_py2.parse_version setuptools prior to
     # it's adoption of the packaging library.
     parts = []
     for part in _parse_version_parts(version.lower()):
