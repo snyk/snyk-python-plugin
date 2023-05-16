@@ -54,8 +54,8 @@ try:
 except NameError:
     FileExistsError = OSError
 
-from pkg_resources.extern import six
-from pkg_resources.extern.six.moves import urllib, map, filter
+from pkg_resources_py2.extern import six
+from pkg_resources_py2.extern.six.moves import urllib, map, filter
 
 # capture these to bypass sandboxing
 from os import utime
@@ -77,12 +77,12 @@ except ImportError:
     importlib_machinery = None
 
 from . import py31compat
-from pkg_resources.extern import appdirs
-from pkg_resources.extern import packaging
-__import__('pkg_resources.extern.packaging.version')
-__import__('pkg_resources.extern.packaging.specifiers')
-__import__('pkg_resources.extern.packaging.requirements')
-__import__('pkg_resources.extern.packaging.markers')
+from pkg_resources_py2.extern import appdirs
+from pkg_resources_py2.extern import packaging
+__import__('pkg_resources_py2.extern.packaging.version')
+__import__('pkg_resources_py2.extern.packaging.specifiers')
+__import__('pkg_resources_py2.extern.packaging.requirements')
+__import__('pkg_resources_py2.extern.packaging.markers')
 
 
 __metaclass__ = type
@@ -1493,7 +1493,7 @@ class NullProvider:
     def _validate_resource_path(path):
         """
         Validate the resource paths according to the docs.
-        https://setuptools.readthedocs.io/en/latest/pkg_resources.html#basic-resource-access
+        https://setuptools.readthedocs.io/en/latest/pkg_resources_py2.html#basic-resource-access
 
         >>> warned = getfixture('recwarn')
         >>> warnings.simplefilter('always')
@@ -1960,7 +1960,7 @@ def register_finder(importer_type, distribution_finder):
     `importer_type` is the type or class of a PEP 302 "Importer" (sys.path item
     handler), and `distribution_finder` is a callable that, passed a path
     item and the importer instance, yields ``Distribution`` instances found on
-    that path item.  See ``pkg_resources.find_on_path`` for an example."""
+    that path item.  See ``pkg_resources_py2.find_on_path`` for an example."""
     _distribution_finders[importer_type] = distribution_finder
 
 
@@ -2183,7 +2183,7 @@ def register_namespace_handler(importer_type, namespace_handler):
     agreed that it can handle the relevant path item, and they should only
     return a subpath if the module __path__ does not already contain an
     equivalent subpath.  For an example namespace handler, see
-    ``pkg_resources.file_ns_handler``.
+    ``pkg_resources_py2.file_ns_handler``.
     """
     _namespace_handlers[importer_type] = namespace_handler
 
@@ -2946,7 +2946,7 @@ class Distribution:
             if (modname not in sys.modules or modname in nsp
                     or modname in _namespace_packages):
                 continue
-            if modname in ('pkg_resources', 'setuptools', 'site'):
+            if modname in ('pkg_resources_py2', 'setuptools', 'site'):
                 continue
             fn = getattr(sys.modules[modname], '__file__', None)
             if fn and (normalize_path(fn).startswith(loc) or
@@ -3059,7 +3059,7 @@ def issue_warning(*args, **kw):
     g = globals()
     try:
         # find the first stack frame that is *not* code in
-        # the pkg_resources module, to use for the warning
+        # the pkg_resources_py2 module, to use for the warning
         while sys._getframe(level).f_globals is g:
             level += 1
     except ValueError:
@@ -3224,7 +3224,7 @@ def _mkstemp(*args, **kw):
 
 
 # Silence the PEP440Warning by default, so that end users don't get hit by it
-# randomly just because they use pkg_resources. We want to append the rule
+# randomly just because they use pkg_resources_py2. We want to append the rule
 # because we want earlier uses of filterwarnings to take precedence over this
 # one.
 warnings.filterwarnings("ignore", category=PEP440Warning, append=True)
@@ -3255,7 +3255,7 @@ def _initialize_master_working_set():
     API available.
 
     This function has explicit effects on the global state
-    of pkg_resources. It is intended to be invoked once at
+    of pkg_resources_py2. It is intended to be invoked once at
     the initialization of this module.
 
     Invocation by other packages is unsupported and done
@@ -3289,7 +3289,7 @@ def _initialize_master_working_set():
 
 class PkgResourcesDeprecationWarning(Warning):
     """
-    Base class for warning about deprecations in ``pkg_resources``
+    Base class for warning about deprecations in ``pkg_resources_py2``
 
     This class is not derived from ``DeprecationWarning``, and as such is
     visible by default.

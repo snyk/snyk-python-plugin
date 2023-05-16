@@ -711,6 +711,29 @@ test('should return correct package info when a single package has a dependency 
     });
 });
 
+test('should work for openapi_spec_validator', (t) => {
+  return Promise.resolve()
+    .then(() => {
+      chdirWorkspaces('pip-app-with-openapi_spec_validator');
+      const venvCreated = testUtils.ensureVirtualenv(
+        'pip-app-with-openapi_spec_validator'
+      );
+      t.teardown(
+        testUtils.activateVirtualenv('pip-app-with-openapi_spec_validator')
+      );
+      if (venvCreated) {
+        testUtils.pipInstall();
+      }
+    })
+    .then(() => {
+      return plugin.inspect('.', 'requirements.txt');
+    })
+    .then(async (result) => {
+      t.ok(result.dependencyGraph, 'graph generated');
+      t.end();
+    });
+});
+
 test('Pipfile package found conditionally based on python version', (t) => {
   return Promise.resolve()
     .then(() => {
