@@ -15,4 +15,21 @@ describe('Test setup_file.py', () => {
 
     expect(result.status).toBe(0);
   });
+
+  it('should work when --dev-deps is set but not dev-packages in Pipfile', async () => {
+    const fixturePath = path.resolve(
+      __dirname,
+      '../fixtures/pipfile-without-dev-deps/Pipfile'
+    );
+
+    const result = executeSync(
+      'python',
+      [
+        '-c',
+        `from pip_resolve import get_requirements_list; get_requirements_list('${fixturePath}', True)`,
+      ],
+      { cwd: path.resolve(__dirname, '../../pysrc') }
+    );
+    expect(result.status).toBe(0);
+  });
 });
