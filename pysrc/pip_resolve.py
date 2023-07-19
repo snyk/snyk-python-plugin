@@ -220,7 +220,9 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
             parsed_packages = []
         req_list = list(parsed_packages)
         if dev_deps:
-            req_list.extend(parsed_reqs.get('dev-packages', []))
+            dev_packages = parsed_reqs.get('dev-packages', [])
+            if dev_packages is not None:
+                req_list.extend(dev_packages)
         if not req_list:
             return []
         else:
