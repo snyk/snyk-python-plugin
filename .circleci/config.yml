@@ -56,6 +56,7 @@ commands:
             # pipenv installation always bumps pip version to >18.0.0, we manually install the desired pip version again
             python -m pip install --user --quiet pip==$PIP_VER
             pyenv rehash
+            npm install -g cross-env
             npm run test
           environment:
             PIP_VER: << parameters.pip_version >>
