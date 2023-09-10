@@ -47,10 +47,10 @@
       }
     },
     {
-      "id": "typing-extensions@4.7.1",
+      "id": "typing-extensions@4.8.0rc1",
       "info": {
         "name": "typing-extensions",
-        "version": "4.7.1"
+        "version": "4.8.0rc1"
       }
     },
     {
@@ -187,10 +187,10 @@
       }
     },
     {
-      "id": "urllib3@2.0.4",
+      "id": "urllib3@1.26.16",
       "info": {
         "name": "urllib3",
-        "version": "2.0.4"
+        "version": "1.26.16"
       }
     },
     {
@@ -328,8 +328,8 @@
         "deps": []
       },
       {
-        "nodeId": "typing-extensions@4.7.1",
-        "pkgId": "typing-extensions@4.7.1",
+        "nodeId": "typing-extensions@4.8.0rc1",
+        "pkgId": "typing-extensions@4.8.0rc1",
         "deps": []
       },
       {
@@ -337,7 +337,7 @@
         "pkgId": "pydantic-core@2.6.3",
         "deps": [
           {
-            "nodeId": "typing-extensions@4.7.1"
+            "nodeId": "typing-extensions@4.8.0rc1"
           }
         ]
       },
@@ -352,7 +352,7 @@
             "nodeId": "pydantic-core@2.6.3"
           },
           {
-            "nodeId": "typing-extensions@4.7.1"
+            "nodeId": "typing-extensions@4.8.0rc1"
           }
         ]
       },
@@ -364,7 +364,7 @@
             "nodeId": "pydantic@2.3.0"
           },
           {
-            "nodeId": "typing-extensions@4.7.1"
+            "nodeId": "typing-extensions@4.8.0rc1"
           }
         ]
       },
@@ -526,8 +526,8 @@
         "deps": []
       },
       {
-        "nodeId": "urllib3@2.0.4",
-        "pkgId": "urllib3@2.0.4",
+        "nodeId": "urllib3@1.26.16",
+        "pkgId": "urllib3@1.26.16",
         "deps": []
       },
       {
@@ -538,7 +538,7 @@
             "nodeId": "dnspython@2.4.2"
           },
           {
-            "nodeId": "urllib3@2.0.4"
+            "nodeId": "urllib3@1.26.16"
           }
         ]
       },

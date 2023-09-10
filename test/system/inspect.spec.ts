@@ -4,14 +4,14 @@ import {
   RequiredPackagesMissingError,
 } from '../../lib';
 import * as testUtils from '../test-utils';
-import { chdirWorkspaces, ensureVirtualenv } from '../test-utils'; // Usually the setup of virtual environments can run for a while
+import { chdirWorkspaces, ensureVirtualenv } from '../test-utils';
 import * as depGraphLib from '@snyk/dep-graph';
 import { DepGraphBuilder } from '@snyk/dep-graph';
 import { FILENAMES } from '../../lib/types';
 import * as subProcess from '../../lib/dependencies/sub-process';
 import { SpawnSyncReturns } from 'child_process';
 import * as fs from 'fs';
-import * as path from 'path'; // Usually the setup of virtual environments can run for a while
+import * as path from 'path';
 
 // Usually the setup of virtual environments can run for a while
 jest.setTimeout(120000);

@@ -17,10 +17,10 @@ RUN set -ex \
     && pyenv update \
     && pyenv install $PYTHON_VERSION \
     && pyenv global $PYTHON_VERSION \
-    && pyenv rehash \
-    && echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc \
-    && echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc \
-    && echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+    && pyenv rehash
+
+ENV PATH="/home/${DEVUSER}/.pyenv/shims:${PATH}"
+RUN python --version
 
 COPY --chown=${DEVUSER}:${DEVUSER} . ./
 
@@ -28,4 +28,5 @@ RUN npm install
 
 ENV PATH="/home/${DEVUSER}/.local/bin:${PATH}"
 RUN python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
-CMD ["npm", "run", "test"]
+
+CMD ["npm", "run", "test", "--", "--runInBand"]
