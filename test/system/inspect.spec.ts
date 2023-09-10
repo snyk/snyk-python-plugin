@@ -14,7 +14,7 @@ import * as fs from 'fs';
 import * as path from 'path'; // Usually the setup of virtual environments can run for a while
 
 // Usually the setup of virtual environments can run for a while
-jest.setTimeout(60000);
+jest.setTimeout(120000);
 
 describe('inspect', () => {
   const originalCurrentWorkingDirectory = process.cwd();

@@ -38,12 +38,11 @@ jobs:
             BUILDKIT_PROGRESS=plain \
             DOCKER_BUILDKIT=1 \
             docker build \
-                --build-arg PIP_VERSION=<< parameters.pip_version >>\
                 --build-arg NODE_VERSION=<< parameters.node_version >> \
                 --build-arg PYTHON_VERSION=<< parameters.python_version >> \
-                -t snyk-python-plugin:integration-tests-<< parameters.pip_version >>-<< parameters.python_version >> \
+                -t snyk-python-plugin:integration-tests-<< parameters.python_version >> \
                 -f test/Dockerfile .
-            docker run --rm snyk-python-plugin:integration-tests-<< parameters.pip_version >>-<< parameters.python_version >>
+            docker run --rm snyk-python-plugin:integration-tests-<< parameters.python_version >>
 
   build:
     <<: *defaults
@@ -102,10 +101,6 @@ workflows:
           matrix:
             parameters:
               node_version: [ '16' ]
-              pip_version: [
-#                '18.1.0',
-                             '23.2.1'
-              ]
               python_version: [
 #                '3.8',
 #                '3.9', '3.10',

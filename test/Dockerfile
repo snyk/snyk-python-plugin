@@ -1,37 +1,31 @@
-ARG PYTHON_VERSION
-FROM python:${PYTHON_VERSION}
-
-RUN groupadd --gid 1000 appuser && \
-    useradd --uid 1000 --gid appuser --shell /bin/bash --create-home appuser && \
-    apt-get update && \
-    apt-get -y install npm pipenv && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "/opt/fnm" --skip-shell && \
-    ln -s /opt/fnm/fnm /usr/bin/ &&  \
-    chmod +x /usr/bin/fnm
-
-ARG PIP_VERSION
-ENV PIP_VERSION $PIP_VERSION
-
 ARG NODE_VERSION
-ENV NODE_VERSION $NODE_VERSION
+FROM node:${NODE_VERSION}
 
-WORKDIR /home/appuser/app
+ARG DEVUSER=node
+USER ${DEVUSER}
 
-RUN eval "$(fnm env)" && \
-    fnm install ${NODE_VERSION} && \
-    fnm use ${NODE_VERSION} && \
-    fnm alias default ${NODE_VERSION}
+SHELL ["/bin/bash", "-c"]
 
-COPY --chown=appuser:appuser . ./
+WORKDIR /home/${DEVUSER}
+
+ARG PYTHON_VERSION
+ENV PYTHON_VERSION $PYTHON_VERSION
+
+RUN set -ex \
+    && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
+    && export PATH="$HOME/.pyenv/bin:$PATH" \
+    && pyenv update \
+    && pyenv install $PYTHON_VERSION \
+    && pyenv global $PYTHON_VERSION \
+    && pyenv rehash \
+    && echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc \
+    && echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc \
+    && echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+
+COPY --chown=${DEVUSER}:${DEVUSER} . ./
 
 RUN npm install
 
-USER appuser
-ENV PATH="/home/appuser/.local/bin:${PATH}"
-
-RUN python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check && \
-    python -m pip install --user --quiet pip==${PIP_VERSION}
-
+ENV PATH="/home/${DEVUSER}/.local/bin:${PATH}"
+RUN python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
 CMD ["npm", "run", "test"]
