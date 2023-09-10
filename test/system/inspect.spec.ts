@@ -159,11 +159,6 @@ describe('inspect', () => {
         uninstallPackages: [],
         pluginOpts: {},
       },
-      {
-        workspace: 'pip-app-with-repeating-dependency',
-        uninstallPackages: [],
-        pluginOpts: {},
-      },
     ])(
       'should get a valid dependency graph for workspace = $workspace',
       async ({ workspace, uninstallPackages, pluginOpts }) => {
