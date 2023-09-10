@@ -4,7 +4,7 @@
 build: off
 branches:
   only:
-    - master
+    - main
 
 init:
   - git config --global core.autocrlf true
