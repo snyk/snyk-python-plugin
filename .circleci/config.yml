@@ -109,9 +109,9 @@ jobs:
             DOCKER_BUILDKIT=1 \
             docker build \
             	--secret id=npm_token,env=NPM_TOKEN \
-                --build-arg PIP_VERSION=$(PIP_VERSION) \
-                --build-arg NODE_VERSION=$(NODE_VERSION) \
-                --build-arg PYTHON_VERSION=$(PYTHON_VERSION) \
+                --build-arg PIP_VERSION=$PIP_VERSION \
+                --build-arg NODE_VERSION=$NODE_VERSION \
+                --build-arg PYTHON_VERSION=$PYTHON_VERSION \
             	-t snyk-python-plugin:integration-tests-<< parameters.pip_version >>-<< parameters.python_version >> \
             	-f test/Dockerfile .
             docker run --rm snyk-python-plugin:integration-tests-<< parameters.pip_version >>-<< parameters.python_version >>
