@@ -4,6 +4,7 @@ import {
   RequiredPackagesMissingError,
 } from '../../lib';
 import * as testUtils from '../test-utils';
+import { chdirWorkspaces, ensureVirtualenv } from '../test-utils'; // Usually the setup of virtual environments can run for a while
 import * as depGraphLib from '@snyk/dep-graph';
 import { DepGraphBuilder } from '@snyk/dep-graph';
 import { FILENAMES } from '../../lib/types';
@@ -33,23 +34,14 @@ describe('inspect', () => {
     it.each([
       {
         workspace: 'setup_py-app',
-        virtualEnv: 'pip-app',
       },
     ])(
       'should get a valid dependency graph for workspace = $workspace',
-      async ({ workspace, virtualEnv }) => {
+      async ({ workspace }) => {
         testUtils.chdirWorkspaces(workspace);
         tearDown = testUtils.activateVirtualenv(workspace);
         testUtils.setupPyInstall();
 
-        const result = await inspect('.', FILENAMES.setuptools.manifest);
-        expect(result).toMatchObject({
-          plugin: {
-            name: 'snyk-python-plugin',
-            runtime: expect.any(String), // any version of Python
-          },
-          dependencyGraph: {}, // match any dep-graph (equality checked below)
-        });
         const expectedDepGraphPath = path.resolve(
           __dirname,
           `../fixtures/${workspace}/expected.json`
@@ -57,6 +49,56 @@ describe('inspect', () => {
         const expected = JSON.parse(
           fs.readFileSync(expectedDepGraphPath).toString()
         );
+
+        const result = await inspect('.', FILENAMES.setuptools.manifest);
+        expect(result.dependencyGraph.toJSON()).toMatchObject(expected);
+      }
+    );
+  });
+
+  describe('when doing inspect with --only-provenance', () => {
+    let tearDown;
+    beforeAll(() => {
+      const workspace = 'pip-app';
+      chdirWorkspaces(workspace);
+      ensureVirtualenv(workspace);
+      tearDown = testUtils.activateVirtualenv(workspace);
+      testUtils.pipInstall();
+    });
+
+    afterAll(() => {
+      tearDown();
+    });
+
+    it.each([
+      {
+        workspace: 'pip-app',
+        targetFile: FILENAMES.pip.manifest,
+      },
+      {
+        workspace: 'pipfile-pipapp',
+        targetFile: FILENAMES.pipenv.manifest,
+      },
+      {
+        workspace: 'setup_py-app',
+        targetFile: FILENAMES.setuptools.manifest,
+      },
+    ])(
+      'should get a valid dependency graph for workspace = $workspace',
+      async ({ workspace, targetFile }) => {
+        testUtils.chdirWorkspaces(workspace);
+
+        const expectedDepGraphPath = path.resolve(
+          __dirname,
+          `../fixtures/${workspace}-only-provenance/expected.json`
+        );
+        const expected = JSON.parse(
+          fs.readFileSync(expectedDepGraphPath).toString()
+        );
+
+        const result = await inspect('.', targetFile, {
+          args: ['--only-provenance'],
+        });
         expect(result.dependencyGraph.toJSON()).toMatchObject(expected);
       }
     );
@@ -401,7 +443,7 @@ describe('inspect', () => {
         await expect(inspect('.', manifestFilePath)).rejects.toThrowError(
           new RequiredPackagesMissingError(
             'Required packages missing\n' +
-            'Please run `pip install -r path/to/requirements.txt`. If the issue persists try again with --skip-unresolved.'
+              'Please run `pip install -r path/to/requirements.txt`. If the issue persists try again with --skip-unresolved.'
           )
         );
       });

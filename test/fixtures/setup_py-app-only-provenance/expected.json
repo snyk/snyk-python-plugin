@@ -1,0 +1,146 @@
+{
+  "schemaVersion": "1.2.0",
+  "pkgManager": {
+    "name": "pip"
+  },
+  "pkgs": [
+    {
+      "id": "test_package@1.0.2",
+      "info": {
+        "name": "test_package",
+        "version": "1.0.2"
+      }
+    },
+    {
+      "id": "django@1.6.1",
+      "info": {
+        "name": "django",
+        "version": "1.6.1"
+      }
+    },
+    {
+      "id": "django-select2@6.0.1",
+      "info": {
+        "name": "django-select2",
+        "version": "6.0.1"
+      }
+    },
+    {
+      "id": "irc@16.2",
+      "info": {
+        "name": "irc",
+        "version": "16.2"
+      }
+    },
+    {
+      "id": "jinja2@2.7.2",
+      "info": {
+        "name": "jinja2",
+        "version": "2.7.2"
+      }
+    },
+    {
+      "id": "python-etcd@0.4.5",
+      "info": {
+        "name": "python-etcd",
+        "version": "0.4.5"
+      }
+    },
+    {
+      "id": "testtools@2.3.0",
+      "info": {
+        "name": "testtools",
+        "version": "2.3.0"
+      }
+    }
+  ],
+  "graph": {
+    "rootNodeId": "root-node",
+    "nodes": [
+      {
+        "nodeId": "root-node",
+        "pkgId": "test_package@1.0.2",
+        "deps": [
+          {
+            "nodeId": "django@1.6.1"
+          },
+          {
+            "nodeId": "django-select2@6.0.1"
+          },
+          {
+            "nodeId": "irc@16.2"
+          },
+          {
+            "nodeId": "jinja2@2.7.2"
+          },
+          {
+            "nodeId": "python-etcd@0.4.5"
+          },
+          {
+            "nodeId": "testtools@2.3.0"
+          }
+        ]
+      },
+      {
+        "nodeId": "django@1.6.1",
+        "pkgId": "django@1.6.1",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "setup.py:8"
+          }
+        }
+      },
+      {
+        "nodeId": "django-select2@6.0.1",
+        "pkgId": "django-select2@6.0.1",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "setup.py:8"
+          }
+        }
+      },
+      {
+        "nodeId": "irc@16.2",
+        "pkgId": "irc@16.2",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "setup.py:8"
+          }
+        }
+      },
+      {
+        "nodeId": "jinja2@2.7.2",
+        "pkgId": "jinja2@2.7.2",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "setup.py:8"
+          }
+        }
+      },
+      {
+        "nodeId": "python-etcd@0.4.5",
+        "pkgId": "python-etcd@0.4.5",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "setup.py:8"
+          }
+        }
+      },
+      {
+        "nodeId": "testtools@2.3.0",
+        "pkgId": "testtools@2.3.0",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "setup.py:8"
+          }
+        }
+      }
+    ]
+  }
+}

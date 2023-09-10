@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "1.2.0",
+  "pkgManager": {
+    "name": "pip"
+  },
+  "pkgs": [
+    {
+      "id": "pipfile-pipapp@0.0.0",
+      "info": {
+        "name": "pipfile-pipapp",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "id": "django-select2@6.0.1",
+      "info": {
+        "name": "django-select2",
+        "version": "6.0.1"
+      }
+    },
+    {
+      "id": "jinja2@2.7.2",
+      "info": {
+        "name": "jinja2",
+        "version": "2.7.2"
+      }
+    },
+    {
+      "id": "python-etcd@0.4.5",
+      "info": {
+        "name": "python-etcd",
+        "version": "0.4.5"
+      }
+    },
+    {
+      "id": "testtools@2.3.0",
+      "info": {
+        "name": "testtools",
+        "version": "2.3.0"
+      }
+    }
+  ],
+  "graph": {
+    "rootNodeId": "root-node",
+    "nodes": [
+      {
+        "nodeId": "root-node",
+        "pkgId": "pipfile-pipapp@0.0.0",
+        "deps": [
+          {
+            "nodeId": "django-select2@6.0.1"
+          },
+          {
+            "nodeId": "jinja2@2.7.2"
+          },
+          {
+            "nodeId": "python-etcd@0.4.5"
+          },
+          {
+            "nodeId": "testtools@2.3.0"
+          }
+        ]
+      },
+      {
+        "nodeId": "django-select2@6.0.1",
+        "pkgId": "django-select2@6.0.1",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "Pipfile:11"
+          }
+        }
+      },
+      {
+        "nodeId": "jinja2@2.7.2",
+        "pkgId": "jinja2@2.7.2",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "Pipfile:9"
+          }
+        }
+      },
+      {
+        "nodeId": "python-etcd@0.4.5",
+        "pkgId": "python-etcd@0.4.5",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "Pipfile:7"
+          }
+        }
+      },
+      {
+        "nodeId": "testtools@2.3.0",
+        "pkgId": "testtools@2.3.0",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "Pipfile:8"
+          }
+        }
+      }
+    ]
+  }
+}
