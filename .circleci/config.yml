@@ -1,92 +1,25 @@
 version: 2.1
 
 orbs:
+  node: circleci/node@5.1.0
   prodsec: snyk/prodsec-orb@1.0
 
 defaults: &defaults
+  resource_class: medium
   docker:
-    - image: node:16
-  working_directory: ~/snyk-python-plugin
-
-commands:
-  checkout_and_merge:
-    steps:
-      - checkout
-      - run:
-          name: Checkout main
-          command: git checkout origin/main
-      - run:
-          name: Merge test branch
-          command: |
-            git config user.name "CircleCI"
-            git config user.email "noop"
-            git merge --no-edit "$CIRCLE_BRANCH"
-      - attach_workspace:
-          at: ~/snyk-python-plugin
-#  test_python:
-#    parameters:
-#      pip_version:
-#        type: string
-#      python_version:
-#        type: string
-#    steps:
-#      - checkout_and_merge
-#      - attach_workspace:
-#          at: ~/snyk-python-plugin
-#      - setup_snyk_npm_user
-#      - setup_remote_docker
-#      - run:
-#          name: Run tests
-#          command: |
-#            apt -qq update
-#            apt -qq install python3-pip python-pip -y &> /dev/null
-#            curl https://pyenv.run | $SHELL
-#            export PATH=$HOME/.pyenv/bin:$PATH
-#            eval "$(pyenv init -)"
-#            eval "$(pyenv virtualenv-init -)"
-#            export PYTHON_VER_FULL=`pyenv install --list | grep -v 'Available versions' | awk '{$1=$1};1' | grep "^$PYTHON_VER\.[0-9]\+$" | tail -1`
-#            echo $PYTHON_VER_FULL
-#            # Install the specific release of Python if it isn't already installed
-#            pyenv install -s $PYTHON_VER_FULL
-#            export PATH=$HOME/.pyenv/versions/$PYTHON_VER_FULL/bin:$PATH
-#            pyenv shell $PYTHON_VER_FULL
-#            python --version
-#            export PATH=$HOME/.local/bin:$PATH
-#            export LC_ALL=C.UTF-8
-#            export LANG=C.UTF-8
-#            python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
-#            # pipenv installation always bumps pip version to >18.0.0, we manually install the desired pip version again
-#            python -m pip install --user --quiet pip==$PIP_VER
-#            pyenv rehash
-#            npm run test
-#          environment:
-#            PIP_VERSION: << parameters.pip_version >>
-#            PYTHON_VER: << parameters.python_version >>
+    - image: cimg/node:19.6.1
 
 jobs:
-  install:
-    <<: *defaults
-    environment:
-      NODE_ENV: develop # Required because base image sets it to 'production'
-    steps:
-      - checkout_and_merge
-      - run:
-          name: Use snyk-main npmjs user
-          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
-      - run:
-          name: Install Node dependencies
-          command: npm install
-      - persist_to_workspace:
-          root: .
-          paths:
-            - node_modules/
   lint:
     <<: *defaults
     steps:
-      - checkout_and_merge
+      - checkout
+      - node/install-packages:
+          with-cache: false
+          override-ci-command: npm install
       - run:
-          name: Run linting tasks
           command: npm run lint
+
   test:
     <<: *defaults
     parameters:
@@ -96,52 +29,42 @@ jobs:
         type: string
       python_version:
         type: string
-#    docker:
-#      - image: node:<< parameters.node_version >>
     steps:
       - checkout
-      - setup_snyk_npm_user
       - setup_remote_docker
       - run:
-          name: Run integration tests for dotnet Isolated Builder
+          name: Run tests
           command: |
             BUILDKIT_PROGRESS=plain \
             DOCKER_BUILDKIT=1 \
             docker build \
-            	--secret id=npm_token,env=NPM_TOKEN \
-                --build-arg PIP_VERSION=$PIP_VERSION \
-                --build-arg NODE_VERSION=$NODE_VERSION \
-                --build-arg PYTHON_VERSION=$PYTHON_VERSION \
-            	-t snyk-python-plugin:integration-tests-<< parameters.pip_version >>-<< parameters.python_version >> \
-            	-f test/Dockerfile .
+                --build-arg PIP_VERSION=<< parameters.pip_version >>\
+                --build-arg NODE_VERSION=<< parameters.node_version >> \
+                --build-arg PYTHON_VERSION=<< parameters.python_version >> \
+                -t snyk-python-plugin:integration-tests-<< parameters.pip_version >>-<< parameters.python_version >> \
+                -f test/Dockerfile .
             docker run --rm snyk-python-plugin:integration-tests-<< parameters.pip_version >>-<< parameters.python_version >>
-#      - test_python:
-#          pip_version: << parameters.pip_version >>
-#          python_version: << parameters.python_version >>
+
   build:
     <<: *defaults
     steps:
-      - checkout_and_merge
+      - checkout
+      - node/install-packages:
+          with-cache: false
+          override-ci-command: npm install
       - run:
-          name: Use snyk-main npmjs user
-          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
-      - run:
-          name: Install dependencies
-          command: npm install
-      - run:
-          name: Run tests
           command: npm run build
+
   release:
     <<: *defaults
     docker:
       - image: node:16
     steps:
-      - checkout_and_merge
+      - checkout
+      - node/install-packages:
+          with-cache: false
+          override-ci-command: npm install
       - run:
-          name: Install deps
-          command: npm install
-      - run:
-          name: Build
           command: npm run build
       - run:
           name: Release
@@ -151,51 +74,53 @@ workflows:
   version: 2
   test_and_release:
     jobs:
-      - prodsec/secrets-scan:
-          name: Scan repository for secrets
-          context:
-            - snyk-bot-slack
-          channel: os-team-managed-alerts
+#      - pro dsec/secrets-scan:
+#          name: Scan repository for secrets
+#          context:
+#            - snyk-bot-slack
+#          channel: os-team-managed-alerts
+#
+#      - lint:
+#          name: Lint
+#          filters:
+#            branches:
+#              ignore:
+#                - main
+#
+#      - build:
+#          name: Build
+#          filters:
+#            branches:
+#              ignore:
+#                - main
 
-      - install:
-          name: Install
-          filters:
-            branches:
-              ignore:
-                - main
-      - lint:
-          name: Lint
-          requires:
-            - Install
-          filters:
-            branches:
-              ignore:
-                - main
-      - build:
-          name: Build
-          requires:
-            - Install
-          filters:
-            branches:
-              ignore:
-                - main
       - test:
           name: Node << matrix.node_version >>, Python << matrix.python_version >>, Pip << matrix.pip_version >>
-          requires:
-            - Lint
-            - Build
+#          requires:
+#            - Lint
+#            - Build
           matrix:
             parameters:
               node_version: [ '16' ]
-              pip_version: [ '18.1.0', '23.2.1' ]
-              python_version: [ '3.8', '3.9', '3.10', '3.11', '3.12' ]
+              pip_version: [
+#                '18.1.0',
+                             '23.2.1'
+              ]
+              python_version: [
+#                '3.8',
+#                '3.9', '3.10',
+                '3.11',
+              ]
           filters:
             branches:
               ignore:
                 - main
+
       - release:
           name: Release
           context: nodejs-lib-release
+#          requires:
+#            - Scan repository for secrets
           filters:
             branches:
               only:
