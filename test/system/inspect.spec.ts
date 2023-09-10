@@ -189,7 +189,7 @@ describe('inspect', () => {
       const workspace = 'pip-app';
       const virtualEnv = 'pip-app-without-markupsafe';
       testUtils.chdirWorkspaces(workspace);
-      const venvCreated = testUtils.ensureVirtualenv(virtualEnv);
+      testUtils.ensureVirtualenv(virtualEnv);
       tearDown = testUtils.activateVirtualenv(workspace);
       testUtils.pipInstall();
       testUtils.pipUninstall('MarkupSafe');

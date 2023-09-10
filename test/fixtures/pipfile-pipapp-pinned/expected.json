@@ -180,10 +180,10 @@
       }
     },
     {
-      "id": "urllib3@1.26.16",
+      "id": "urllib3@2.0.4",
       "info": {
         "name": "urllib3",
-        "version": "1.26.16"
+        "version": "2.0.4"
       }
     },
     {
@@ -511,8 +511,8 @@
         "deps": []
       },
       {
-        "nodeId": "urllib3@1.26.16",
-        "pkgId": "urllib3@1.26.16",
+        "nodeId": "urllib3@2.0.4",
+        "pkgId": "urllib3@2.0.4",
         "deps": []
       },
       {
@@ -523,7 +523,7 @@
             "nodeId": "dnspython@2.4.2"
           },
           {
-            "nodeId": "urllib3@1.26.16"
+            "nodeId": "urllib3@2.0.4"
           }
         ]
       },

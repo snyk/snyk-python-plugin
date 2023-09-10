@@ -11,9 +11,6 @@ export {
   ensureVirtualenv,
   pipInstall,
   pipUninstall,
-  pipInstallE,
-  pipenvInstall,
-  setWorkonHome,
   setupPyInstall,
 };
 
@@ -160,22 +157,6 @@ function setupPyInstall() {
   }
 }
 
-function pipInstallE() {
-  const proc = subProcess.executeSync('pip', [
-    'install',
-    '-e',
-    '.',
-    '--disable-pip-version-check',
-  ]);
-  if (proc.status !== 0) {
-    throw new Error(
-      'Failed to install requirements with pip.' +
-        ' venv = ' +
-        JSON.stringify(getActiveVenvName())
-    );
-  }
-}
-
 function pipUninstall(pkgName: string) {
   const proc = subProcess.executeSync('pip', ['uninstall', '-y', pkgName]);
   if (proc.status !== 0) {
@@ -187,41 +168,6 @@ function pipUninstall(pkgName: string) {
         JSON.stringify(getActiveVenvName())
     );
   }
-}
-
-function pipenvInstall(options?: PipenvOptions) {
-  try {
-    const args = ['update'];
-    if (options?.dev) {
-      args.push('--dev');
-    }
-    const proc = subProcess.executeSync('pipenv', [...args]);
-    if (proc.status !== 0) {
-      console.log('' + proc.stderr);
-    }
-  } finally {
-    try {
-      fs.unlinkSync('Pipfile.lock');
-    } catch (e) {
-      // will error if the file doesn't exist, which is fine
-    }
-  }
-}
-
-function setWorkonHome() {
-  const venvsBaseDir = path.join(path.resolve(__dirname), '.venvs');
-  try {
-    fs.accessSync(venvsBaseDir, fs.constants.R_OK);
-  } catch (e) {
-    fs.mkdirSync(venvsBaseDir);
-  }
-
-  const origWorkonHome = process.env.WORKON_HOME;
-  process.env.WORKON_HOME = venvsBaseDir;
-
-  return function revert() {
-    process.env.WORKON_HOME = origWorkonHome;
-  };
 }
 
 export function chdirWorkspaces(dir: string) {
