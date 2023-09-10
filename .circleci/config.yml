@@ -23,43 +23,45 @@ commands:
             git merge --no-edit "$CIRCLE_BRANCH"
       - attach_workspace:
           at: ~/snyk-python-plugin
-  test_python:
-    parameters:
-      pip_version:
-        type: string
-      python_version:
-        type: string
-    steps:
-      - checkout_and_merge
-      - attach_workspace:
-          at: ~/snyk-python-plugin
-      - run:
-          name: Run tests
-          command: |
-            apt -qq update
-            apt -qq install python3-pip python-pip -y &> /dev/null
-            curl https://pyenv.run | $SHELL
-            export PATH=$HOME/.pyenv/bin:$PATH
-            eval "$(pyenv init -)"
-            eval "$(pyenv virtualenv-init -)"
-            export PYTHON_VER_FULL=`pyenv install --list | grep -v 'Available versions' | awk '{$1=$1};1' | grep "^$PYTHON_VER\.[0-9]\+$" | tail -1`
-            echo $PYTHON_VER_FULL
-            # Install the specific release of Python if it isn't already installed
-            pyenv install -s $PYTHON_VER_FULL
-            export PATH=$HOME/.pyenv/versions/$PYTHON_VER_FULL/bin:$PATH
-            pyenv shell $PYTHON_VER_FULL
-            python --version
-            export PATH=$HOME/.local/bin:$PATH
-            export LC_ALL=C.UTF-8
-            export LANG=C.UTF-8
-            python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
-            # pipenv installation always bumps pip version to >18.0.0, we manually install the desired pip version again
-            python -m pip install --user --quiet pip==$PIP_VER
-            pyenv rehash
-            npm run test
-          environment:
-            PIP_VER: << parameters.pip_version >>
-            PYTHON_VER: << parameters.python_version >>
+#  test_python:
+#    parameters:
+#      pip_version:
+#        type: string
+#      python_version:
+#        type: string
+#    steps:
+#      - checkout_and_merge
+#      - attach_workspace:
+#          at: ~/snyk-python-plugin
+#      - setup_snyk_npm_user
+#      - setup_remote_docker
+#      - run:
+#          name: Run tests
+#          command: |
+#            apt -qq update
+#            apt -qq install python3-pip python-pip -y &> /dev/null
+#            curl https://pyenv.run | $SHELL
+#            export PATH=$HOME/.pyenv/bin:$PATH
+#            eval "$(pyenv init -)"
+#            eval "$(pyenv virtualenv-init -)"
+#            export PYTHON_VER_FULL=`pyenv install --list | grep -v 'Available versions' | awk '{$1=$1};1' | grep "^$PYTHON_VER\.[0-9]\+$" | tail -1`
+#            echo $PYTHON_VER_FULL
+#            # Install the specific release of Python if it isn't already installed
+#            pyenv install -s $PYTHON_VER_FULL
+#            export PATH=$HOME/.pyenv/versions/$PYTHON_VER_FULL/bin:$PATH
+#            pyenv shell $PYTHON_VER_FULL
+#            python --version
+#            export PATH=$HOME/.local/bin:$PATH
+#            export LC_ALL=C.UTF-8
+#            export LANG=C.UTF-8
+#            python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
+#            # pipenv installation always bumps pip version to >18.0.0, we manually install the desired pip version again
+#            python -m pip install --user --quiet pip==$PIP_VER
+#            pyenv rehash
+#            npm run test
+#          environment:
+#            PIP_VERSION: << parameters.pip_version >>
+#            PYTHON_VER: << parameters.python_version >>
 
 jobs:
   install:
@@ -94,12 +96,28 @@ jobs:
         type: string
       python_version:
         type: string
-    docker:
-      - image: node:<< parameters.node_version >>
+#    docker:
+#      - image: node:<< parameters.node_version >>
     steps:
-      - test_python:
-          pip_version: << parameters.pip_version >>
-          python_version: << parameters.python_version >>
+      - checkout
+      - setup_snyk_npm_user
+      - setup_remote_docker
+      - run:
+          name: Run integration tests for dotnet Isolated Builder
+          command: |
+            BUILDKIT_PROGRESS=plain \
+            DOCKER_BUILDKIT=1 \
+            docker build \
+            	--secret id=npm_token,env=NPM_TOKEN \
+                --build-arg PIP_VERSION=$(PIP_VERSION) \
+                --build-arg NODE_VERSION=$(NODE_VERSION) \
+                --build-arg PYTHON_VERSION=$(PYTHON_VERSION) \
+            	-t snyk-python-plugin:integration-tests-<< parameters.pip_version >>-<< parameters.python_version >> \
+            	-f test/Dockerfile .
+            docker run --rm snyk-python-plugin:integration-tests-<< parameters.pip_version >>-<< parameters.python_version >>
+#      - test_python:
+#          pip_version: << parameters.pip_version >>
+#          python_version: << parameters.python_version >>
   build:
     <<: *defaults
     steps:
