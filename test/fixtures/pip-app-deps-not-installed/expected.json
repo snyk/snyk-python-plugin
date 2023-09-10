@@ -1,0 +1,187 @@
+{
+  "schemaVersion": "1.2.0",
+  "pkgManager": {
+    "name": "pip"
+  },
+  "pkgs": [
+    {
+      "id": "pip-app-deps-not-installed@0.0.0",
+      "info": {
+        "name": "pip-app-deps-not-installed",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "id": "jmespath@1.0.1",
+      "info": {
+        "name": "jmespath",
+        "version": "1.0.1"
+      }
+    },
+    {
+      "id": "six@1.16.0",
+      "info": {
+        "name": "six",
+        "version": "1.16.0"
+      }
+    },
+    {
+      "id": "python-dateutil@2.8.2",
+      "info": {
+        "name": "python-dateutil",
+        "version": "2.8.2"
+      }
+    },
+    {
+      "id": "urllib3@1.26.16",
+      "info": {
+        "name": "urllib3",
+        "version": "1.26.16"
+      }
+    },
+    {
+      "id": "botocore@1.31.44",
+      "info": {
+        "name": "botocore",
+        "version": "1.31.44"
+      }
+    },
+    {
+      "id": "s3transfer@0.6.2",
+      "info": {
+        "name": "s3transfer",
+        "version": "0.6.2"
+      }
+    },
+    {
+      "id": "boto3@1.28.44",
+      "info": {
+        "name": "boto3",
+        "version": "1.28.44"
+      }
+    },
+    {
+      "id": "colorama@0.4.6",
+      "info": {
+        "name": "colorama",
+        "version": "0.4.6"
+      }
+    },
+    {
+      "id": "future@0.18.3",
+      "info": {
+        "name": "future",
+        "version": "0.18.3"
+      }
+    },
+    {
+      "id": "awss@0.9.13",
+      "info": {
+        "name": "awss",
+        "version": "0.9.13"
+      }
+    }
+  ],
+  "graph": {
+    "rootNodeId": "root-node",
+    "nodes": [
+      {
+        "nodeId": "root-node",
+        "pkgId": "pip-app-deps-not-installed@0.0.0",
+        "deps": [
+          {
+            "nodeId": "awss@0.9.13"
+          }
+        ]
+      },
+      {
+        "nodeId": "jmespath@1.0.1",
+        "pkgId": "jmespath@1.0.1",
+        "deps": []
+      },
+      {
+        "nodeId": "six@1.16.0",
+        "pkgId": "six@1.16.0",
+        "deps": []
+      },
+      {
+        "nodeId": "python-dateutil@2.8.2",
+        "pkgId": "python-dateutil@2.8.2",
+        "deps": [
+          {
+            "nodeId": "six@1.16.0"
+          }
+        ]
+      },
+      {
+        "nodeId": "urllib3@1.26.16",
+        "pkgId": "urllib3@1.26.16",
+        "deps": []
+      },
+      {
+        "nodeId": "botocore@1.31.44",
+        "pkgId": "botocore@1.31.44",
+        "deps": [
+          {
+            "nodeId": "jmespath@1.0.1"
+          },
+          {
+            "nodeId": "python-dateutil@2.8.2"
+          },
+          {
+            "nodeId": "urllib3@1.26.16"
+          }
+        ]
+      },
+      {
+        "nodeId": "s3transfer@0.6.2",
+        "pkgId": "s3transfer@0.6.2",
+        "deps": [
+          {
+            "nodeId": "botocore@1.31.44"
+          }
+        ]
+      },
+      {
+        "nodeId": "boto3@1.28.44",
+        "pkgId": "boto3@1.28.44",
+        "deps": [
+          {
+            "nodeId": "botocore@1.31.44"
+          },
+          {
+            "nodeId": "jmespath@1.0.1"
+          },
+          {
+            "nodeId": "s3transfer@0.6.2"
+          }
+        ]
+      },
+      {
+        "nodeId": "colorama@0.4.6",
+        "pkgId": "colorama@0.4.6",
+        "deps": []
+      },
+      {
+        "nodeId": "future@0.18.3",
+        "pkgId": "future@0.18.3",
+        "deps": []
+      },
+      {
+        "nodeId": "awss@0.9.13",
+        "pkgId": "awss@0.9.13",
+        "deps": [
+          {
+            "nodeId": "boto3@1.28.44"
+          },
+          {
+            "nodeId": "colorama@0.4.6"
+          },
+          {
+            "nodeId": "future@0.18.3"
+          }
+        ]
+      }
+    ]
+  }
+}

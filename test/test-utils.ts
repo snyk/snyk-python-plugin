@@ -2,7 +2,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as process from 'process';
-
 import subProcess = require('../lib/dependencies/sub-process');
 
 export {
@@ -15,6 +14,7 @@ export {
   pipInstallE,
   pipenvInstall,
   setWorkonHome,
+  setupPyInstall,
 };
 
 const binDirName = process.platform === 'win32' ? 'Scripts' : 'bin';
@@ -142,6 +142,18 @@ function pipInstall() {
     console.log('' + proc.stderr);
     throw new Error(
       'Failed to install requirements with pip.' +
+        ' venv = ' +
+        JSON.stringify(getActiveVenvName())
+    );
+  }
+}
+
+function setupPyInstall() {
+  const proc = subProcess.executeSync('python', ['setup.py', 'install']);
+  if (proc.status !== 0) {
+    console.log('' + proc.stderr);
+    throw new Error(
+      'Failed to install requirements with setup.py.' +
         ' venv = ' +
         JSON.stringify(getActiveVenvName())
     );

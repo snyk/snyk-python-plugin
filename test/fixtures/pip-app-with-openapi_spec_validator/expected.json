@@ -1,0 +1,322 @@
+{
+  "schemaVersion": "1.2.0",
+  "pkgManager": {
+    "name": "pip"
+  },
+  "pkgs": [
+    {
+      "id": "pip-app-with-openapi_spec_validator@0.0.0",
+      "info": {
+        "name": "pip-app-with-openapi_spec_validator",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "id": "attrs@23.1.0",
+      "info": {
+        "name": "attrs",
+        "version": "23.1.0"
+      }
+    },
+    {
+      "id": "rpds-py@0.10.2",
+      "info": {
+        "name": "rpds-py",
+        "version": "0.10.2"
+      }
+    },
+    {
+      "id": "referencing@0.30.2",
+      "info": {
+        "name": "referencing",
+        "version": "0.30.2"
+      }
+    },
+    {
+      "id": "jsonschema-specifications@2023.7.1",
+      "info": {
+        "name": "jsonschema-specifications",
+        "version": "2023.7.1"
+      }
+    },
+    {
+      "id": "jsonschema@4.19.0",
+      "info": {
+        "name": "jsonschema",
+        "version": "4.19.0"
+      }
+    },
+    {
+      "id": "pathable@0.4.3",
+      "info": {
+        "name": "pathable",
+        "version": "0.4.3"
+      }
+    },
+    {
+      "id": "pyyaml@6.0.1",
+      "info": {
+        "name": "pyyaml",
+        "version": "6.0.1"
+      }
+    },
+    {
+      "id": "certifi@2023.7.22",
+      "info": {
+        "name": "certifi",
+        "version": "2023.7.22"
+      }
+    },
+    {
+      "id": "charset-normalizer@3.2.0",
+      "info": {
+        "name": "charset-normalizer",
+        "version": "3.2.0"
+      }
+    },
+    {
+      "id": "idna@3.4",
+      "info": {
+        "name": "idna",
+        "version": "3.4"
+      }
+    },
+    {
+      "id": "urllib3@2.0.4",
+      "info": {
+        "name": "urllib3",
+        "version": "2.0.4"
+      }
+    },
+    {
+      "id": "requests@2.31.0",
+      "info": {
+        "name": "requests",
+        "version": "2.31.0"
+      }
+    },
+    {
+      "id": "jsonschema-spec@0.2.4",
+      "info": {
+        "name": "jsonschema-spec",
+        "version": "0.2.4"
+      }
+    },
+    {
+      "id": "lazy-object-proxy@1.9.0",
+      "info": {
+        "name": "lazy-object-proxy",
+        "version": "1.9.0"
+      }
+    },
+    {
+      "id": "six@1.16.0",
+      "info": {
+        "name": "six",
+        "version": "1.16.0"
+      }
+    },
+    {
+      "id": "rfc3339-validator@0.1.4",
+      "info": {
+        "name": "rfc3339-validator",
+        "version": "0.1.4"
+      }
+    },
+    {
+      "id": "openapi-schema-validator@0.6.0",
+      "info": {
+        "name": "openapi-schema-validator",
+        "version": "0.6.0"
+      }
+    },
+    {
+      "id": "openapi-spec-validator@0.6.0",
+      "info": {
+        "name": "openapi-spec-validator",
+        "version": "0.6.0"
+      }
+    }
+  ],
+  "graph": {
+    "rootNodeId": "root-node",
+    "nodes": [
+      {
+        "nodeId": "root-node",
+        "pkgId": "pip-app-with-openapi_spec_validator@0.0.0",
+        "deps": [
+          {
+            "nodeId": "openapi-spec-validator@0.6.0"
+          }
+        ]
+      },
+      {
+        "nodeId": "attrs@23.1.0",
+        "pkgId": "attrs@23.1.0",
+        "deps": []
+      },
+      {
+        "nodeId": "rpds-py@0.10.2",
+        "pkgId": "rpds-py@0.10.2",
+        "deps": []
+      },
+      {
+        "nodeId": "referencing@0.30.2",
+        "pkgId": "referencing@0.30.2",
+        "deps": [
+          {
+            "nodeId": "attrs@23.1.0"
+          },
+          {
+            "nodeId": "rpds-py@0.10.2"
+          }
+        ]
+      },
+      {
+        "nodeId": "jsonschema-specifications@2023.7.1",
+        "pkgId": "jsonschema-specifications@2023.7.1",
+        "deps": [
+          {
+            "nodeId": "referencing@0.30.2"
+          }
+        ]
+      },
+      {
+        "nodeId": "jsonschema@4.19.0",
+        "pkgId": "jsonschema@4.19.0",
+        "deps": [
+          {
+            "nodeId": "attrs@23.1.0"
+          },
+          {
+            "nodeId": "jsonschema-specifications@2023.7.1"
+          },
+          {
+            "nodeId": "referencing@0.30.2"
+          },
+          {
+            "nodeId": "rpds-py@0.10.2"
+          }
+        ]
+      },
+      {
+        "nodeId": "pathable@0.4.3",
+        "pkgId": "pathable@0.4.3",
+        "deps": []
+      },
+      {
+        "nodeId": "pyyaml@6.0.1",
+        "pkgId": "pyyaml@6.0.1",
+        "deps": []
+      },
+      {
+        "nodeId": "certifi@2023.7.22",
+        "pkgId": "certifi@2023.7.22",
+        "deps": []
+      },
+      {
+        "nodeId": "charset-normalizer@3.2.0",
+        "pkgId": "charset-normalizer@3.2.0",
+        "deps": []
+      },
+      {
+        "nodeId": "idna@3.4",
+        "pkgId": "idna@3.4",
+        "deps": []
+      },
+      {
+        "nodeId": "urllib3@2.0.4",
+        "pkgId": "urllib3@2.0.4",
+        "deps": []
+      },
+      {
+        "nodeId": "requests@2.31.0",
+        "pkgId": "requests@2.31.0",
+        "deps": [
+          {
+            "nodeId": "certifi@2023.7.22"
+          },
+          {
+            "nodeId": "charset-normalizer@3.2.0"
+          },
+          {
+            "nodeId": "idna@3.4"
+          },
+          {
+            "nodeId": "urllib3@2.0.4"
+          }
+        ]
+      },
+      {
+        "nodeId": "jsonschema-spec@0.2.4",
+        "pkgId": "jsonschema-spec@0.2.4",
+        "deps": [
+          {
+            "nodeId": "pathable@0.4.3"
+          },
+          {
+            "nodeId": "pyyaml@6.0.1"
+          },
+          {
+            "nodeId": "referencing@0.30.2"
+          },
+          {
+            "nodeId": "requests@2.31.0"
+          }
+        ]
+      },
+      {
+        "nodeId": "lazy-object-proxy@1.9.0",
+        "pkgId": "lazy-object-proxy@1.9.0",
+        "deps": []
+      },
+      {
+        "nodeId": "six@1.16.0",
+        "pkgId": "six@1.16.0",
+        "deps": []
+      },
+      {
+        "nodeId": "rfc3339-validator@0.1.4",
+        "pkgId": "rfc3339-validator@0.1.4",
+        "deps": [
+          {
+            "nodeId": "six@1.16.0"
+          }
+        ]
+      },
+      {
+        "nodeId": "openapi-schema-validator@0.6.0",
+        "pkgId": "openapi-schema-validator@0.6.0",
+        "deps": [
+          {
+            "nodeId": "jsonschema@4.19.0"
+          },
+          {
+            "nodeId": "jsonschema-specifications@2023.7.1"
+          },
+          {
+            "nodeId": "rfc3339-validator@0.1.4"
+          }
+        ]
+      },
+      {
+        "nodeId": "openapi-spec-validator@0.6.0",
+        "pkgId": "openapi-spec-validator@0.6.0",
+        "deps": [
+          {
+            "nodeId": "jsonschema@4.19.0"
+          },
+          {
+            "nodeId": "jsonschema-spec@0.2.4"
+          },
+          {
+            "nodeId": "lazy-object-proxy@1.9.0"
+          },
+          {
+            "nodeId": "openapi-schema-validator@0.6.0"
+          }
+        ]
+      }
+    ]
+  }
+}

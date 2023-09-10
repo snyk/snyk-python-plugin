@@ -1,0 +1,313 @@
+{
+  "schemaVersion": "1.2.0",
+  "pkgManager": {
+    "name": "pip"
+  },
+  "pkgs": [
+    {
+      "id": "pipfile-pipapp@0.0.0",
+      "info": {
+        "name": "pipfile-pipapp",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "id": "django@1.6.1",
+      "info": {
+        "name": "django",
+        "version": "1.6.1"
+      }
+    },
+    {
+      "id": "django-appconf@1.0.5",
+      "info": {
+        "name": "django-appconf",
+        "version": "1.0.5"
+      }
+    },
+    {
+      "id": "django-select2@6.0.1",
+      "info": {
+        "name": "django-select2",
+        "version": "6.0.1"
+      }
+    },
+    {
+      "id": "markupsafe@2.1.3",
+      "info": {
+        "name": "markupsafe",
+        "version": "2.1.3"
+      }
+    },
+    {
+      "id": "jinja2@2.7.2",
+      "info": {
+        "name": "jinja2",
+        "version": "2.7.2"
+      }
+    },
+    {
+      "id": "dnspython@2.4.2",
+      "info": {
+        "name": "dnspython",
+        "version": "2.4.2"
+      }
+    },
+    {
+      "id": "urllib3@2.0.4",
+      "info": {
+        "name": "urllib3",
+        "version": "2.0.4"
+      }
+    },
+    {
+      "id": "python-etcd@0.4.5",
+      "info": {
+        "name": "python-etcd",
+        "version": "0.4.5"
+      }
+    },
+    {
+      "id": "extras@1.0.0",
+      "info": {
+        "name": "extras",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "pbr@5.11.1",
+      "info": {
+        "name": "pbr",
+        "version": "5.11.1"
+      }
+    },
+    {
+      "id": "fixtures@4.1.0",
+      "info": {
+        "name": "fixtures",
+        "version": "4.1.0"
+      }
+    },
+    {
+      "id": "python-mimeparse@1.6.0",
+      "info": {
+        "name": "python-mimeparse",
+        "version": "1.6.0"
+      }
+    },
+    {
+      "id": "six@1.16.0",
+      "info": {
+        "name": "six",
+        "version": "1.16.0"
+      }
+    },
+    {
+      "id": "linecache2@1.0.0",
+      "info": {
+        "name": "linecache2",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "traceback2@1.4.0",
+      "info": {
+        "name": "traceback2",
+        "version": "1.4.0"
+      }
+    },
+    {
+      "id": "argparse@1.4.0",
+      "info": {
+        "name": "argparse",
+        "version": "1.4.0"
+      }
+    },
+    {
+      "id": "unittest2@1.1.0",
+      "info": {
+        "name": "unittest2",
+        "version": "1.1.0"
+      }
+    },
+    {
+      "id": "testtools@2.3.0",
+      "info": {
+        "name": "testtools",
+        "version": "2.3.0"
+      }
+    }
+  ],
+  "graph": {
+    "rootNodeId": "root-node",
+    "nodes": [
+      {
+        "nodeId": "root-node",
+        "pkgId": "pipfile-pipapp@0.0.0",
+        "deps": [
+          {
+            "nodeId": "django-select2@6.0.1"
+          },
+          {
+            "nodeId": "jinja2@2.7.2"
+          },
+          {
+            "nodeId": "python-etcd@0.4.5"
+          },
+          {
+            "nodeId": "testtools@2.3.0"
+          }
+        ]
+      },
+      {
+        "nodeId": "django@1.6.1",
+        "pkgId": "django@1.6.1",
+        "deps": []
+      },
+      {
+        "nodeId": "django-appconf@1.0.5",
+        "pkgId": "django-appconf@1.0.5",
+        "deps": [
+          {
+            "nodeId": "django@1.6.1"
+          }
+        ]
+      },
+      {
+        "nodeId": "django-select2@6.0.1",
+        "pkgId": "django-select2@6.0.1",
+        "deps": [
+          {
+            "nodeId": "django-appconf@1.0.5"
+          }
+        ]
+      },
+      {
+        "nodeId": "markupsafe@2.1.3",
+        "pkgId": "markupsafe@2.1.3",
+        "deps": []
+      },
+      {
+        "nodeId": "jinja2@2.7.2",
+        "pkgId": "jinja2@2.7.2",
+        "deps": [
+          {
+            "nodeId": "markupsafe@2.1.3"
+          }
+        ]
+      },
+      {
+        "nodeId": "dnspython@2.4.2",
+        "pkgId": "dnspython@2.4.2",
+        "deps": []
+      },
+      {
+        "nodeId": "urllib3@2.0.4",
+        "pkgId": "urllib3@2.0.4",
+        "deps": []
+      },
+      {
+        "nodeId": "python-etcd@0.4.5",
+        "pkgId": "python-etcd@0.4.5",
+        "deps": [
+          {
+            "nodeId": "dnspython@2.4.2"
+          },
+          {
+            "nodeId": "urllib3@2.0.4"
+          }
+        ]
+      },
+      {
+        "nodeId": "extras@1.0.0",
+        "pkgId": "extras@1.0.0",
+        "deps": []
+      },
+      {
+        "nodeId": "pbr@5.11.1",
+        "pkgId": "pbr@5.11.1",
+        "deps": []
+      },
+      {
+        "nodeId": "fixtures@4.1.0",
+        "pkgId": "fixtures@4.1.0",
+        "deps": [
+          {
+            "nodeId": "pbr@5.11.1"
+          }
+        ]
+      },
+      {
+        "nodeId": "python-mimeparse@1.6.0",
+        "pkgId": "python-mimeparse@1.6.0",
+        "deps": []
+      },
+      {
+        "nodeId": "six@1.16.0",
+        "pkgId": "six@1.16.0",
+        "deps": []
+      },
+      {
+        "nodeId": "linecache2@1.0.0",
+        "pkgId": "linecache2@1.0.0",
+        "deps": []
+      },
+      {
+        "nodeId": "traceback2@1.4.0",
+        "pkgId": "traceback2@1.4.0",
+        "deps": [
+          {
+            "nodeId": "linecache2@1.0.0"
+          }
+        ]
+      },
+      {
+        "nodeId": "argparse@1.4.0",
+        "pkgId": "argparse@1.4.0",
+        "deps": []
+      },
+      {
+        "nodeId": "unittest2@1.1.0",
+        "pkgId": "unittest2@1.1.0",
+        "deps": [
+          {
+            "nodeId": "argparse@1.4.0"
+          },
+          {
+            "nodeId": "six@1.16.0"
+          },
+          {
+            "nodeId": "traceback2@1.4.0"
+          }
+        ]
+      },
+      {
+        "nodeId": "testtools@2.3.0",
+        "pkgId": "testtools@2.3.0",
+        "deps": [
+          {
+            "nodeId": "extras@1.0.0"
+          },
+          {
+            "nodeId": "fixtures@4.1.0"
+          },
+          {
+            "nodeId": "pbr@5.11.1"
+          },
+          {
+            "nodeId": "python-mimeparse@1.6.0"
+          },
+          {
+            "nodeId": "six@1.16.0"
+          },
+          {
+            "nodeId": "traceback2@1.4.0"
+          },
+          {
+            "nodeId": "unittest2@1.1.0"
+          }
+        ]
+      }
+    ]
+  }
+}

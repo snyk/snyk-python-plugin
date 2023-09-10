@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.2.0",
+  "pkgManager": {
+    "name": "pip"
+  },
+  "pkgs": [
+    {
+      "id": "pip-app-bom@0.0.0",
+      "info": {
+        "name": "pip-app-bom",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "id": "markupsafe@2.1.3",
+      "info": {
+        "name": "markupsafe",
+        "version": "2.1.3"
+      }
+    },
+    {
+      "id": "jinja2@2.7.2",
+      "info": {
+        "name": "jinja2",
+        "version": "2.7.2"
+      }
+    }
+  ],
+  "graph": {
+    "rootNodeId": "root-node",
+    "nodes": [
+      {
+        "nodeId": "root-node",
+        "pkgId": "pip-app-bom@0.0.0",
+        "deps": [
+          {
+            "nodeId": "jinja2@2.7.2"
+          }
+        ]
+      },
+      {
+        "nodeId": "markupsafe@2.1.3",
+        "pkgId": "markupsafe@2.1.3",
+        "deps": []
+      },
+      {
+        "nodeId": "jinja2@2.7.2",
+        "pkgId": "jinja2@2.7.2",
+        "deps": [
+          {
+            "nodeId": "markupsafe@2.1.3"
+          }
+        ]
+      }
+    ]
+  }
+}

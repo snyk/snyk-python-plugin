@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.2.0",
+  "pkgManager": {
+    "name": "pip"
+  },
+  "pkgs": [
+    {
+      "id": "pip-app-deps-conditional@0.0.0",
+      "info": {
+        "name": "pip-app-deps-conditional",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "id": "posix-ipc@1.0.0",
+      "info": {
+        "name": "posix-ipc",
+        "version": "1.0.0"
+      }
+    }
+  ],
+  "graph": {
+    "rootNodeId": "root-node",
+    "nodes": [
+      {
+        "nodeId": "root-node",
+        "pkgId": "pip-app-deps-conditional@0.0.0",
+        "deps": [
+          {
+            "nodeId": "posix-ipc@1.0.0"
+          }
+        ]
+      },
+      {
+        "nodeId": "posix-ipc@1.0.0",
+        "pkgId": "posix-ipc@1.0.0",
+        "deps": []
+      }
+    ]
+  }
+}
