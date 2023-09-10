@@ -25,8 +25,6 @@ describe('inspect', () => {
 
   describe('when testing setup.py projects', () => {
     let tearDown;
-    beforeAll(() => {});
-
     afterEach(() => {
       tearDown();
     });
@@ -106,8 +104,6 @@ describe('inspect', () => {
 
   describe('when testing pip projects', () => {
     let tearDown;
-    beforeAll(() => {});
-
     afterEach(() => {
       tearDown();
     });
