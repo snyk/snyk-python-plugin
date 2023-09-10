@@ -386,7 +386,7 @@ describe('inspect', () => {
         );
         const manifestFilePath = 'path/to/requirements.txt';
 
-        expect(inspect('.', manifestFilePath)).rejects.toThrowError(
+        await expect(inspect('.', manifestFilePath)).rejects.toThrowError(
           new EmptyManifestError('No dependencies detected in manifest.')
         );
       });
@@ -398,10 +398,10 @@ describe('inspect', () => {
         mockedExecute.mockRejectedValueOnce('Required packages missing');
         const manifestFilePath = 'path/to/requirements.txt';
 
-        expect(inspect('.', manifestFilePath)).rejects.toThrowError(
+        await expect(inspect('.', manifestFilePath)).rejects.toThrowError(
           new RequiredPackagesMissingError(
             'Required packages missing\n' +
-              'Please run `pip install -r path/to/requirements.txt`. If the issue persists try again with --skip-unresolved.'
+            'Please run `pip install -r path/to/requirements.txt`. If the issue persists try again with --skip-unresolved.'
           )
         );
       });
