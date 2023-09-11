@@ -2,7 +2,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as process from 'process';
-
 import subProcess = require('../lib/dependencies/sub-process');
 
 export {
@@ -12,9 +11,7 @@ export {
   ensureVirtualenv,
   pipInstall,
   pipUninstall,
-  pipInstallE,
-  pipenvInstall,
-  setWorkonHome,
+  setupPyInstall,
 };
 
 const binDirName = process.platform === 'win32' ? 'Scripts' : 'bin';
@@ -109,14 +106,14 @@ function createVenv(venvDir: string) {
     revert = deactivateVirtualenv();
   }
   try {
-    let proc = subProcess.executeSync('virtualenv', [venvDir]);
+    let proc = subProcess.executeSync('python3 -m venv', [venvDir]);
     if (proc.status !== 0) {
       console.error(proc.stdout.toString() + '\n' + proc.stderr.toString());
       throw new Error('Failed to create virtualenv in ' + venvDir);
     }
     if (process.env.PIP_VER) {
       proc = subProcess.executeSync(
-        path.resolve(venvDir, binDirName, 'python'),
+        path.resolve(venvDir, binDirName, 'python3'),
         ['-m', 'pip', 'install', `pip==${process.env.PIP_VER}`]
       );
       if (proc.status !== 0) {
@@ -148,16 +145,12 @@ function pipInstall() {
   }
 }
 
-function pipInstallE() {
-  const proc = subProcess.executeSync('pip', [
-    'install',
-    '-e',
-    '.',
-    '--disable-pip-version-check',
-  ]);
+function setupPyInstall() {
+  const proc = subProcess.executeSync('python3', ['setup.py', 'install']);
   if (proc.status !== 0) {
+    console.log('' + proc.stderr);
     throw new Error(
-      'Failed to install requirements with pip.' +
+      'Failed to install requirements with setup.py.' +
         ' venv = ' +
         JSON.stringify(getActiveVenvName())
     );
@@ -175,41 +168,6 @@ function pipUninstall(pkgName: string) {
         JSON.stringify(getActiveVenvName())
     );
   }
-}
-
-function pipenvInstall(options?: PipenvOptions) {
-  try {
-    const args = ['update'];
-    if (options?.dev) {
-      args.push('--dev');
-    }
-    const proc = subProcess.executeSync('pipenv', [...args]);
-    if (proc.status !== 0) {
-      console.log('' + proc.stderr);
-    }
-  } finally {
-    try {
-      fs.unlinkSync('Pipfile.lock');
-    } catch (e) {
-      // will error if the file doesn't exist, which is fine
-    }
-  }
-}
-
-function setWorkonHome() {
-  const venvsBaseDir = path.join(path.resolve(__dirname), '.venvs');
-  try {
-    fs.accessSync(venvsBaseDir, fs.constants.R_OK);
-  } catch (e) {
-    fs.mkdirSync(venvsBaseDir);
-  }
-
-  const origWorkonHome = process.env.WORKON_HOME;
-  process.env.WORKON_HOME = venvsBaseDir;
-
-  return function revert() {
-    process.env.WORKON_HOME = origWorkonHome;
-  };
 }
 
 export function chdirWorkspaces(dir: string) {
