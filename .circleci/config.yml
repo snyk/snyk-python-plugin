@@ -7,7 +7,7 @@ orbs:
 defaults: &defaults
   resource_class: medium
   docker:
-    - image: cimg/node:19.6.1
+    - image: node:18
 
 jobs:
   lint:
@@ -54,8 +54,6 @@ jobs:
 
   release:
     <<: *defaults
-    docker:
-      - image: node:18
     steps:
       - checkout
       - node/install-packages:
