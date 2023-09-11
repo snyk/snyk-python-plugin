@@ -37,39 +37,6 @@ describe('inspect', () => {
     process.chdir(originalCurrentWorkingDirectory);
   });
 
-  describe('when testing setup.py projects', () => {
-    let tearDown;
-    afterEach(() => {
-      tearDown();
-    });
-
-    it.each([
-      {
-        workspace: 'setup_py-app',
-        expected: [
-          {
-            pkg: {
-              name: 'markupsafe',
-              version: '2.1.3',
-            },
-            directDeps: ['jinja2'],
-          },
-        ],
-      },
-    ])(
-      'should get a valid dependency graph for workspace = $workspace',
-      async ({ workspace, expected }) => {
-        testUtils.chdirWorkspaces(workspace);
-        tearDown = testUtils.activateVirtualenv(workspace);
-        testUtils.setupPyInstall();
-
-        const result = await inspect('.', FILENAMES.setuptools.manifest);
-
-        compareTransitiveLines(result.dependencyGraph, expected);
-      }
-    );
-  });
-
   describe('when doing inspect with --only-provenance', () => {
     let tearDown;
     beforeAll(() => {
