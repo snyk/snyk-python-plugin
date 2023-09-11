@@ -71,37 +71,40 @@ workflows:
   version: 2
   test_and_release:
     jobs:
-#      - pro dsec/secrets-scan:
-#          name: Scan repository for secrets
-#          context:
-#            - snyk-bot-slack
-#          channel: os-team-managed-alerts
-#
-#      - lint:
-#          name: Lint
-#          filters:
-#            branches:
-#              ignore:
-#                - main
-#
-#      - build:
-#          name: Build
-#          filters:
-#            branches:
-#              ignore:
-#                - main
+      - prodsec/secrets-scan:
+          name: Scan repository for secrets
+          context:
+            - snyk-bot-slack
+          channel: os-team-managed-alerts
+
+      - lint:
+          name: Lint
+          filters:
+            branches:
+              ignore:
+                - main
+
+      - build:
+          name: Build
+          filters:
+            branches:
+              ignore:
+                - main
 
       - test:
           name: Node << matrix.node_version >>, Python << matrix.python_version >>
-#          requires:
-#            - Lint
-#            - Build
+          requires:
+            - Lint
+            - Build
           matrix:
             parameters:
-              node_version: [ '16' ]
+              node_version: [
+                '16',
+              ]
               python_version: [
-#                '3.8',
-#                '3.9', '3.10',
+                '3.8',
+                '3.9',
+                '3.10',
                 '3.11',
               ]
           filters:
@@ -112,8 +115,8 @@ workflows:
       - release:
           name: Release
           context: nodejs-lib-release
-#          requires:
-#            - Scan repository for secrets
+          requires:
+            - Scan repository for secrets
           filters:
             branches:
               only:
