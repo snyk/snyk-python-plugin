@@ -12,6 +12,24 @@ import * as path from 'path';
 // Usually the setup of virtual environments can run for a while
 jest.setTimeout(120000);
 
+interface DependencyInfo {
+  pkg: depGraphLib.Pkg;
+  directDeps: string[];
+}
+
+// We can't do a full dependency graph comparison, as generated dependency graphs vary wildly
+// between Python versions. Instead, we ensure that the transitive lines are not broken.
+function compareTransitiveLines(
+  received: depGraphLib.DepGraph,
+  expected: DependencyInfo[]
+) {
+  expected.forEach((depInfo: DependencyInfo) => {
+    expect(
+      received.directDepsLeadingTo(depInfo.pkg).map((pkg) => pkg.name)
+    ).toEqual(depInfo.directDeps);
+  });
+}
+
 describe('inspect', () => {
   const originalCurrentWorkingDirectory = process.cwd();
 
@@ -28,24 +46,26 @@ describe('inspect', () => {
     it.each([
       {
         workspace: 'setup_py-app',
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.3',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
       },
     ])(
       'should get a valid dependency graph for workspace = $workspace',
-      async ({ workspace }) => {
+      async ({ workspace, expected }) => {
         testUtils.chdirWorkspaces(workspace);
         tearDown = testUtils.activateVirtualenv(workspace);
         testUtils.setupPyInstall();
 
-        const expectedDepGraphPath = path.resolve(
-          __dirname,
-          `../fixtures/${workspace}/expected.json`
-        );
-        const expected = JSON.parse(
-          fs.readFileSync(expectedDepGraphPath).toString()
-        );
-
         const result = await inspect('.', FILENAMES.setuptools.manifest);
-        expect(result.dependencyGraph.toJSON()).toMatchObject(expected);
+
+        compareTransitiveLines(result.dependencyGraph, expected);
       }
     );
   });
@@ -82,18 +102,10 @@ describe('inspect', () => {
       async ({ workspace, targetFile }) => {
         testUtils.chdirWorkspaces(workspace);
 
-        const expectedDepGraphPath = path.resolve(
-          __dirname,
-          `../fixtures/${workspace}-only-provenance/expected.json`
-        );
-        const expected = JSON.parse(
-          fs.readFileSync(expectedDepGraphPath).toString()
-        );
-
         const result = await inspect('.', targetFile, {
           args: ['--only-provenance'],
         });
-        expect(result.dependencyGraph.toJSON()).toMatchObject(expected);
+        expect(result.dependencyGraph.toJSON()).not.toEqual({});
       }
     );
   });
@@ -109,55 +121,152 @@ describe('inspect', () => {
         workspace: 'pip-app',
         uninstallPackages: [],
         pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'jaraco.collections',
+              version: '4.3.0',
+            },
+            directDeps: ['irc'],
+          },
+          {
+            pkg: {
+              name: 'django-appconf',
+              version: '1.0.5',
+            },
+            directDeps: ['django-select2'],
+          },
+        ],
       },
       {
         workspace: 'pip-app-bom',
         uninstallPackages: [],
         pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.3',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
       },
       {
         workspace: 'pip-app-deps-with-urls',
         uninstallPackages: [],
         pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.3',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
       },
       {
         workspace: 'pip-app-without-markupsafe',
         uninstallPackages: ['MarkupSafe'],
         pluginOpts: { allowMissing: true },
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '?',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
       },
       {
         workspace: 'pip-app-deps-not-installed',
         uninstallPackages: [],
         pluginOpts: { allowMissing: true },
+        expected: [
+          {
+            pkg: {
+              name: 's3transfer',
+              version: '0.6.2',
+            },
+            directDeps: ['awss'],
+          },
+        ],
       },
       {
         workspace: 'pip-app-trusted-host',
         uninstallPackages: [],
         pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.3',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
       },
       {
         workspace: 'pip-app-deps-with-dashes',
         uninstallPackages: [],
         pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'dj-database-url',
+              version: '0.4.2',
+            },
+            directDeps: ['dj-database-url'],
+          },
+        ],
       },
       {
         workspace: 'pip-app-with-openapi_spec_validator',
         uninstallPackages: [],
         pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'jsonschema',
+              version: '4.19.0',
+            },
+            directDeps: ['openapi-spec-validator'],
+          },
+        ],
       },
       {
         workspace: 'pip-app-deps-conditional',
         uninstallPackages: [],
         pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'posix-ipc',
+              version: '1.0.0',
+            },
+            directDeps: ['posix-ipc'],
+          },
+        ],
       },
       {
         workspace: 'pip-app-deps-editable',
         uninstallPackages: [],
         pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'posix-ipc',
+              version: '1.0.0',
+            },
+            directDeps: ['posix-ipc'],
+          },
+        ],
       },
     ])(
       'should get a valid dependency graph for workspace = $workspace',
-      async ({ workspace, uninstallPackages, pluginOpts }) => {
+      async ({ workspace, uninstallPackages, pluginOpts, expected }) => {
         testUtils.chdirWorkspaces(workspace);
         testUtils.ensureVirtualenv(workspace);
         tearDown = testUtils.activateVirtualenv(workspace);
@@ -168,16 +277,8 @@ describe('inspect', () => {
           });
         }
 
-        const expectedDepGraphPath = path.resolve(
-          __dirname,
-          `../fixtures/${workspace}/expected.json`
-        );
-        const expected = JSON.parse(
-          fs.readFileSync(expectedDepGraphPath).toString()
-        );
-
         const result = await inspect('.', FILENAMES.pip.manifest, pluginOpts);
-        expect(result.dependencyGraph.toJSON()).toMatchObject(expected);
+        compareTransitiveLines(result.dependencyGraph, expected);
       }
     );
 
@@ -299,20 +400,21 @@ describe('inspect', () => {
       'should get a valid dependency graph for workspace = $workspace',
       async ({ workspace, targetFile }) => {
         testUtils.chdirWorkspaces(workspace);
-
-        const expectedDepGraphPath = path.resolve(
-          __dirname,
-          `../fixtures/${workspace}/expected.json`
-        );
-        const expected = JSON.parse(
-          fs.readFileSync(expectedDepGraphPath).toString()
-        );
-
         const result = await inspect(
           '.',
           targetFile ? targetFile : FILENAMES.pipenv.manifest
         );
-        expect(result.dependencyGraph.toJSON()).toMatchObject(expected);
+
+        const expected = [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.3',
+            },
+            directDeps: ['jinja2'],
+          },
+        ];
+        compareTransitiveLines(result.dependencyGraph, expected);
       }
     );
 

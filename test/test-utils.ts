@@ -16,10 +16,6 @@ export {
 
 const binDirName = process.platform === 'win32' ? 'Scripts' : 'bin';
 
-interface PipenvOptions {
-  dev?: boolean;
-}
-
 function getActiveVenvName() {
   return process.env.VIRTUAL_ENV
     ? path.basename(process.env.VIRTUAL_ENV)
