@@ -1,8 +1,0 @@
---require-hashes
-MarkupSafe==1.1.1 --hash=sha256:29872e92839765e546828bb7754a68c418d927cd064fd4708fab9fe9c8bb116b \
-    --hash=sha256:abcd \
-    --hash=sha256:0123 # a comment
-dnspython==1.13.0 \
-    --hash=sha256:80f89881b402fc3b931a936111b43bcfe3abd8b0005d27e50e3c5fb59f7260f8 \
-    --install-option="--no-compile"
-
