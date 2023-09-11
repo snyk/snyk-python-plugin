@@ -2,10 +2,11 @@
 
 ***
 
-Snyk helps you find, fix and monitor for known vulnerabilities in your dependencies, both on an ad hoc basis and as part of your CI (Build) system.
+Snyk helps you find, fix and monitor for known vulnerabilities in your dependencies, both on an ad hoc basis and as part
+of your CI (Build) system.
 
 | :information_source: This repository is only a plugin to be used with the Snyk CLI tool. To use this plugin to test and fix vulnerabilities in your project, install the Snyk CLI tool first. Head over to [snyk.io](https://github.com/snyk/snyk) to get started. |
-| --- |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 # Support
 
@@ -15,33 +16,36 @@ Snyk helps you find, fix and monitor for known vulnerabilities in your dependenc
 
 ## Supported OS
 
-| OS     |  Supported |
-|--------|------------|
-| Windows| ✅          |
-| Linux  | ✅          |
-| OSX    | ️✅          |
+| OS      | Supported |
+|---------|-----------|
+| Windows | ✅         |
+| Linux   | ✅         |
+| OSX     | ✅         |
 
 ## Supported Node versions
 
-| Node |  Supported |
-|------|------------|
-| 12   | ✅          |
-| 14   | ✅          |
-| 16   | ✅          |
+| Node | Supported |
+|------|-----------|
+| 12   | ❓         |
+| 14   | ✅         |
+| 16   | ✅         |
+| 18   | ✅         |
 
 ## Supported Pip & Python versions (requirements.txt)
 
-| Pip / Python   |2.7|3.6|3.7|3.8|3.9|
-|----------------|---|---|---|---|---|
-| 10.0.0         | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 18.1.0         | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Pip / Python | 3.6 | 3.7 | 3.8 | 3.9 | 3.10 | 3.11 |
+|--------------|-----|-----|-----|-----|------|------|
+| 10.0.0       | ❓   | ❓   | ✅   | ✅   | ✅    | ✅    |
+| 18.1.0       | ❓   | ❓   | ✅   | ✅   | ✅    | ✅    |
 
 ## Supported Poetry versions (`pyproject.toml` and `poetry.lock`)
+
 All known versions are expected to be supported (current latest version is 1.1.6)
 
 ## Snyk Python CLI Plugin
 
-This plugin provides dependency metadata for Python projects that use one of the following dependency management methods:
+This plugin provides dependency metadata for Python projects that use one of the following dependency management
+methods:
 
 * `pip` with a `requirements.txt` file
 * `pipenv` with a `Pipfile` file
@@ -57,9 +61,10 @@ their corresponding positions in the original manifest file.
 ### Developing and Testing
 
 Prerequisites:
+
 - Node.js 10+
 - Python 2.7 or 3.6+
-- Installed outside of any virtualenv:
+- Installed outside any virtualenv:
     - [pip](https://pip.pypa.io/en/stable/installing/)
     - the contents of `dev-requirements.txt`:
       ```
@@ -75,6 +80,7 @@ tox
 ```
 
 Linting and testing:
+
 ```
 npm i
 npm run lint
