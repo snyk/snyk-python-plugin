@@ -1,8 +1,4 @@
-import {
-  EmptyManifestError,
-  inspect,
-  RequiredPackagesMissingError,
-} from '../../lib';
+import { EmptyManifestError, inspect, RequiredPackagesMissingError, } from '../../lib';
 import * as testUtils from '../test-utils';
 import { chdirWorkspaces, ensureVirtualenv } from '../test-utils';
 import * as depGraphLib from '@snyk/dep-graph';

@@ -38,6 +38,13 @@
         "name": "testtools",
         "version": "2.3.0"
       }
+    },
+    {
+      "id": "urllib3@1.26.16",
+      "info": {
+        "name": "urllib3",
+        "version": "1.26.16"
+      }
     }
   ],
   "graph": {
@@ -58,6 +65,9 @@
           },
           {
             "nodeId": "testtools@2.3.0"
+          },
+          {
+            "nodeId": "urllib3@1.26.16"
           }
         ]
       },
@@ -67,7 +77,7 @@
         "deps": [],
         "info": {
           "labels": {
-            "provenance": "Pipfile:11"
+            "provenance": "Pipfile:12"
           }
         }
       },
@@ -77,7 +87,7 @@
         "deps": [],
         "info": {
           "labels": {
-            "provenance": "Pipfile:9"
+            "provenance": "Pipfile:10"
           }
         }
       },
@@ -94,6 +104,16 @@
       {
         "nodeId": "testtools@2.3.0",
         "pkgId": "testtools@2.3.0",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "Pipfile:9"
+          }
+        }
+      },
+      {
+        "nodeId": "urllib3@1.26.16",
+        "pkgId": "urllib3@1.26.16",
         "deps": [],
         "info": {
           "labels": {

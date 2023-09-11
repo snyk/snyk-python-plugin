@@ -132,6 +132,9 @@
           },
           {
             "nodeId": "testtools@2.3.0"
+          },
+          {
+            "nodeId": "urllib3@1.26.16"
           }
         ]
       },

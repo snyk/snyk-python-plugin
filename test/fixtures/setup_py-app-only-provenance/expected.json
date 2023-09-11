@@ -19,13 +19,6 @@
       }
     },
     {
-      "id": "django-select2@6.0.1",
-      "info": {
-        "name": "django-select2",
-        "version": "6.0.1"
-      }
-    },
-    {
       "id": "irc@16.2",
       "info": {
         "name": "irc",
@@ -52,6 +45,13 @@
         "name": "testtools",
         "version": "2.3.0"
       }
+    },
+    {
+      "id": "urllib3@1.26.16",
+      "info": {
+        "name": "urllib3",
+        "version": "1.26.16"
+      }
     }
   ],
   "graph": {
@@ -65,9 +65,6 @@
             "nodeId": "django@1.6.1"
           },
           {
-            "nodeId": "django-select2@6.0.1"
-          },
-          {
             "nodeId": "irc@16.2"
           },
           {
@@ -78,22 +75,15 @@
           },
           {
             "nodeId": "testtools@2.3.0"
+          },
+          {
+            "nodeId": "urllib3@1.26.16"
           }
         ]
       },
       {
         "nodeId": "django@1.6.1",
         "pkgId": "django@1.6.1",
-        "deps": [],
-        "info": {
-          "labels": {
-            "provenance": "setup.py:8"
-          }
-        }
-      },
-      {
-        "nodeId": "django-select2@6.0.1",
-        "pkgId": "django-select2@6.0.1",
         "deps": [],
         "info": {
           "labels": {
@@ -134,6 +124,16 @@
       {
         "nodeId": "testtools@2.3.0",
         "pkgId": "testtools@2.3.0",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "setup.py:8"
+          }
+        }
+      },
+      {
+        "nodeId": "urllib3@1.26.16",
+        "pkgId": "urllib3@1.26.16",
         "deps": [],
         "info": {
           "labels": {

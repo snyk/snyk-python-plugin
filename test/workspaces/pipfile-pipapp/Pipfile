@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 python-etcd = ">=0.4,<0.5"
+urllib3 = "==1.26.16"
 testtools = "*"
 "Jinja2" = { version = "*" }
 django = { git = 'https://github.com/django/django.git', ref = '1.6.1', editable = true }

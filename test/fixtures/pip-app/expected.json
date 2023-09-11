@@ -47,10 +47,10 @@
       }
     },
     {
-      "id": "typing-extensions@4.8.0rc1",
+      "id": "typing-extensions@4.7.1",
       "info": {
         "name": "typing-extensions",
-        "version": "4.8.0rc1"
+        "version": "4.7.1"
       }
     },
     {
@@ -291,6 +291,9 @@
           },
           {
             "nodeId": "testtools@2.3.0"
+          },
+          {
+            "nodeId": "urllib3@1.26.16"
           }
         ]
       },
@@ -328,8 +331,8 @@
         "deps": []
       },
       {
-        "nodeId": "typing-extensions@4.8.0rc1",
-        "pkgId": "typing-extensions@4.8.0rc1",
+        "nodeId": "typing-extensions@4.7.1",
+        "pkgId": "typing-extensions@4.7.1",
         "deps": []
       },
       {
@@ -337,7 +340,7 @@
         "pkgId": "pydantic-core@2.6.3",
         "deps": [
           {
-            "nodeId": "typing-extensions@4.8.0rc1"
+            "nodeId": "typing-extensions@4.7.1"
           }
         ]
       },
@@ -352,7 +355,7 @@
             "nodeId": "pydantic-core@2.6.3"
           },
           {
-            "nodeId": "typing-extensions@4.8.0rc1"
+            "nodeId": "typing-extensions@4.7.1"
           }
         ]
       },
@@ -364,7 +367,7 @@
             "nodeId": "pydantic@2.3.0"
           },
           {
-            "nodeId": "typing-extensions@4.8.0rc1"
+            "nodeId": "typing-extensions@4.7.1"
           }
         ]
       },

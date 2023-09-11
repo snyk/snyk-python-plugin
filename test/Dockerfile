@@ -1,13 +1,5 @@
 ARG NODE_VERSION
-FROM node:${NODE_VERSION}-alpine
-
-RUN apk --no-cache add bash \
-    curl \
-    git \
-    gcc \
-    make \
-    g++ \
-    zlib-dev
+FROM node:${NODE_VERSION}
 
 ARG DEVUSER=node
 USER ${DEVUSER}

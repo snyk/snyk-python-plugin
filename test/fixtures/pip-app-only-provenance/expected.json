@@ -59,6 +59,13 @@
         "name": "testtools",
         "version": "2.3.0"
       }
+    },
+    {
+      "id": "urllib3@1.26.16",
+      "info": {
+        "name": "urllib3",
+        "version": "1.26.16"
+      }
     }
   ],
   "graph": {
@@ -88,6 +95,9 @@
           },
           {
             "nodeId": "testtools@2.3.0"
+          },
+          {
+            "nodeId": "urllib3@1.26.16"
           }
         ]
       },
@@ -107,7 +117,7 @@
         "deps": [],
         "info": {
           "labels": {
-            "provenance": "requirements.txt:4"
+            "provenance": "requirements.txt:5"
           }
         }
       },
@@ -117,7 +127,7 @@
         "deps": [],
         "info": {
           "labels": {
-            "provenance": "requirements.txt:5"
+            "provenance": "requirements.txt:6"
           }
         }
       },
@@ -137,7 +147,7 @@
         "deps": [],
         "info": {
           "labels": {
-            "provenance": "requirements.txt:8"
+            "provenance": "requirements.txt:9"
           }
         }
       },
@@ -157,7 +167,17 @@
         "deps": [],
         "info": {
           "labels": {
-            "provenance": "requirements.txt:6-7"
+            "provenance": "requirements.txt:7-8"
+          }
+        }
+      },
+      {
+        "nodeId": "urllib3@1.26.16",
+        "pkgId": "urllib3@1.26.16",
+        "deps": [],
+        "info": {
+          "labels": {
+            "provenance": "requirements.txt:4"
           }
         }
       }
