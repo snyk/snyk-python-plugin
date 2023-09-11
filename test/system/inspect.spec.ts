@@ -3,16 +3,37 @@ import {
   inspect,
   RequiredPackagesMissingError,
 } from '../../lib';
-import { chdirWorkspaces } from '../test-utils';
+import * as testUtils from '../test-utils';
+import { chdirWorkspaces, ensureVirtualenv } from '../test-utils';
+import * as depGraphLib from '@snyk/dep-graph';
 import { DepGraphBuilder } from '@snyk/dep-graph';
 import { FILENAMES } from '../../lib/types';
 import * as subProcess from '../../lib/dependencies/sub-process';
 import { SpawnSyncReturns } from 'child_process';
-import * as depGraphLib from '@snyk/dep-graph';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// TODO: jestify tap tests in ./inspect.test.js here
+// Usually the setup of virtual environments can run for a while
+jest.setTimeout(120000);
+
+interface DependencyInfo {
+  pkg: depGraphLib.Pkg;
+  directDeps: string[];
+}
+
+// We can't do a full dependency graph comparison, as generated dependency graphs vary wildly
+// between Python versions. Instead, we ensure that the transitive lines are not broken.
+function compareTransitiveLines(
+  received: depGraphLib.DepGraph,
+  expected: DependencyInfo[]
+) {
+  expected.forEach((depInfo: DependencyInfo) => {
+    expect(
+      received.directDepsLeadingTo(depInfo.pkg).map((pkg) => pkg.name)
+    ).toEqual(depInfo.directDeps);
+  });
+}
+
 describe('inspect', () => {
   const originalCurrentWorkingDirectory = process.cwd();
 
@@ -20,10 +41,237 @@ describe('inspect', () => {
     process.chdir(originalCurrentWorkingDirectory);
   });
 
+  describe('when doing inspect with --only-provenance', () => {
+    let tearDown;
+    beforeAll(() => {
+      const workspace = 'pip-app';
+      chdirWorkspaces(workspace);
+      ensureVirtualenv(workspace);
+      tearDown = testUtils.activateVirtualenv(workspace);
+      testUtils.pipInstall();
+    });
+
+    afterAll(() => {
+      tearDown();
+    });
+
+    it.each([
+      {
+        workspace: 'pip-app',
+        targetFile: FILENAMES.pip.manifest,
+      },
+      {
+        workspace: 'pipfile-pipapp',
+        targetFile: FILENAMES.pipenv.manifest,
+      },
+      {
+        workspace: 'setup_py-app',
+        targetFile: FILENAMES.setuptools.manifest,
+      },
+    ])(
+      'should get a valid dependency graph for workspace = $workspace',
+      async ({ workspace, targetFile }) => {
+        testUtils.chdirWorkspaces(workspace);
+
+        const result = await inspect('.', targetFile, {
+          args: ['--only-provenance'],
+        });
+        expect(result.dependencyGraph.toJSON()).not.toEqual({});
+      }
+    );
+  });
+
+  describe('when testing pip projects', () => {
+    let tearDown;
+    afterEach(() => {
+      tearDown();
+    });
+
+    it.each([
+      {
+        workspace: 'pip-app',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'jaraco.collections',
+              version: '4.3.0',
+            },
+            directDeps: ['irc'],
+          },
+          {
+            pkg: {
+              name: 'django-appconf',
+              version: '1.0.5',
+            },
+            directDeps: ['django-select2'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-bom',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.3',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-with-urls',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.3',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-without-markupsafe',
+        uninstallPackages: ['MarkupSafe'],
+        pluginOpts: { allowMissing: true },
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '?',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-not-installed',
+        uninstallPackages: [],
+        pluginOpts: { allowMissing: true },
+        expected: [
+          {
+            pkg: {
+              name: 's3transfer',
+              version: '0.6.2',
+            },
+            directDeps: ['awss'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-trusted-host',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.3',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-with-dashes',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'dj-database-url',
+              version: '0.4.2',
+            },
+            directDeps: ['dj-database-url'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-with-openapi_spec_validator',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'jsonschema',
+              version: '4.19.0',
+            },
+            directDeps: ['openapi-spec-validator'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-conditional',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'posix-ipc',
+              version: '1.0.0',
+            },
+            directDeps: ['posix-ipc'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-editable',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'posix-ipc',
+              version: '1.0.0',
+            },
+            directDeps: ['posix-ipc'],
+          },
+        ],
+      },
+    ])(
+      'should get a valid dependency graph for workspace = $workspace',
+      async ({ workspace, uninstallPackages, pluginOpts, expected }) => {
+        testUtils.chdirWorkspaces(workspace);
+        testUtils.ensureVirtualenv(workspace);
+        tearDown = testUtils.activateVirtualenv(workspace);
+        testUtils.pipInstall();
+        if (uninstallPackages) {
+          uninstallPackages.forEach((pkg) => {
+            testUtils.pipUninstall(pkg);
+          });
+        }
+
+        const result = await inspect('.', FILENAMES.pip.manifest, pluginOpts);
+        compareTransitiveLines(result.dependencyGraph, expected);
+      }
+    );
+
+    it('should fail on missing transitive dependencies', async () => {
+      const workspace = 'pip-app';
+      const virtualEnv = 'pip-app-without-markupsafe';
+      testUtils.chdirWorkspaces(workspace);
+      testUtils.ensureVirtualenv(virtualEnv);
+      tearDown = testUtils.activateVirtualenv(workspace);
+      testUtils.pipInstall();
+      testUtils.pipUninstall('MarkupSafe');
+
+      await expect(
+        async () => await inspect('.', FILENAMES.pip.manifest)
+      ).rejects.toThrow('Required packages missing: markupsafe');
+    });
+  });
+
   describe('poetry projects', () => {
     it('should return expected dependencies for poetry-app', async () => {
       const workspace = 'poetry-app';
-      chdirWorkspaces(workspace);
+      testUtils.chdirWorkspaces(workspace);
 
       const result = await inspect('.', FILENAMES.poetry.lockfile);
       expect(result).toMatchObject({
@@ -90,6 +338,65 @@ describe('inspect', () => {
     });
   });
 
+  describe('when generating Pipfile depGraphs ', () => {
+    let tearDown;
+    beforeAll(() => {
+      const workspace = 'pip-app';
+      testUtils.chdirWorkspaces(workspace);
+      testUtils.ensureVirtualenv(workspace);
+      tearDown = testUtils.activateVirtualenv(workspace);
+      testUtils.pipInstall();
+    });
+
+    afterAll(() => {
+      tearDown();
+    });
+
+    it.each([
+      {
+        workspace: 'pipfile-pipapp-pinned',
+      },
+      {
+        workspace: 'pipenv-app',
+      },
+      {
+        workspace: 'pipfile-pipapp',
+        targetFile: undefined,
+      },
+      {
+        workspace: 'pipfile-nested-dirs',
+        targetFile: 'nested/directory/Pipfile',
+      },
+    ])(
+      'should get a valid dependency graph for workspace = $workspace',
+      async ({ workspace, targetFile }) => {
+        testUtils.chdirWorkspaces(workspace);
+        const result = await inspect(
+          '.',
+          targetFile ? targetFile : FILENAMES.pipenv.manifest
+        );
+
+        const expected = [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.3',
+            },
+            directDeps: ['jinja2'],
+          },
+        ];
+        compareTransitiveLines(result.dependencyGraph, expected);
+      }
+    );
+
+    it('should fail with no deps or dev-deps', async () => {
+      testUtils.chdirWorkspaces('pipfile-empty');
+      await expect(
+        async () => await inspect('.', FILENAMES.pipenv.manifest)
+      ).rejects.toThrow('No dependencies detected in manifest');
+    });
+  });
+
   describe('setup.py projects', () => {
     const mockedExecuteSync = jest.spyOn(subProcess, 'executeSync');
     const mockedExecute = jest.spyOn(subProcess, 'execute');
@@ -138,7 +445,7 @@ describe('inspect', () => {
       mockedExecute.mockClear();
     });
 
-    it('should return dep graph for very dence input', async () => {
+    it('should return dep graph for very dense input', async () => {
       const manifestFilePath = `test/fixtures/pipenv-project/Pipfile`;
       const result = await inspect('.', manifestFilePath);
 
@@ -181,7 +488,7 @@ describe('inspect', () => {
         );
         const manifestFilePath = 'path/to/requirements.txt';
 
-        expect(inspect('.', manifestFilePath)).rejects.toThrowError(
+        await expect(inspect('.', manifestFilePath)).rejects.toThrowError(
           new EmptyManifestError('No dependencies detected in manifest.')
         );
       });
@@ -193,7 +500,7 @@ describe('inspect', () => {
         mockedExecute.mockRejectedValueOnce('Required packages missing');
         const manifestFilePath = 'path/to/requirements.txt';
 
-        expect(inspect('.', manifestFilePath)).rejects.toThrowError(
+        await expect(inspect('.', manifestFilePath)).rejects.toThrowError(
           new RequiredPackagesMissingError(
             'Required packages missing\n' +
               'Please run `pip install -r path/to/requirements.txt`. If the issue persists try again with --skip-unresolved.'

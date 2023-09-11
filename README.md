@@ -52,7 +52,7 @@ their corresponding positions in the original manifest file.
 
 ## Contributing
 
-[Guide](https://github.com/snyk/snyk-python-plugin/blob/master/.github/CONTRIBUTING.md)
+[Guide](https://github.com/snyk/snyk-python-plugin/blob/main/.github/CONTRIBUTING.md)
 
 ### Developing and Testing
 

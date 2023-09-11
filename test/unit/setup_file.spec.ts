@@ -8,7 +8,7 @@ describe('Test setup_file.py', () => {
     ${'from setuptools import setup;setup(name="test")'}
   `("parse works for '$setupPyContent'", ({ setupPyContent }) => {
     const result = executeSync(
-      'python',
+      'python3',
       ['-c', `from setup_file import parse; parse('${setupPyContent}')`],
       { cwd: path.resolve(__dirname, '../../pysrc') }
     );
@@ -23,7 +23,7 @@ describe('Test setup_file.py', () => {
     );
 
     const result = executeSync(
-      'python',
+      'python3',
       [
         '-c',
         `from pip_resolve import get_requirements_list; get_requirements_list('${fixturePath}', True)`,

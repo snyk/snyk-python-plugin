@@ -1,129 +1,67 @@
 version: 2.1
 
 orbs:
+  node: circleci/node@5.1.0
   prodsec: snyk/prodsec-orb@1.0
 
 defaults: &defaults
+  resource_class: medium
   docker:
-    - image: node:16
-  working_directory: ~/snyk-python-plugin
-
-commands:
-  checkout_and_merge:
-    steps:
-      - checkout
-      - run:
-          name: Checkout master
-          command: git checkout origin/master
-      - run:
-          name: Merge test branch
-          command: |
-            git config user.name "CircleCI"
-            git config user.email "noop"
-            git merge --no-edit "$CIRCLE_BRANCH"
-      - attach_workspace:
-          at: ~/snyk-python-plugin
-  test_python:
-    parameters:
-      pip_version:
-        type: string
-      python_version:
-        type: string
-    steps:
-      - checkout_and_merge
-      - attach_workspace:
-          at: ~/snyk-python-plugin
-      - run:
-          name: Run tests
-          command: |
-            apt -qq update
-            apt -qq install python3-pip python-pip -y &> /dev/null
-            curl https://pyenv.run | $SHELL
-            export PATH=$HOME/.pyenv/bin:$PATH
-            eval "$(pyenv init -)"
-            eval "$(pyenv virtualenv-init -)"
-            export PYTHON_VER_FULL=`pyenv install --list | grep -v 'Available versions' | awk '{$1=$1};1' | grep "^$PYTHON_VER\.[0-9]\+$" | tail -1`
-            echo $PYTHON_VER_FULL
-            # Install the specific release of Python if it isn't already installed
-            pyenv install -s $PYTHON_VER_FULL
-            export PATH=$HOME/.pyenv/versions/$PYTHON_VER_FULL/bin:$PATH
-            pyenv shell $PYTHON_VER_FULL
-            python --version
-            export PATH=$HOME/.local/bin:$PATH
-            export LC_ALL=C.UTF-8
-            export LANG=C.UTF-8
-            python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
-            # pipenv installation always bumps pip version to >18.0.0, we manually install the desired pip version again
-            python -m pip install --user --quiet pip==$PIP_VER
-            pyenv rehash
-            npm run test
-          environment:
-            PIP_VER: << parameters.pip_version >>
-            PYTHON_VER: << parameters.python_version >>
+    - image: cimg/node:19.6.1
 
 jobs:
-  install:
-    <<: *defaults
-    environment:
-      NODE_ENV: develop # Required because base image sets it to 'production'
-    steps:
-      - checkout_and_merge
-      - run:
-          name: Use snyk-main npmjs user
-          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
-      - run:
-          name: Install Node dependencies
-          command: npm install
-      - persist_to_workspace:
-          root: .
-          paths:
-            - node_modules/
   lint:
     <<: *defaults
     steps:
-      - checkout_and_merge
+      - checkout
+      - node/install-packages:
+          with-cache: false
+          override-ci-command: npm install
       - run:
-          name: Run linting tasks
           command: npm run lint
+
   test:
     <<: *defaults
     parameters:
       node_version:
         type: string
-      pip_version:
-        type: string
       python_version:
         type: string
-    docker:
-      - image: node:<< parameters.node_version >>
     steps:
-      - test_python:
-          pip_version: << parameters.pip_version >>
-          python_version: << parameters.python_version >>
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Run tests
+          command: |
+            BUILDKIT_PROGRESS=plain \
+            DOCKER_BUILDKIT=1 \
+            docker build \
+                --build-arg NODE_VERSION=<< parameters.node_version >> \
+                --build-arg PYTHON_VERSION=<< parameters.python_version >> \
+                -t snyk-python-plugin:integration-tests-<< parameters.python_version >> \
+                -f test/Dockerfile .
+            docker run --rm snyk-python-plugin:integration-tests-<< parameters.python_version >>
+
   build:
     <<: *defaults
     steps:
-      - checkout_and_merge
+      - checkout
+      - node/install-packages:
+          with-cache: false
+          override-ci-command: npm install
       - run:
-          name: Use snyk-main npmjs user
-          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
-      - run:
-          name: Install dependencies
-          command: npm install
-      - run:
-          name: Run tests
           command: npm run build
+
   release:
     <<: *defaults
     docker:
       - image: node:16
     steps:
-      - checkout_and_merge
+      - checkout
+      - node/install-packages:
+          with-cache: false
+          override-ci-command: npm install
       - run:
-          name: Install deps
-          command: npm install
-      - run:
-          name: Build
           command: npm run build
       - run:
           name: Release
@@ -139,46 +77,49 @@ workflows:
             - snyk-bot-slack
           channel: os-team-managed-alerts
 
-      - install:
-          name: Install
-          filters:
-            branches:
-              ignore:
-                - master
       - lint:
           name: Lint
-          requires:
-            - Install
           filters:
             branches:
               ignore:
-                - master
+                - main
+
       - build:
           name: Build
-          requires:
-            - Install
           filters:
             branches:
               ignore:
-                - master
+                - main
+
       - test:
-          name: Node << matrix.node_version >>, Python << matrix.python_version >>, Pip << matrix.pip_version >>
+          name: Node << matrix.node_version >>, Python << matrix.python_version >>
           requires:
             - Lint
             - Build
           matrix:
             parameters:
-              node_version: ['14', '16']
-              pip_version: ['10.0.0','18.1.0']
-              python_version: ['2.7','3.6', '3.7', '3.8', '3.9']
+              node_version: [
+                '14',
+                '16',
+                '18',
+              ]
+              python_version: [
+                '3.8',
+                '3.9',
+                '3.10',
+                '3.11',
+              ]
           filters:
             branches:
               ignore:
-                - master
+                - main
+
       - release:
           name: Release
           context: nodejs-lib-release
+          requires:
+            - Scan repository for secrets
           filters:
             branches:
               only:
-                - master
+                - main

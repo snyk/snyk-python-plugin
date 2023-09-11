@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 python-etcd = "==0.4.5"
+urllib3 = "==1.26.16"
 irc = "==16.2"
 testtools = "==2.3.0"
 "Jinja2" = "==2.7.2"
