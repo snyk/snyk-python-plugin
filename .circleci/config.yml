@@ -55,7 +55,7 @@ jobs:
   release:
     <<: *defaults
     docker:
-      - image: node:16
+      - image: node:18
     steps:
       - checkout
       - node/install-packages:
@@ -65,7 +65,7 @@ jobs:
           command: npm run build
       - run:
           name: Release
-          command: npx semantic-release@15
+          command: npx semantic-release@21
 
 workflows:
   version: 2
