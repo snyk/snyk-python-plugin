@@ -15,7 +15,7 @@ function makeSpawnOptions(options?: ProcessOptions) {
     spawnOptions.cwd = options.cwd;
   }
   if (options && options.env) {
-    spawnOptions.env = options.env;
+    spawnOptions.env = { ...options.env };
   }
 
   // Before spawning an external process, we look if we need to restore the system proxy configuration,
