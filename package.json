@@ -14,9 +14,11 @@
     "format:check": "prettier --check '{lib,test}/**/*.{js,ts}'",
     "format": "prettier --write '{lib,test}/**/*.{js,ts}'",
     "prepare": "npm run build",
-    "test": "npm run test:pysrc && npm run test:jest",
+    "test": "npm run test:jest",
     "test:jest": "jest",
-    "test:pysrc": "python -m unittest discover pysrc",
+    "test:pysrc2": "cd pysrc; python -m unittest test_pip_resolve_py2 test_pipfile",
+    "test:pysrc3": "cd pysrc; python -m unittest test_pip_resolve_py3 test_pipfile",
+    "test:pysrc3_12": "cd pysrc; python -m unittest test_pip_resolve_py3_12 test_pipfile",
     "lint": "npm run build-tests && npm run format:check && eslint --cache '{lib,test}/**/*.{js,ts}'"
   },
   "author": "snyk.io",

@@ -31,10 +31,10 @@ Snyk helps you find, fix and monitor for known vulnerabilities in your dependenc
 
 ## Supported Pip & Python versions (requirements.txt)
 
-| Pip / Python   |2.7|3.6|3.7|3.8|3.9|
-|----------------|---|---|---|---|---|
-| 10.0.0         | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 18.1.0         | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Pip / Python   |2.7|3.6|3.7|3.8|3.9|3.10|3.11|3.12|
+|----------------|---|---|---|---|---|---|---|---|
+| 10.0.0         | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅
+| 18.1.0         | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ## Supported Poetry versions (`pyproject.toml` and `poetry.lock`)
 All known versions are expected to be supported (current latest version is 1.1.6)

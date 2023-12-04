@@ -30,17 +30,43 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run:
-          name: Run tests
-          command: |
-            BUILDKIT_PROGRESS=plain \
-            DOCKER_BUILDKIT=1 \
-            docker build \
-                --build-arg NODE_VERSION=<< parameters.node_version >> \
-                --build-arg PYTHON_VERSION=<< parameters.python_version >> \
-                -t snyk-python-plugin:integration-tests-<< parameters.python_version >> \
-                -f test/Dockerfile .
-            docker run --rm snyk-python-plugin:integration-tests-<< parameters.python_version >>
+      - when:
+          condition: 
+            equal: [ "3.12", <<parameters.python_version>>]
+          steps:
+          - run:
+              name: Run tests
+              command: |
+                BUILDKIT_PROGRESS=plain \
+                DOCKER_BUILDKIT=1 \
+                docker build \
+                    --build-arg NODE_VERSION=<< parameters.node_version >> \
+                    --build-arg PYTHON_VERSION=<< parameters.python_version >> \
+                    --build-arg PY_TEST_CMD=test:pysrc3_12 \
+                    -t snyk-python-plugin:integration-tests-<< parameters.python_version >> \
+                    -f test/Dockerfile .
+                docker run --rm snyk-python-plugin:integration-tests-<< parameters.python_version >>
+      - when:
+          condition: 
+            or:
+              - equal: [ "3.8", <<parameters.python_version>>]
+              - equal: [ "3.9", <<parameters.python_version>>]
+              - equal: [ "3.10", <<parameters.python_version>>]
+              - equal: [ "3.11", <<parameters.python_version>>]
+          steps:
+          - run:
+              name: Run tests
+              command: |
+                BUILDKIT_PROGRESS=plain \
+                DOCKER_BUILDKIT=1 \
+                docker build \
+                    --build-arg NODE_VERSION=<< parameters.node_version >> \
+                    --build-arg PYTHON_VERSION=<< parameters.python_version >> \
+                    --build-arg PY_TEST_CMD=test:pysrc3 \
+                    -t snyk-python-plugin:integration-tests-<< parameters.python_version >> \
+                    -f test/Dockerfile .
+                docker run --rm snyk-python-plugin:integration-tests-<< parameters.python_version >>
+
 
   build:
     <<: *defaults
@@ -108,6 +134,7 @@ workflows:
                 '3.9',
                 '3.10',
                 '3.11',
+                '3.12',
               ]
           filters:
             branches:
