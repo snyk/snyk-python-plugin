@@ -1,6 +1,9 @@
 ARG NODE_VERSION
 FROM node:${NODE_VERSION}
 
+ARG PYTHON_VERSION
+ARG PY_TEST_CMD
+
 ARG DEVUSER=node
 USER ${DEVUSER}
 
@@ -8,7 +11,6 @@ SHELL ["/bin/bash", "-c"]
 
 WORKDIR /home/${DEVUSER}
 
-ARG PYTHON_VERSION
 ENV PYTHON_VERSION $PYTHON_VERSION
 
 RUN set -ex \
@@ -29,4 +31,5 @@ RUN npm install
 ENV PATH="/home/${DEVUSER}/.local/bin:${PATH}"
 RUN python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
 
-CMD ["npm", "run", "test", "--", "--runInBand"]
+ENV PY_TEST_CMD $PY_TEST_CMD
+CMD npm run $PY_TEST_CMD && npm run test:jest --runInBand

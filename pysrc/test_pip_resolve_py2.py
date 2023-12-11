@@ -2,9 +2,9 @@
 # cd pysrc; python3 test_pip_resolve.py; cd ..
 
 from pip_resolve import satisfies_python_requirement, \
-                        matches_python_version, \
-                        matches_environment, \
-                        canonicalize_package_name
+    matches_python_version, \
+    matches_environment, \
+    canonicalize_package_name
 from collections import namedtuple
 
 import unittest
@@ -38,17 +38,12 @@ class TestStringMethods(unittest.TestCase):
             self.assertTrue(satisfies_python_requirement('<=', '2.3'))
             self.assertFalse(satisfies_python_requirement('<', '2.3'))
 
-            mock_sys.version_info = (3, 5)
-            self.assertTrue(satisfies_python_requirement('>', '3.1'))
-
             mock_sys.version_info = (2, 8)
             self.assertFalse(satisfies_python_requirement('>', '3.1'))
 
             mock_sys.version_info = (2, 6)
             self.assertTrue(satisfies_python_requirement('==', '2.*'))
 
-            mock_sys.version_info = (3, 6)
-            self.assertTrue(satisfies_python_requirement('==', '3.*'))
 
 
     def test_matches_python_version(self):
@@ -93,7 +88,7 @@ class TestStringMethods(unittest.TestCase):
 
             mock_sys.version_info = (2, 7)
             req.line = "futures==3.2.0 ; python_version == '2.5' or python_version == '2.6'" \
-                " or python_version == '2.7'"
+                       " or python_version == '2.7'"
             self.assertTrue(matches_python_version(req))
 
             # BUG: Comments are not supported

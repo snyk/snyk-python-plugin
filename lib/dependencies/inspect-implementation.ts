@@ -8,6 +8,9 @@ import { buildDepGraph, PartialDepTree } from './build-dep-graph';
 import { FILENAMES } from '../types';
 import { EmptyManifestError, RequiredPackagesMissingError } from '../errors';
 
+const PYTHON_3_12_REGEX = new RegExp('^Python 3.12.*');
+const UPDATED_SETUPTOOLS_VERSION = '68.0.0';
+
 const returnedTargetFile = (originalTargetFile) => {
   const basename = path.basename(originalTargetFile);
 
@@ -163,6 +166,8 @@ function createAssets() {
     path.join(__dirname, '../../pysrc/pkg_resources_py3/_vendor/pyparsing.py'),
     path.join(__dirname, '../../pysrc/pkg_resources_py3/__init__.py'),
     path.join(__dirname, '../../pysrc/pkg_resources_py3/extern/__init__.py'),
+
+    path.join(__dirname, '../../pysrc/pkg_resources_py3_12/__init__.py'),
   ];
 }
 
@@ -203,6 +208,30 @@ function dumpAllFilesInTempDir(tempDirName: string) {
   });
 }
 
+async function updateSetuptools(
+  setuptoolsVersion: string,
+  dir: string,
+  pythonEnv
+) {
+  // For python 3.12, setuptools needs to be updated
+  // due to removal of some deprecated packages
+  // see: https://github.com/pypa/pip/pull/11997
+
+  const pythonVersion = await subProcess.execute(`python`, ['--version'], {
+    cwd: dir,
+    env: pythonEnv,
+  });
+
+  if (!PYTHON_3_12_REGEX.test(pythonVersion)) {
+    return;
+  }
+
+  await subProcess.execute(`pip install setuptools==${setuptoolsVersion}`, [], {
+    cwd: dir,
+    env: pythonEnv,
+  });
+}
+
 export async function inspectInstalledDeps(
   command: string,
   baseargs: string[],
@@ -221,6 +250,9 @@ export async function inspectInstalledDeps(
   dumpAllFilesInTempDir(tempDirObj.name);
   try {
     const pythonEnv = getPythonEnv(targetFile);
+
+    await updateSetuptools(UPDATED_SETUPTOOLS_VERSION, root, pythonEnv);
+
     // See ../../pysrc/README.md
     const output = await subProcess.execute(
       command,

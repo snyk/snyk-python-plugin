@@ -96,14 +96,14 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'jaraco.collections',
-              version: '4.3.0',
+              version: '5.0.0',
             },
             directDeps: ['irc'],
           },
           {
             pkg: {
               name: 'django-appconf',
-              version: '1.0.5',
+              version: '1.0.6',
             },
             directDeps: ['django-select2'],
           },
@@ -159,7 +159,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 's3transfer',
-              version: '0.7.0',
+              version: '0.8.2',
             },
             directDeps: ['awss'],
           },
@@ -201,7 +201,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'jsonschema',
-              version: '4.19.1',
+              version: '4.20.0',
             },
             directDeps: ['openapi-spec-validator'],
           },
@@ -327,6 +327,7 @@ describe('inspect', () => {
         status: 0,
       } as SpawnSyncReturns<Buffer>);
       mockedExecute.mockResolvedValueOnce('Python 3.9.5');
+      mockedExecute.mockResolvedValueOnce('Python 3.9.5');
       mockedExecute.mockResolvedValueOnce(
         '{"name": "pipenv-app", "version": "0.0.0", "dependencies": {"jinja2": {"name": "jinja2", "version": "3.0.1", "dependencies": {"MarkupSafe": {"name": "markupsafe", "version": "2.0.1"}}}}, "packageFormatVersion": "pip:0.0.1"}'
       );
@@ -408,6 +409,7 @@ describe('inspect', () => {
 
     it('should return correct target file for setuptools project when relative path to setup lock file is passed', async () => {
       mockedExecute.mockResolvedValueOnce('Python 3.9.5');
+      mockedExecute.mockResolvedValueOnce('Python 3.9.5');
       mockedExecute.mockResolvedValueOnce(
         '{"name": "pipenv-app", "version": "0.0.0", "dependencies": {"jinja2": {"name": "jinja2", "version": "3.0.1", "dependencies": {"MarkupSafe": {"name": "markupsafe", "version": "2.0.1"}}}}, "packageFormatVersion": "pip:0.0.1"}'
       );
@@ -431,6 +433,7 @@ describe('inspect', () => {
       mockedExecuteSync.mockReturnValueOnce({
         status: 0,
       } as SpawnSyncReturns<Buffer>);
+      mockedExecute.mockResolvedValueOnce('Python 3.9.5');
       mockedExecute.mockResolvedValueOnce('Python 3.9.5');
       mockedExecute.mockResolvedValueOnce(
         fs.readFileSync(
@@ -483,6 +486,7 @@ describe('inspect', () => {
     describe('manifest file is empty', () => {
       it('should throw EmptyManifestError', async () => {
         mockedExecute.mockResolvedValueOnce('Python 3.9.5');
+        mockedExecute.mockResolvedValueOnce('Python 3.9.5');
         mockedExecute.mockRejectedValueOnce(
           'No dependencies detected in manifest.'
         );
@@ -496,6 +500,7 @@ describe('inspect', () => {
 
     describe('required packages were not installed', () => {
       it('should throw RequiredPackagesMissingError', async () => {
+        mockedExecute.mockResolvedValueOnce('Python 3.9.5');
         mockedExecute.mockResolvedValueOnce('Python 3.9.5');
         mockedExecute.mockRejectedValueOnce('Required packages missing');
         const manifestFilePath = 'path/to/requirements.txt';
