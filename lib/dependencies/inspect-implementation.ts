@@ -211,13 +211,14 @@ function dumpAllFilesInTempDir(tempDirName: string) {
 async function updateSetuptools(
   setuptoolsVersion: string,
   dir: string,
-  pythonEnv
+  pythonEnv,
+  command: string
 ) {
   // For python 3.12, setuptools needs to be updated
   // due to removal of some deprecated packages
   // see: https://github.com/pypa/pip/pull/11997
 
-  const pythonVersion = await subProcess.execute(`python`, ['--version'], {
+  const pythonVersion = await subProcess.execute(command, ['--version'], {
     cwd: dir,
     env: pythonEnv,
   });
@@ -226,10 +227,14 @@ async function updateSetuptools(
     return;
   }
 
-  await subProcess.execute(`pip install setuptools==${setuptoolsVersion}`, [], {
-    cwd: dir,
-    env: pythonEnv,
-  });
+  await subProcess.execute(
+    `${command} -m pip install setuptools==${setuptoolsVersion}`,
+    [],
+    {
+      cwd: dir,
+      env: pythonEnv,
+    }
+  );
 }
 
 export async function inspectInstalledDeps(
@@ -251,7 +256,12 @@ export async function inspectInstalledDeps(
   try {
     const pythonEnv = getPythonEnv(targetFile);
 
-    await updateSetuptools(UPDATED_SETUPTOOLS_VERSION, root, pythonEnv);
+    await updateSetuptools(
+      UPDATED_SETUPTOOLS_VERSION,
+      root,
+      pythonEnv,
+      command
+    );
 
     // See ../../pysrc/README.md
     const output = await subProcess.execute(
