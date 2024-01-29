@@ -117,7 +117,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.3',
+              version: '2.1.4',
             },
             directDeps: ['jinja2'],
           },
@@ -131,7 +131,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.3',
+              version: '2.1.4',
             },
             directDeps: ['jinja2'],
           },
@@ -159,7 +159,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 's3transfer',
-              version: '0.9.0',
+              version: '0.10.0',
             },
             directDeps: ['awss'],
           },
@@ -173,7 +173,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.3',
+              version: '2.1.4',
             },
             directDeps: ['jinja2'],
           },
@@ -201,7 +201,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'jsonschema',
-              version: '4.20.0',
+              version: '4.21.1',
             },
             directDeps: ['openapi-spec-validator'],
           },
@@ -232,6 +232,27 @@ describe('inspect', () => {
               version: '1.0.0',
             },
             directDeps: ['posix-ipc'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-canonicalization',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'zope.interface',
+              version: '5.4.0',
+            },
+            directDeps: ['zope.interface'],
+          },
+          {
+            pkg: {
+              name: 'twisted',
+              version: '23.10.0',
+            },
+            directDeps: ['twisted'],
           },
         ],
       },
@@ -381,7 +402,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.3',
+              version: '2.1.4',
             },
             directDeps: ['jinja2'],
           },

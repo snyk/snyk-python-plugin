@@ -47,7 +47,7 @@ def create_tree_of_packages_dependencies(
 
     tree = utils.sorted_tree(dist_tree)
     nodes = tree.keys()
-    key_tree = dict((k.key, v) for k, v in tree.items())
+    key_tree = dict((canonicalize_package_name(k.key), v) for k, v in tree.items())
 
     lowercase_pkgs_names = [p.name.lower() for p in top_level_requirements]
     tlr_by_key = dict((tlr.name.lower(), tlr) for tlr in top_level_requirements)
@@ -57,7 +57,8 @@ def create_tree_of_packages_dependencies(
             (p.project_name and p.project_name.lower()) in lowercase_pkgs_names]
 
     def create_children_recursive(root_package, key_tree, ancestors, all_packages_map):
-        root_name = root_package[NAME].lower()
+        root_name = canonicalize_package_name(root_package[NAME])
+
         if root_name not in key_tree:
             msg = 'Required packages missing: ' + root_name
             if allow_missing:
