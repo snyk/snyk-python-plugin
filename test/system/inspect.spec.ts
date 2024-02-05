@@ -117,7 +117,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.4',
+              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
@@ -131,7 +131,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.4',
+              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
@@ -173,7 +173,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.4',
+              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
@@ -286,6 +286,46 @@ describe('inspect', () => {
       await expect(
         async () => await inspect('.', FILENAMES.pip.manifest)
       ).rejects.toThrow('Required packages missing: markupsafe');
+    });
+  });
+
+  describe('Circular deps', () => {
+    let tearDown;
+    afterEach(() => {
+      tearDown();
+    });
+
+    it('Should get a valid dependency graph for circular dependencies', async () => {
+      const test_case = {
+        workspace: 'pip-app-circular-deps',
+        uninstallPackages: [],
+        pluginOpts: { allowEmpty: true }, // For Python 3.12
+        expected: [
+          {
+            pkg: {
+              name: 'apache-airflow',
+              version: '2.8.1',
+            },
+            directDeps: ['apache-airflow'],
+          },
+        ],
+      };
+      testUtils.chdirWorkspaces(test_case.workspace);
+      testUtils.ensureVirtualenv(test_case.workspace);
+      tearDown = testUtils.activateVirtualenv(test_case.workspace);
+      testUtils.pipInstall();
+      if (test_case.uninstallPackages) {
+        test_case.uninstallPackages.forEach((pkg) => {
+          testUtils.pipUninstall(pkg);
+        });
+      }
+
+      const result = await inspect(
+        '.',
+        FILENAMES.pip.manifest,
+        test_case.pluginOpts
+      );
+      expect(result).toHaveProperty('dependencyGraph');
     });
   });
 
@@ -402,7 +442,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.4',
+              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
