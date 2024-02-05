@@ -59,6 +59,11 @@ def create_tree_of_packages_dependencies(
     def create_children_recursive(root_package, key_tree, ancestors, all_packages_map):
         root_name = canonicalize_package_name(root_package[NAME])
 
+        # Checks if there is a circular dependency within the packages.
+        # Circular package example: apache.airflow and
+        if root_name in ancestors:
+            return root_package
+
         if root_name not in key_tree:
             msg = 'Required packages missing: ' + root_name
             if allow_missing:
@@ -70,8 +75,10 @@ def create_tree_of_packages_dependencies(
         ancestors = ancestors.copy()
         ancestors.add(root_name)
         children_packages_as_dist = key_tree[root_name]
+
         for child_dist in children_packages_as_dist:
             child_project_name = child_dist.project_name.lower()
+
             if child_project_name in ancestors:
                 continue
 
