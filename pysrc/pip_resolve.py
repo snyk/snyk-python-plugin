@@ -260,8 +260,11 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
     req_list = filter(is_testable, req_list)
     req_list = filter(matches_python_version, req_list)
     req_list = [r for r in req_list if r.name]
+
     for req in req_list:
-        req.name = req.name.lower().replace('_', '-')
+        req.name = utils.remove_arbitrary_identifiers(req.name)
+        req.name = req.name = req.name.lower().replace('_', '-')
+
     return req_list
 
 

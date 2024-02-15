@@ -416,6 +416,9 @@ describe('inspect', () => {
 
     it.each([
       {
+        workspace: 'pipfile-arbitrary-identifiers',
+      },
+      {
         workspace: 'pipfile-pipapp-pinned',
       },
       {

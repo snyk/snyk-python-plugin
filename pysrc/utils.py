@@ -1,3 +1,4 @@
+import re
 from importlib import import_module
 from operator import attrgetter
 try:
@@ -68,3 +69,17 @@ def is_string(obj):
         return isinstance(obj, basestring)
     else:
         return isinstance(obj, str)
+
+
+def remove_arbitrary_identifiers(package_name: str) -> str:
+    """Removes arbitrary identifiers from package name
+
+    :param str package_name: package name to be processed
+    :returns: package_name without arbitrary identifiers
+    :rtype: string
+
+    opentelemetry-distro[otlp] -> opentelemetry-distro
+    """
+    package_name = re.sub(r'\[[^]]*]$', '', package_name)
+
+    return package_name
