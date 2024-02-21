@@ -68,6 +68,10 @@ describe('inspect', () => {
         workspace: 'setup_py-app',
         targetFile: FILENAMES.setuptools.manifest,
       },
+      {
+        workspace: 'pipfile-optional-dependencies',
+        targetFile: FILENAMES.pipenv.manifest,
+      },
     ])(
       'should get a valid dependency graph for workspace = $workspace',
       async ({ workspace, targetFile }) => {
@@ -253,6 +257,20 @@ describe('inspect', () => {
               version: '23.10.0',
             },
             directDeps: ['twisted'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-optional-dependencies',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'opentelemetry-distro',
+              version: '0.35b0',
+            },
+            directDeps: ['opentelemetry-distro'],
           },
         ],
       },

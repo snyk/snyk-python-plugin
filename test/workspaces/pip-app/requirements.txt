@@ -7,3 +7,4 @@ irc==16.2 # this has a cyclic dependency (internal jaraco.text <==> jaraco.colle
 testtools==\
     2.3.0 # this has a cycle (fixtures ==> testtools);
 ./packages/prometheus_client-0.6.0
+opentelemetry-distro[otlp] == 0.35b0
