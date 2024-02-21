@@ -25,6 +25,7 @@ DIR_VERSION = '0.0.0'
 PACKAGE_FORMAT_VERSION = 'packageFormatVersion'
 LABELS = 'labels'
 PROVENANCE = 'provenance'
+NUMBER_OF_BYTES = 4
 
 # Declaring deps manager as global variable
 deps_manager = None
@@ -246,7 +247,7 @@ def is_testable(requirement):
 
 def detect_encoding_by_bom(path):
     with open(path, 'rb') as f:
-        raw = f.read(4)  # will read less if the file is smaller
+        raw = f.read(NUMBER_OF_BYTES)  # will read less if the file is smaller
     # BOM_UTF32_LE's start is equal to BOM_UTF16_LE so need to try the former first
     for enc, boms in \
             ('utf-8-sig', (codecs.BOM_UTF8,)), \
@@ -465,6 +466,7 @@ def create_dependencies_tree_by_req_file_path(
         )
 
         print(json.dumps(package_tree))
+
 
 def main():
     """Builds the dependency tree from the manifest file (Pipfile or requirements.txt) and

@@ -196,11 +196,14 @@ def establish_optional_dependencies(
     # Establish root dependencies
     for dependency in dependency_map.values():
         # Check if dependency has other dependencies
-        if dependency:
-            for subdep in dependency:
-                # Check if sub-dependency is amongst all other dependencies
-                if subdep.key in root_candidates:
-                    root_candidates.remove(subdep.key)
+        if not dependency:
+            continue
+
+        for subdep in dependency:
+            # Check if sub-dependency is amongst all other dependencies
+            if subdep.key not in root_candidates:
+                continue
+            root_candidates.remove(subdep.key)
 
     # Remove pip and wheel in case they are installed in the venv
     root_candidates -= {'pip', 'wheel'}
