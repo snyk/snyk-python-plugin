@@ -3,7 +3,7 @@
 This only extracts a small subset of the information present in a Pipfile,
 as needed for the purposes of this library.
 """
-from utils import is_string
+import utils
 
 import pytoml
 
@@ -37,7 +37,7 @@ class PipfileRequirement(object):
         if isinstance(other, PipfileRequirement):
             return self.__dict__() == other.__dict__()
         return False
-    
+
     @classmethod
     def from_dict(cls, name, requirement_dict, pos_in_toml):
         req = cls(name)
@@ -57,7 +57,7 @@ class PipfileRequirement(object):
 '''
 The toml parser returns each requirement as a tuple
 of the value and ending position, for multiple requirements
-e.g. 
+e.g.
 {
     'version': ('*', (9, 23)),
     'markers': ("sys_platform == 'linux' ; python_version != '3.4'", (8, 36))
@@ -88,7 +88,7 @@ def parse(file_contents):
         res[section] = [
             PipfileRequirement.from_dict(
                 name,
-                value if not is_string(value) else {'version': value},
+                value if not utils.is_string(value) else {'version': value},
                 pos,
             )
             for name, (value, pos) in sorted(section_data.items())

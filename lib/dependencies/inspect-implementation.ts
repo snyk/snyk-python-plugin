@@ -55,6 +55,7 @@ export function getMetaData(
 // https://www.npmjs.com/package/pkg#detecting-assets-in-source-code
 function createAssets() {
   return [
+    path.join(__dirname, '../../pysrc/constants.py'),
     path.join(__dirname, '../../pysrc/pip_resolve.py'),
     path.join(__dirname, '../../pysrc/distPackage.py'),
     path.join(__dirname, '../../pysrc/package.py'),

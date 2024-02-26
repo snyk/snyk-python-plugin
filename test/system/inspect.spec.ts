@@ -68,6 +68,10 @@ describe('inspect', () => {
         workspace: 'setup_py-app',
         targetFile: FILENAMES.setuptools.manifest,
       },
+      {
+        workspace: 'pipfile-optional-dependencies',
+        targetFile: FILENAMES.pipenv.manifest,
+      },
     ])(
       'should get a valid dependency graph for workspace = $workspace',
       async ({ workspace, targetFile }) => {
@@ -256,6 +260,20 @@ describe('inspect', () => {
           },
         ],
       },
+      {
+        workspace: 'pip-app-optional-dependencies',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'opentelemetry-distro',
+              version: '0.35b0',
+            },
+            directDeps: ['opentelemetry-distro'],
+          },
+        ],
+      },
     ])(
       'should get a valid dependency graph for workspace = $workspace',
       async ({ workspace, uninstallPackages, pluginOpts, expected }) => {
@@ -361,6 +379,25 @@ describe('inspect', () => {
         .build();
 
       expect(result.dependencyGraph.equals(expected)).toBeTruthy();
+    });
+
+    it('should return expected dependencies for poetry-optional-dependencies', async () => {
+      const workspace = 'poetry-app-optional-dependencies';
+      testUtils.chdirWorkspaces(workspace);
+
+      const result = await inspect('.', FILENAMES.poetry.lockfile);
+
+      const expected = [
+        {
+          pkg: {
+            name: 'opentelemetry-distro',
+            version: '0.35b0',
+          },
+          directDeps: ['opentelemetry-distro'],
+        },
+      ];
+
+      compareTransitiveLines(result.dependencyGraph, expected);
     });
   });
 
