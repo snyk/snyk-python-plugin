@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "extras-poetry"
+version = "0.1.0"
+description = ""
+authors = ["MarcusArdelean <marcus-emanuel.ardelean@snyk.io>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.12.1"
+opentelemetry-distro = {version = "0.35b0", extras = ["otlp"]}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -26,7 +26,7 @@ describe('Test setup_file.py', () => {
       'python3',
       [
         '-c',
-        `from pip_resolve import get_requirements_list; get_requirements_list('${fixturePath}', True)`,
+        `from pip_resolve import get_requirements_for_pipenv; get_requirements_for_pipenv('${fixturePath}', True)`,
       ],
       { cwd: path.resolve(__dirname, '../../pysrc') }
     );
