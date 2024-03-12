@@ -274,6 +274,20 @@ describe('inspect', () => {
           },
         ],
       },
+      {
+        workspace: 'pip-app-dev-alpha-beta-python-version',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'requests',
+              version: '2.31.0',
+            },
+            directDeps: ['requests'],
+          },
+        ],
+      },
     ])(
       'should get a valid dependency graph for workspace = $workspace',
       async ({ workspace, uninstallPackages, pluginOpts, expected }) => {

@@ -171,25 +171,45 @@ def create_tree_of_packages_dependencies(
     return dir_as_root
 
 
-def satisfies_python_requirement(parsed_operator, py_version_str):
+def satisfies_python_requirement(parsed_operator, py_version):
+    """Check if a package required python versions matches the one of the system
+
+    Args:
+        parsed_operator (str): operator to compare by i.e. >, <=, ==
+        py_version (str): The python version that is required by the package
+
+    Returns:
+        bool: True if the version matches, False otherwise
+    """
     # TODO: use python semver library to compare versions
-    operator_func = {
+    operator = {
         ">": gt,
         "==": eq,
         "<": lt,
         "<=": le,
         ">=": ge,
         '!=': ne,
-    }[parsed_operator]
+    }
+    operator_func = operator.get(parsed_operator)
     system_py_version_tuple = (sys.version_info[0], sys.version_info[1])
-    py_version_tuple = tuple(py_version_str.split('.'))  # string tuple
+    py_version_tuple = tuple(py_version.split('.'))  # tuple of strings
+
+    # For wildcard versions like 3.9.*
     if py_version_tuple[-1] == '*':
         system_py_version_tuple = system_py_version_tuple[0]
-        py_version_tuple = int(py_version_tuple[0])  # int tuple
-    else:
-        py_version_tuple = tuple(int(x) for x in py_version_tuple)  # int tuple
+        py_version_tuple = int(py_version_tuple[0])  # tuple of integers
 
-    return operator_func(system_py_version_tuple, py_version_tuple)
+    # For dev/alpha/beta/rc versions like 3.9.dev0
+    elif not py_version_tuple[-1].isdigit():
+        py_version_tuple = (int(py_version_tuple[0]), int(py_version_tuple[1]))
+
+    # For stable releases like 3.9.2
+    else:
+        py_version_tuple = tuple(int(x) for x in py_version_tuple)
+
+    result = operator_func(system_py_version_tuple, py_version_tuple)
+
+    return result
 
 
 def get_markers_text(requirement):
