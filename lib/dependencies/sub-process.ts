@@ -1,5 +1,5 @@
 import { spawn, spawnSync, SpawnOptions } from 'child_process';
-import { quoteAll } from 'shescape';
+import { quoteAll } from 'shescape/stateless';
 
 interface ProcessOptions {
   cwd?: string;

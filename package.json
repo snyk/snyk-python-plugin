@@ -26,13 +26,13 @@
   "dependencies": {
     "@snyk/cli-interface": "^2.11.2",
     "@snyk/dep-graph": "^1.28.1",
-    "shescape": "1.6.1",
+    "shescape": "2.1.0",
     "snyk-poetry-lockfile-parser": "^1.4.2",
     "tmp": "0.2.1"
   },
   "devDependencies": {
     "@types/jest": "^28.1.3",
-    "@types/node": "^16.11.66",
+    "@types/node": "^18.19.23",
     "@types/tmp": "^0.1.0",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",

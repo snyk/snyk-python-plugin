@@ -125,8 +125,6 @@ workflows:
           matrix:
             parameters:
               node_version: [
-                '14',
-                '16',
                 '18',
               ]
               python_version: [
