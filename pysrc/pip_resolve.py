@@ -231,7 +231,7 @@ def matches_python_version(requirement):
 
     # Gloss over the 'and' case and return true on the first matching python version
 
-    for sub_exp in re.split("\s*(?:and|or)\s*", cond_text):
+    for sub_exp in re.split(r"\s*(?:and|or)\s*", cond_text):
         match = PYTHON_MARKER_REGEX.search(sub_exp)
 
         if match:
