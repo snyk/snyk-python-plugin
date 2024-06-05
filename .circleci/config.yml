@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.1.0
-  prodsec: snyk/prodsec-orb@1.0
+  prodsec: snyk/prodsec-orb@1
 
 defaults: &defaults
   resource_class: medium
@@ -10,6 +10,19 @@ defaults: &defaults
     - image: cimg/node:19.6.1
 
 jobs:
+  security-scans:
+    resource_class: small
+    <<: *defaults
+    steps:
+      - checkout
+      - node/install-packages:
+          with-cache: false
+          override-ci-command: npm install
+      - prodsec/security_scans:
+          mode: auto
+          open-source-additional-arguments: --exclude=test
+          iac-scan: disabled
+
   lint:
     <<: *defaults
     steps:
@@ -31,7 +44,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - when:
-          condition: 
+          condition:
             equal: [ "3.12", <<parameters.python_version>>]
           steps:
           - run:
@@ -47,7 +60,7 @@ jobs:
                     -f test/Dockerfile .
                 docker run --rm snyk-python-plugin:integration-tests-<< parameters.python_version >>
       - when:
-          condition: 
+          condition:
             or:
               - equal: [ "3.8", <<parameters.python_version>>]
               - equal: [ "3.9", <<parameters.python_version>>]
@@ -102,6 +115,15 @@ workflows:
           context:
             - snyk-bot-slack
           channel: os-team-managed-alerts
+          filters:
+            branches:
+              ignore:
+                - main
+
+      - security-scans:
+          name: Security Scans
+          context:
+            - open_source-managed
 
       - lint:
           name: Lint
