@@ -246,6 +246,7 @@ export async function inspectInstalledDeps(
   allowMissing: boolean,
   includeDevDeps: boolean,
   allowEmpty: boolean,
+  initialCommand = 'python',
   args?: string[],
   projectName?: string
 ): Promise<DepGraph> {
@@ -261,7 +262,7 @@ export async function inspectInstalledDeps(
       UPDATED_SETUPTOOLS_VERSION,
       root,
       pythonEnv,
-      command
+      initialCommand
     );
 
     // See ../../pysrc/README.md

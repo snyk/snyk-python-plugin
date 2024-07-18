@@ -27,6 +27,7 @@ export async function getDependencies(
     options = {};
   }
   let command = options.command || 'python';
+  const initialCommand = command;
   const includeDevDeps = !!(options.dev || false);
 
   // handle poetry projects by parsing manifest & lockfile and return a dep-graph
@@ -57,8 +58,10 @@ export async function getDependencies(
       options.allowMissing || false,
       includeDevDeps,
       options.allowEmpty,
+      initialCommand,
       options.args,
-      options.projectName
+      options.projectName,
+      
     ),
   ]);
   return { plugin, dependencyGraph };
