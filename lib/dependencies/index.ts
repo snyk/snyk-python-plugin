@@ -60,8 +60,7 @@ export async function getDependencies(
       options.allowEmpty,
       initialCommand,
       options.args,
-      options.projectName,
-      
+      options.projectName
     ),
   ]);
   return { plugin, dependencyGraph };
