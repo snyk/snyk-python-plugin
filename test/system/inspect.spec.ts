@@ -100,7 +100,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'jaraco.collections',
-              version: '5.0.0',
+              version: '5.0.1',
             },
             directDeps: ['irc'],
           },
@@ -163,7 +163,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 's3transfer',
-              version: '0.10.0',
+              version: '0.10.2',
             },
             directDeps: ['awss'],
           },
@@ -205,7 +205,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'jsonschema',
-              version: '4.21.1',
+              version: '4.23.0',
             },
             directDeps: ['openapi-spec-validator'],
           },
