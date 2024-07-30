@@ -167,7 +167,7 @@ workflows:
           name: Release
           context: nodejs-lib-release
           requires:
-            - Scan repository for secrets
+            - Security Scans
           filters:
             branches:
               only:
