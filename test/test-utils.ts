@@ -10,6 +10,7 @@ export {
   deactivateVirtualenv,
   ensureVirtualenv,
   pipInstall,
+  pipenvInstall,
   pipUninstall,
   setupPyInstall,
 };
@@ -135,6 +136,19 @@ function pipInstall() {
     console.log('' + proc.stderr);
     throw new Error(
       'Failed to install requirements with pip.' +
+        ' venv = ' +
+        JSON.stringify(getActiveVenvName())
+    );
+  }
+}
+
+function pipenvInstall() {
+  const proc = subProcess.executeSync('pipenv', ['install']);
+
+  if (proc.status !== 0) {
+    console.log('' + proc.stderr);
+    throw new Error(
+      'Failed to install requirements with pipenv.' +
         ' venv = ' +
         JSON.stringify(getActiveVenvName())
     );

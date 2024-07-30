@@ -100,7 +100,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'jaraco.collections',
-              version: '5.0.0',
+              version: '5.0.1',
             },
             directDeps: ['irc'],
           },
@@ -163,7 +163,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 's3transfer',
-              version: '0.10.0',
+              version: '0.10.2',
             },
             directDeps: ['awss'],
           },
@@ -205,7 +205,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'jsonschema',
-              version: '4.21.1',
+              version: '4.23.0',
             },
             directDeps: ['openapi-spec-validator'],
           },
@@ -449,6 +449,49 @@ describe('inspect', () => {
       const expectedTargetFile = `${dirname}/Pipfile`;
       expect(result.plugin.targetFile).toEqual(expectedTargetFile);
     });
+  });
+
+  describe('when testing pipenv projects simulating pipenv install', () => {
+    let tearDown;
+
+    afterAll(() => {
+      tearDown();
+    });
+
+    it.each([
+      {
+        workspace: 'pipfile-pipapp-pinned',
+        targetFile: undefined,
+      },
+      {
+        workspace: 'pipenv-app',
+        targetFile: undefined,
+      },
+    ])(
+      'should get a valid dependency graph for workspace = $workspace',
+      async ({ workspace, targetFile }) => {
+        testUtils.chdirWorkspaces(workspace);
+        testUtils.ensureVirtualenv(workspace);
+        tearDown = testUtils.activateVirtualenv(workspace);
+        testUtils.pipenvInstall();
+        testUtils.chdirWorkspaces(workspace);
+        const result = await inspect(
+          '.',
+          targetFile ? targetFile : FILENAMES.pipenv.manifest
+        );
+
+        const expected = [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.5',
+            },
+            directDeps: ['jinja2'],
+          },
+        ];
+        compareTransitiveLines(result.dependencyGraph, expected);
+      }
+    );
   });
 
   describe('when generating Pipfile depGraphs ', () => {
