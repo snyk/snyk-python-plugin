@@ -240,6 +240,7 @@ async function updateSetuptools(
 
 export async function inspectInstalledDeps(
   command: string,
+  pythonCmd: string,
   baseargs: string[],
   root: string,
   targetFile: string,
@@ -261,7 +262,7 @@ export async function inspectInstalledDeps(
       UPDATED_SETUPTOOLS_VERSION,
       root,
       pythonEnv,
-      command
+      pythonCmd
     );
 
     // See ../../pysrc/README.md
