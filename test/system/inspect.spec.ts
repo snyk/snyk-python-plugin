@@ -305,6 +305,221 @@ describe('inspect', () => {
         compareTransitiveLines(result.dependencyGraph, expected);
       }
     );
+    it.each([
+      {
+        workspace: 'pip-app',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'jaraco.collections',
+              version: '5.0.1',
+            },
+            directDeps: ['irc'],
+          },
+          {
+            pkg: {
+              name: 'django-appconf',
+              version: '1.0.6',
+            },
+            directDeps: ['django-select2'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-bom',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.5',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-with-urls',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.5',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-without-markupsafe',
+        uninstallPackages: ['MarkupSafe'],
+        pluginOpts: { allowMissing: true },
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '?',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-not-installed',
+        uninstallPackages: [],
+        pluginOpts: { allowMissing: true },
+        expected: [
+          {
+            pkg: {
+              name: 's3transfer',
+              version: '0.10.2',
+            },
+            directDeps: ['awss'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-trusted-host',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'markupsafe',
+              version: '2.1.5',
+            },
+            directDeps: ['jinja2'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-with-dashes',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'dj-database-url',
+              version: '0.4.2',
+            },
+            directDeps: ['dj-database-url'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-with-openapi_spec_validator',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'jsonschema',
+              version: '4.23.0',
+            },
+            directDeps: ['openapi-spec-validator'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-conditional',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'posix-ipc',
+              version: '1.0.0',
+            },
+            directDeps: ['posix-ipc'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-editable',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'posix-ipc',
+              version: '1.0.0',
+            },
+            directDeps: ['posix-ipc'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-canonicalization',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'zope.interface',
+              version: '5.4.0',
+            },
+            directDeps: ['zope.interface'],
+          },
+          {
+            pkg: {
+              name: 'twisted',
+              version: '23.10.0',
+            },
+            directDeps: ['twisted'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-optional-dependencies',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'opentelemetry-distro',
+              version: '0.35b0',
+            },
+            directDeps: ['opentelemetry-distro'],
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-dev-alpha-beta-python-version',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'requests',
+              version: '2.31.0',
+            },
+            directDeps: ['requests'],
+          },
+        ],
+      },
+    ])(
+      'should get a valid dependency graph for workspace = $workspace without setuptools previously installed',
+      async ({ workspace, uninstallPackages, pluginOpts, expected }) => {
+        testUtils.chdirWorkspaces(workspace);
+        testUtils.ensureVirtualenv(workspace);
+        tearDown = testUtils.activateVirtualenv(workspace);
+        testUtils.pipUninstall('setuptools');
+        testUtils.pipInstall();
+        if (uninstallPackages) {
+          uninstallPackages.forEach((pkg) => {
+            testUtils.pipUninstall(pkg);
+          });
+        }
+
+        const result = await inspect('.', FILENAMES.pip.manifest, pluginOpts);
+        compareTransitiveLines(result.dependencyGraph, expected);
+      }
+    );
 
     it('should fail on missing transitive dependencies', async () => {
       const workspace = 'pip-app';
@@ -439,7 +654,6 @@ describe('inspect', () => {
         status: 0,
       } as SpawnSyncReturns<Buffer>);
       mockedExecute.mockResolvedValueOnce('Python 3.9.5');
-      mockedExecute.mockResolvedValueOnce('Python 3.9.5');
       mockedExecute.mockResolvedValueOnce(
         '{"name": "pipenv-app", "version": "0.0.0", "dependencies": {"jinja2": {"name": "jinja2", "version": "3.0.1", "dependencies": {"MarkupSafe": {"name": "markupsafe", "version": "2.0.1"}}}}, "packageFormatVersion": "pip:0.0.1"}'
       );
@@ -564,7 +778,6 @@ describe('inspect', () => {
 
     it('should return correct target file for setuptools project when relative path to setup lock file is passed', async () => {
       mockedExecute.mockResolvedValueOnce('Python 3.9.5');
-      mockedExecute.mockResolvedValueOnce('Python 3.9.5');
       mockedExecute.mockResolvedValueOnce(
         '{"name": "pipenv-app", "version": "0.0.0", "dependencies": {"jinja2": {"name": "jinja2", "version": "3.0.1", "dependencies": {"MarkupSafe": {"name": "markupsafe", "version": "2.0.1"}}}}, "packageFormatVersion": "pip:0.0.1"}'
       );
@@ -588,7 +801,6 @@ describe('inspect', () => {
       mockedExecuteSync.mockReturnValueOnce({
         status: 0,
       } as SpawnSyncReturns<Buffer>);
-      mockedExecute.mockResolvedValueOnce('Python 3.9.5');
       mockedExecute.mockResolvedValueOnce('Python 3.9.5');
       mockedExecute.mockResolvedValueOnce(
         fs.readFileSync(
@@ -641,7 +853,6 @@ describe('inspect', () => {
     describe('manifest file is empty', () => {
       it('should throw EmptyManifestError', async () => {
         mockedExecute.mockResolvedValueOnce('Python 3.9.5');
-        mockedExecute.mockResolvedValueOnce('Python 3.9.5');
         mockedExecute.mockRejectedValueOnce(
           'No dependencies detected in manifest.'
         );
@@ -655,7 +866,6 @@ describe('inspect', () => {
 
     describe('required packages were not installed', () => {
       it('should throw RequiredPackagesMissingError', async () => {
-        mockedExecute.mockResolvedValueOnce('Python 3.9.5');
         mockedExecute.mockResolvedValueOnce('Python 3.9.5');
         mockedExecute.mockRejectedValueOnce('Required packages missing');
         const manifestFilePath = 'path/to/requirements.txt';

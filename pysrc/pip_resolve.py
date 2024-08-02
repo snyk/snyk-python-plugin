@@ -7,7 +7,6 @@ import argparse
 import utils
 import requirements
 import pipfile
-import setup_file
 import codecs
 from operator import le, lt, gt, ge, eq, ne
 from constants import DepsManager
@@ -135,6 +134,7 @@ def create_tree_of_packages_dependencies(
     def create_dir_as_root():
         name, version = None, None
         if os.path.basename(req_file_path) == 'setup.py':
+            import setup_file
             with open(req_file_path, "r") as setup_py_file:
                 name, version = setup_file.parse_name_and_version(setup_py_file.read())
 
@@ -231,7 +231,7 @@ def matches_python_version(requirement):
 
     # Gloss over the 'and' case and return true on the first matching python version
 
-    for sub_exp in re.split("\s*(?:and|or)\s*", cond_text):
+    for sub_exp in re.split(r"\s*(?:and|or)\s*", cond_text):
         match = PYTHON_MARKER_REGEX.search(sub_exp)
 
         if match:
@@ -329,6 +329,7 @@ def get_requirements_for_setuptools(requirements_file_path):
         list[Requirement]: if requirements were found.
         empty list: if no requirements were found in the requirements file.
     """
+    import setup_file
     with open(requirements_file_path, 'r') as f:
         setup_py_file_content = f.read()
     requirements_data = setup_file.parse_requirements(setup_py_file_content)
