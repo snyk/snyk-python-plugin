@@ -24,6 +24,7 @@ DIR_VERSION = '0.0.0'
 PACKAGE_FORMAT_VERSION = 'packageFormatVersion'
 LABELS = 'labels'
 PROVENANCE = 'provenance'
+PKG_ID_PROVENANCE = 'pkgIdProvenance'
 NUMBER_OF_BYTES = 4
 
 # Declaring deps manager as global variable
@@ -44,7 +45,8 @@ def create_tree_of_packages_dependencies(
         optional_dependencies,
         req_file_path,
         allow_missing=False,
-        only_provenance=False
+        only_provenance=False,
+        top_level_provenance_map={},
 ):
     """Creates the dependency tree for the project.
 
@@ -67,6 +69,11 @@ def create_tree_of_packages_dependencies(
     key_tree = dict(
         (canonicalize_package_name(k.key), v) for k, v in tree.items()
     )
+    
+    tree_provenance_map = dict(
+        (canonicalize_package_name(k.key), k.key) for k, _ in tree.items()
+    )
+    tree_provenance_map.update(top_level_provenance_map)
 
     lowercase_pkgs_names = [p.name.lower() for p in top_level_requirements]
     tlr_by_key = dict((tlr.name.lower(), tlr) for tlr in top_level_requirements)
@@ -84,7 +91,8 @@ def create_tree_of_packages_dependencies(
             root_package,
             key_tree,
             ancestors,
-            all_packages_map
+            all_packages_map,
+            provenance_map,
     ):
         root_name = canonicalize_package_name(root_package[NAME])
 
@@ -100,6 +108,14 @@ def create_tree_of_packages_dependencies(
                 return
             else:
                 sys.exit(msg)
+
+        if provenance_map[root_name] != root_package[NAME]:
+            if LABELS in root_package:
+                root_package[LABELS][PKG_ID_PROVENANCE] = "{}@{}".format(provenance_map[root_name],root_package[VERSION])
+            else:
+                root_package[LABELS] = {
+                    PKG_ID_PROVENANCE: "{}@{}".format(provenance_map[root_name],root_package[VERSION])
+                }
 
         ancestors = ancestors.copy()
         ancestors.add(root_name)
@@ -123,10 +139,10 @@ def create_tree_of_packages_dependencies(
 
             child_package = {
                 NAME: child_project_name,
-                VERSION: child_dist.installed_version,
+                VERSION: child_dist.installed_version
             }
 
-            create_children_recursive(child_package, key_tree, ancestors, all_packages_map)
+            create_children_recursive(child_package, key_tree, ancestors, all_packages_map, provenance_map)
             root_package[DEPENDENCIES][child_project_name] = child_package
             all_packages_map[child_project_name] = 'true'
         return root_package
@@ -165,7 +181,7 @@ def create_tree_of_packages_dependencies(
             dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_as_root
         else:
             package_tree = create_children_recursive(package_as_root, key_tree,
-                                                     set([]), all_packages_map)
+                                                     set([]), all_packages_map, tree_provenance_map)
             dir_as_root[DEPENDENCIES][package_as_root[NAME]] = package_tree
 
     return dir_as_root
@@ -457,6 +473,8 @@ def create_dependencies_tree_by_req_file_path(
         deps_manager
     )
 
+    top_level_provenance_map = {}
+
     if not required and not allow_empty:
         msg = 'No dependencies detected in manifest.'
         sys.exit(msg)
@@ -469,6 +487,7 @@ def create_dependencies_tree_by_req_file_path(
                 missing_package_names.append(r.name)
             else:
                 top_level_requirements.append(r)
+            top_level_provenance_map[canonicalize_package_name(r.name)] = r.original_name
         if missing_package_names:
             msg = 'Required packages missing: ' + (', '.join(missing_package_names))
             if allow_missing:
@@ -483,7 +502,8 @@ def create_dependencies_tree_by_req_file_path(
             optional_dependencies,
             requirements_file_path,
             allow_missing,
-            only_provenance
+            only_provenance,
+            top_level_provenance_map,
         )
 
         print(json.dumps(package_tree))

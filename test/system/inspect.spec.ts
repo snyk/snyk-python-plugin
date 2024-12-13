@@ -16,9 +16,15 @@ import * as path from 'path';
 // Usually the setup of virtual environments can run for a while
 jest.setTimeout(120000);
 
+interface Labels {
+  pkgIdProvenance?: string;
+  provenance?: string;
+}
+
 interface DependencyInfo {
   pkg: depGraphLib.Pkg;
-  directDeps: string[];
+  directDeps?: string[];
+  labels?: Labels;
 }
 
 // This function is a helper to return the version a dependency gets resolved to in the graph
@@ -47,6 +53,21 @@ function compareTransitiveLines(
     expect(received.directDepsLeadingTo(pkg).map((pkg) => pkg.name)).toEqual(
       depInfo.directDeps
     );
+  });
+}
+
+function compareLabels(
+  received: depGraphLib.DepGraph,
+  expected: DependencyInfo[]
+) {
+  expected.forEach((depInfo: DependencyInfo) => {
+    const pkg = getGraphPkg(received, depInfo);
+    const expectLabel = received.getPkgNodes(pkg);
+    expect(expectLabel).toContainEqual({
+      info: {
+        labels: depInfo.labels,
+      },
+    });
   });
 }
 
@@ -315,9 +336,171 @@ describe('inspect', () => {
         }
 
         const result = await inspect('.', FILENAMES.pip.manifest, pluginOpts);
+
         compareTransitiveLines(result.dependencyGraph, expected);
       }
     );
+
+    it.each([
+      {
+        workspace: 'pip-app',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'jinja2',
+              version: '2.7.2',
+            },
+            labels: {
+              pkgIdProvenance: 'Jinja2@2.7.2',
+            },
+          },
+          {
+            pkg: {
+              name: 'django-select2',
+              version: '6.0.1',
+            },
+            labels: {
+              pkgIdProvenance: 'Django-Select2@6.0.1',
+            },
+          },
+          {
+            pkg: {
+              name: 'prometheus-client',
+              version: '0.6.0',
+            },
+            labels: {
+              pkgIdProvenance: 'prometheus_client@0.6.0',
+            },
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app',
+        uninstallPackages: [],
+        pluginOpts: { args: ['--only-provenance'] },
+        expected: [
+          {
+            pkg: {
+              name: 'jinja2',
+              version: '2.7.2',
+            },
+            labels: {
+              pkgIdProvenance: 'Jinja2@2.7.2',
+            },
+          },
+          {
+            pkg: {
+              name: 'django-select2',
+              version: '6.0.1',
+            },
+            labels: {
+              pkgIdProvenance: 'Django-Select2@6.0.1',
+            },
+          },
+          {
+            pkg: {
+              name: 'prometheus-client',
+              version: '0.6.0',
+            },
+            labels: {
+              pkgIdProvenance: 'prometheus_client@0.6.0',
+            },
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-conditional',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'posix-ipc',
+              version: '1.0.0',
+            },
+            labels: {
+              pkgIdProvenance: 'posix_ipc@1.0.0',
+            },
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-editable',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'posix-ipc',
+              version: '1.0.0',
+            },
+            labels: {
+              pkgIdProvenance: 'posix_ipc@1.0.0',
+            },
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app',
+        uninstallPackages: ['Jinja2'],
+        pluginOpts: { allowMissing: true },
+        expected: [
+          {
+            pkg: {
+              name: 'django-select2',
+              version: '6.0.1',
+            },
+            labels: {
+              pkgIdProvenance: 'Django-Select2@6.0.1',
+            },
+          },
+        ],
+      },
+      {
+        workspace: 'pip-app-deps-with-dashes',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'dj-database-url',
+              version: '0.4.2',
+            },
+            labels: {
+              pkgIdProvenance: 'dj_database_url@0.4.2',
+            },
+          },
+          {
+            pkg: {
+              name: 'posix-ipc',
+              version: '1.0.0',
+            },
+            labels: {
+              pkgIdProvenance: 'posix_ipc@1.0.0',
+            },
+          },
+        ],
+      },
+    ])(
+      'should get correct pkgIdProvenance labels for packages in graph for workspace = $workspace',
+      async ({ workspace, uninstallPackages, pluginOpts, expected }) => {
+        testUtils.chdirWorkspaces(workspace);
+        testUtils.ensureVirtualenv(workspace);
+        tearDown = testUtils.activateVirtualenv(workspace);
+        testUtils.pipInstall();
+        if (uninstallPackages) {
+          uninstallPackages.forEach((pkg) => {
+            testUtils.pipUninstall(pkg);
+          });
+        }
+
+        const result = await inspect('.', FILENAMES.pip.manifest, pluginOpts);
+        compareLabels(result.dependencyGraph, expected);
+      }
+    );
+
     it.each([
       {
         workspace: 'pip-app',
@@ -607,12 +790,12 @@ describe('inspect', () => {
         { name: 'poetry-fixtures-project', version: '0.1.0' }
       );
       const expected = builder
-        .addPkgNode({ name: 'jinja2', version: '2.11.2' }, 'jinja2', {
-          labels: { scope: 'prod' },
+        .addPkgNode({ name: 'jinja2', version: '2.11.3' }, 'jinja2', {
+          labels: { scope: 'prod', pkgIdProvenance: 'Jinja2@2.11.3' },
         })
         .connectDep(builder.rootNodeId, 'jinja2')
         .addPkgNode({ name: 'markupsafe', version: '1.1.1' }, 'markupsafe', {
-          labels: { scope: 'prod' },
+          labels: { scope: 'prod', pkgIdProvenance: 'MarkupSafe@1.1.1' },
         })
         .connectDep('jinja2', 'markupsafe')
         .build();
@@ -715,6 +898,62 @@ describe('inspect', () => {
         compareTransitiveLines(result.dependencyGraph, expected);
       }
     );
+
+    it.each([
+      {
+        workspace: 'pipfile-pipapp-pinned',
+        targetFile: undefined,
+        expected: [
+          {
+            pkg: {
+              name: 'jinja2',
+              version: '2.7.2',
+            },
+            labels: {
+              pkgIdProvenance: 'Jinja2@2.7.2',
+            },
+          },
+          {
+            pkg: {
+              name: 'django-select2',
+              version: '6.0.1',
+            },
+            labels: {
+              pkgIdProvenance: 'Django-Select2@6.0.1',
+            },
+          },
+        ],
+      },
+      {
+        workspace: 'pipenv-app',
+        targetFile: undefined,
+        expected: [
+          {
+            pkg: {
+              name: 'jinja2',
+              version: '3.1.4',
+            },
+            labels: {
+              pkgIdProvenance: 'Jinja2@3.1.4',
+            },
+          },
+        ],
+      },
+    ])(
+      'should get correct pkgIdProvenance labels for packages in graph for workspace = $workspace',
+      async ({ workspace, targetFile, expected }) => {
+        testUtils.chdirWorkspaces(workspace);
+        testUtils.ensureVirtualenv(workspace);
+        tearDown = testUtils.activateVirtualenv(workspace);
+        testUtils.pipenvInstall();
+        testUtils.chdirWorkspaces(workspace);
+        const result = await inspect(
+          '.',
+          targetFile ? targetFile : FILENAMES.pipenv.manifest
+        );
+        compareLabels(result.dependencyGraph, expected);
+      }
+    );
   });
 
   describe('when generating Pipfile depGraphs ', () => {
@@ -795,6 +1034,44 @@ describe('inspect', () => {
       const expectedTargetFile = `${dirname}/setup.py`;
       expect(result.plugin.targetFile).toEqual(expectedTargetFile);
     });
+  });
+
+  describe('setup.py projects without mocks', () => {
+    let tearDown;
+
+    afterAll(() => {
+      tearDown();
+    });
+
+    it.each([
+      {
+        workspace: 'setup_py-app',
+        targetFile: FILENAMES.setuptools.manifest,
+        expected: [
+          {
+            pkg: {
+              name: 'django-select2',
+              version: '6.0.1',
+            },
+            labels: {
+              pkgIdProvenance: 'Django-Select2@6.0.1',
+            },
+          },
+        ],
+      },
+    ])(
+      'should get a valid dependency graph for workspace = $workspace',
+      async ({ workspace, targetFile, expected }) => {
+        testUtils.chdirWorkspaces(workspace);
+        testUtils.ensureVirtualenv(workspace);
+        tearDown = testUtils.activateVirtualenv(workspace);
+        testUtils.setupPyInstall();
+        testUtils.chdirWorkspaces(workspace);
+
+        const result = await inspect('.', targetFile);
+        compareLabels(result.dependencyGraph, expected);
+      }
+    );
   });
 
   describe('dep-graph', () => {

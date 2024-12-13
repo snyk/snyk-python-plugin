@@ -6,7 +6,7 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "~2.7 || ^3.5"
-jinja2 = "^2.11"
+Jinja2 = "^2.11"
 
 [build-system]
 requires = ["poetry>=0.12"]

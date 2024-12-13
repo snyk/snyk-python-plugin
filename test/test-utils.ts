@@ -143,6 +143,7 @@ function pipInstall() {
 }
 
 function pipenvInstall() {
+  updateSetuptools();
   const proc = subProcess.executeSync('pipenv', ['install']);
 
   if (proc.status !== 0) {
@@ -155,7 +156,26 @@ function pipenvInstall() {
   }
 }
 
+function updateSetuptools() {
+  const proc = subProcess.executeSync('python3', [
+    '-m',
+    'pip',
+    'install',
+    '--upgrade',
+    'setuptools',
+  ]);
+  if (proc.status !== 0) {
+    console.log('' + proc.stderr);
+    throw new Error(
+      'Failed to update setuptools.' +
+        ' venv = ' +
+        JSON.stringify(getActiveVenvName())
+    );
+  }
+}
+
 function setupPyInstall() {
+  updateSetuptools();
   const proc = subProcess.executeSync('python3', ['setup.py', 'install']);
   if (proc.status !== 0) {
     console.log('' + proc.stderr);
