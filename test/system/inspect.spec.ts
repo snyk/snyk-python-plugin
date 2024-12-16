@@ -21,6 +21,21 @@ interface DependencyInfo {
   directDeps: string[];
 }
 
+// This function is a helper to return the version a dependency gets resolved to in the graph
+// (in case we aren't able to determine it). This is useful for transitive dependencies
+// where the latest version of the package gets pulled in by a top level dependency.
+// This latest version can vary between python version and is not consistent for testing with `compareTransitiveLines`
+function getGraphPkg(
+  graph: depGraphLib.DepGraph,
+  depInfo: DependencyInfo
+): depGraphLib.Pkg {
+  const pkgs = graph.getPkgs();
+  if (depInfo.pkg.version) {
+    return depInfo.pkg;
+  }
+  return pkgs.filter((pkg) => pkg.name == depInfo.pkg.name)[0];
+}
+
 // We can't do a full dependency graph comparison, as generated dependency graphs vary wildly
 // between Python versions. Instead, we ensure that the transitive lines are not broken.
 function compareTransitiveLines(
@@ -28,9 +43,10 @@ function compareTransitiveLines(
   expected: DependencyInfo[]
 ) {
   expected.forEach((depInfo: DependencyInfo) => {
-    expect(
-      received.directDepsLeadingTo(depInfo.pkg).map((pkg) => pkg.name)
-    ).toEqual(depInfo.directDeps);
+    const pkg = getGraphPkg(received, depInfo);
+    expect(received.directDepsLeadingTo(pkg).map((pkg) => pkg.name)).toEqual(
+      depInfo.directDeps
+    );
   });
 }
 
@@ -100,7 +116,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'jaraco.collections',
-              version: '5.0.1',
+              version: '5.1.0',
             },
             directDeps: ['irc'],
           },
@@ -121,7 +137,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
@@ -135,7 +150,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
@@ -163,7 +177,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 's3transfer',
-              version: '0.10.2',
+              version: '0.10.4',
             },
             directDeps: ['awss'],
           },
@@ -177,7 +191,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
@@ -314,7 +327,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'jaraco.collections',
-              version: '5.0.1',
+              version: '5.1.0',
             },
             directDeps: ['irc'],
           },
@@ -335,7 +348,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
@@ -349,7 +361,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
@@ -377,7 +388,7 @@ describe('inspect', () => {
           {
             pkg: {
               name: 's3transfer',
-              version: '0.10.2',
+              version: '0.10.4',
             },
             directDeps: ['awss'],
           },
@@ -391,7 +402,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
@@ -698,7 +708,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
@@ -750,7 +759,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'markupsafe',
-              version: '2.1.5',
             },
             directDeps: ['jinja2'],
           },
