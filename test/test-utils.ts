@@ -10,6 +10,7 @@ export {
   deactivateVirtualenv,
   ensureVirtualenv,
   pipInstall,
+  pipInstallRequirement,
   pipenvInstall,
   pipUninstall,
   setupPyInstall,
@@ -122,6 +123,22 @@ function createVenv(venvDir: string) {
     }
   } finally {
     revert();
+  }
+}
+
+function pipInstallRequirement(requirement: string) {
+  const proc = subProcess.executeSync('pip', [
+    'install',
+    requirement,
+    '--disable-pip-version-check',
+  ]);
+  if (proc.status !== 0) {
+    console.log('' + proc.stderr);
+    throw new Error(
+      `Failed to install requirement ${requirement} with pip.` +
+        ' venv = ' +
+        JSON.stringify(getActiveVenvName())
+    );
   }
 }
 
