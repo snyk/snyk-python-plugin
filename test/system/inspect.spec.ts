@@ -740,6 +740,31 @@ describe('inspect', () => {
         async () => await inspect('.', FILENAMES.pip.manifest)
       ).rejects.toThrow('Required packages missing: markupsafe');
     });
+
+    it('should fail on nonexistent referenced local depedency', async () => {
+      const workspace = 'pip-app-local-nonexistent-file';
+      testUtils.chdirWorkspaces(workspace);
+      testUtils.ensureVirtualenv(workspace);
+      tearDown = testUtils.activateVirtualenv(workspace);
+
+      await expect(inspect('.', FILENAMES.pip.manifest)).rejects.toThrow(
+        "Unparsable requirement line ([Errno 2] No such file or directory: './lib/nonexistent/setup.py')"
+      );
+    });
+
+    it('should not fail on nonexistent referenced local depedency when --skip-unresolved', async () => {
+      const workspace = 'pip-app-local-nonexistent-file';
+      testUtils.chdirWorkspaces(workspace);
+      testUtils.ensureVirtualenv(workspace);
+      tearDown = testUtils.activateVirtualenv(workspace);
+
+      const result = await inspect('.', FILENAMES.pip.manifest, {
+        allowMissing: true,
+        allowEmpty: true,
+      });
+
+      expect(result.dependencyGraph.toJSON()).not.toEqual({});
+    });
   });
 
   describe('Circular deps', () => {
