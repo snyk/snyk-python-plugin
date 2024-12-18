@@ -109,6 +109,12 @@ describe('inspect', () => {
 
     it.each([
       {
+        workspace: 'pip-app-local-whl-file',
+        uninstallPackages: [],
+        pluginOpts: { allowMissing: true },
+        expected: [],
+      },
+      {
         workspace: 'pip-app',
         uninstallPackages: [],
         pluginOpts: {},

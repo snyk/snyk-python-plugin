@@ -2,11 +2,17 @@
 
 import os
 import warnings
-import re
+
+# from pysrc.constants import DEFAULT_OPTIONS
 
 from .requirement import Requirement
 
-def parse(req_str_or_file):
+def parse(req_str_or_file, options={
+    "allow_missing":False,
+    "dev_deps":False,
+    "only_provenance":False,
+    "allow_empty":False
+}):
     """
     Parse a requirements file into a list of Requirements
 
@@ -59,7 +65,7 @@ def parse(req_str_or_file):
             new_file_path = os.path.join(os.path.dirname(filename or '.'),
                                          new_filename)
             with open(new_file_path) as f:
-                for requirement in parse(f):
+                for requirement in parse(f, options):
                     yield requirement
         elif line.startswith('-f') or line.startswith('--find-links') or \
                 line.startswith('-i') or line.startswith('--index-url') or \
@@ -75,7 +81,13 @@ def parse(req_str_or_file):
                 line.split()[0])
             continue
         else:
-            req = Requirement.parse(line)
+            try:
+                req = Requirement.parse(line)
+            except Exception as e:
+                if options.allow_missing:
+                    warnings.warn("Skipping line (%s).\n Couldn't process: (%s)." %(line.split()[0], e))
+                    continue
+                raise e
             req.provenance = (
                 filename,
                 original_line_idxs[0] + 1,
