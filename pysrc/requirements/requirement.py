@@ -82,6 +82,7 @@ class Requirement(object):
         self.extras = []
         self.specs = []
         self.provenance = None
+        self.original_name = None
 
     def __repr__(self):
         return '<Requirement: "{0}">'.format(self.line)
@@ -217,8 +218,11 @@ class Requirement(object):
 
             pkg_req = Req.parse(line)
             req.name = pkg_req.unsafe_name
+            req.original_name = pkg_req.name
             req.extras = list(pkg_req.extras)
             req.specs = pkg_req.specs
+        if not req.original_name:
+            req.original_name = req.name
         return req
 
     @classmethod

@@ -18,6 +18,7 @@ class PipfileRequirement(object):
         self.version = None
         self.markers = None
         self.provenance = None # a tuple of (file name, line)
+        self.original_name = None
 
     def __repr__(self):
         return str(self.__dict__())
@@ -42,6 +43,7 @@ class PipfileRequirement(object):
     def from_dict(cls, name, requirement_dict, pos_in_toml):
         req = cls(name)
 
+        req.original_name = req.name
         req.version = parse_req(requirement_dict.get('version'))
         req.editable = parse_req(requirement_dict.get('editable', False))
         for vcs in ['git', 'hg', 'svn', 'bzr']:
