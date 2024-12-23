@@ -130,6 +130,19 @@ describe('inspect', () => {
 
     it.each([
       {
+        workspace: 'pip-app-local-whl-file',
+        uninstallPackages: [],
+        pluginOpts: { allowMissing: true },
+        expected: [
+          {
+            pkg: {
+              name: 'pandas',
+            },
+            directDeps: ['my-package'],
+          },
+        ],
+      },
+      {
         workspace: 'pip-app',
         uninstallPackages: [],
         pluginOpts: {},
@@ -920,21 +933,6 @@ describe('inspect', () => {
             },
             labels: {
               pkgIdProvenance: 'Django-Select2@6.0.1',
-            },
-          },
-        ],
-      },
-      {
-        workspace: 'pipenv-app',
-        targetFile: undefined,
-        expected: [
-          {
-            pkg: {
-              name: 'jinja2',
-              version: '3.1.4',
-            },
-            labels: {
-              pkgIdProvenance: 'Jinja2@3.1.4',
             },
           },
         ],

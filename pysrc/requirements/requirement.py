@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import re
+import os
 from pkg_resources import Requirement as Req
 
 from .fragment import get_hash_info, parse_fragment, parse_extras_require
@@ -32,6 +33,8 @@ NAME_EQ_REGEX = re.compile(r'name="(\S+)"')
 PER_REQ_PARAM_REGEX = re.compile(r'\s*--[a-z-]+=\S+')
 
 EDITABLE_REGEX = re.compile(r'^(-e|--editable=?)\s*')
+
+WHL_FILE_REGEX = re.compile(r'^(?P<name>.*?)-(?P<version>.*?)-.*\.whl$')
 
 class Requirement(object):
     """
@@ -200,11 +203,16 @@ class Requirement(object):
                 req.subdirectory = fragment.get('subdirectory')
             req.path = groups['path']
         elif line.startswith('./'):
-            setup_file = open(line + "/setup.py", "r")
-            setup_content = setup_file.read()
-            name_search = NAME_EQ_REGEX.search(setup_content)
-            if name_search:
-                req.name = name_search.group(1)
+            if os.path.exists(line) and os.path.isfile(line) and line.lower().endswith(".whl"):
+                match = re.match(WHL_FILE_REGEX, os.path.basename(line))
+                if match:
+                    req.name = match.group("name")
+            elif os.path.exists(line) and os.path.isdir(line):
+                setup_file = open(line + "/setup.py", "r")
+                setup_content = setup_file.read()
+                name_search = NAME_EQ_REGEX.search(setup_content)
+                if name_search:
+                    req.name = name_search.group(1)
             req.local_file = True
         else:
             # This is a requirement specifier.
