@@ -1,0 +1,2 @@
+./lib/nonexistent
+requests==2.31.0
