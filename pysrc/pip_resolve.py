@@ -9,7 +9,7 @@ import requirements
 import pipfile
 import codecs
 from operator import le, lt, gt, ge, eq, ne
-from constants import DepsManager
+from constants import DEFAULT_OPTIONS, DepsManager
 
 import pkg_resources
 
@@ -349,7 +349,7 @@ def get_requirements_for_setuptools(requirements_file_path):
     with open(requirements_file_path, 'r') as f:
         setup_py_file_content = f.read()
     requirements_data = setup_file.parse_requirements(setup_py_file_content)
-    req_list = list(requirements.parse(requirements_data))
+    req_list = [req for req in requirements.parse(requirements_data) if req is not None]
 
     provenance = setup_file.get_provenance(setup_py_file_content)
     for req in req_list:
@@ -364,7 +364,7 @@ def get_requirements_for_setuptools(requirements_file_path):
     return req_list
 
 
-def get_requirements_for_pip(requirements_file_path):
+def get_requirements_for_pip(requirements_file_path, options):
     """Get requirements for a pip project.
 
     Note:
@@ -381,7 +381,7 @@ def get_requirements_for_pip(requirements_file_path):
     encoding = detect_encoding_by_bom(requirements_file_path)
 
     with io.open(requirements_file_path, 'r', encoding=encoding) as f:
-        req_list = list(requirements.parse(f))
+        req_list = list(requirements.parse(f, options))
 
     req_list = filter_requirements(req_list)
 
@@ -409,7 +409,7 @@ def filter_requirements(req_list):
     return req_list
 
 
-def get_requirements_list(requirements_file_path, dev_deps=False):
+def get_requirements_list(requirements_file_path, options=DEFAULT_OPTIONS):
     """Retrieves the requirements from the requirements file
 
     The requirements can be retrieved from requirements.txt, Pipfile or setup.py
@@ -423,11 +423,11 @@ def get_requirements_list(requirements_file_path, dev_deps=False):
         empty list: if no requirements were found in the requirements file.
     """
     if deps_manager is DepsManager.PIPENV:
-        req_list = get_requirements_for_pipenv(requirements_file_path, dev_deps)
+        req_list = get_requirements_for_pipenv(requirements_file_path, options.dev_deps)
     elif deps_manager is DepsManager.SETUPTOOLS:
         req_list = get_requirements_for_setuptools(requirements_file_path)
     else:
-        req_list = get_requirements_for_pip(requirements_file_path)
+        req_list = get_requirements_for_pip(requirements_file_path, options)
 
     return req_list
 
@@ -441,10 +441,7 @@ def canonicalize_package_name(name):
 
 def create_dependencies_tree_by_req_file_path(
     requirements_file_path,
-    allow_missing=False,
-    dev_deps=False,
-    only_provenance=False,
-    allow_empty=False
+    options=DEFAULT_OPTIONS,
 ):
     # TODO: normalise package names before any other processing - this should
     #  help reduce the amount of `in place` conversions.
@@ -463,7 +460,7 @@ def create_dependencies_tree_by_req_file_path(
     dist_tree = utils.construct_tree(dist_index)
 
     # create a list of dependencies from the dependencies file
-    required = get_requirements_list(requirements_file_path, dev_deps=dev_deps)
+    required = get_requirements_list(requirements_file_path, options)
 
     # Handle optional dependencies/arbitrary dependencies
     optional_dependencies = utils.establish_optional_dependencies(
@@ -475,7 +472,7 @@ def create_dependencies_tree_by_req_file_path(
 
     top_level_provenance_map = {}
 
-    if not required and not allow_empty:
+    if not required and not options.allow_empty:
         msg = 'No dependencies detected in manifest.'
         sys.exit(msg)
     else:
@@ -490,7 +487,7 @@ def create_dependencies_tree_by_req_file_path(
             top_level_provenance_map[canonicalize_package_name(r.name)] = r.original_name
         if missing_package_names:
             msg = 'Required packages missing: ' + (', '.join(missing_package_names))
-            if allow_missing:
+            if options.allow_missing:
                 sys.stderr.write(msg + "\n")
             else:
                 sys.exit(msg)
@@ -501,8 +498,8 @@ def create_dependencies_tree_by_req_file_path(
             top_level_requirements,
             optional_dependencies,
             requirements_file_path,
-            allow_missing,
-            only_provenance,
+            options.allow_missing,
+            options.only_provenance,
             top_level_provenance_map,
         )
 
@@ -542,10 +539,7 @@ def main():
 
     create_dependencies_tree_by_req_file_path(
         args.requirements,
-        allow_missing=args.allow_missing,
-        dev_deps=args.dev_deps,
-        only_provenance=args.only_provenance,
-        allow_empty=args.allow_empty,
+        args,
     )
 
 

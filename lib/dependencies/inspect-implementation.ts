@@ -6,7 +6,11 @@ import * as subProcess from './sub-process';
 import { DepGraph } from '@snyk/dep-graph';
 import { buildDepGraph, PartialDepTree } from './build-dep-graph';
 import { FILENAMES } from '../types';
-import { EmptyManifestError, RequiredPackagesMissingError } from '../errors';
+import {
+  EmptyManifestError,
+  RequiredPackagesMissingError,
+  UnparsableRequirementError,
+} from '../errors';
 
 const returnedTargetFile = (originalTargetFile) => {
   const basename = path.basename(originalTargetFile);
@@ -270,6 +274,10 @@ export async function inspectInstalledDeps(
         errMsg += ' If the issue persists try again with --skip-unresolved.';
 
         throw new RequiredPackagesMissingError(errMsg);
+      }
+
+      if (error.indexOf('Unparsable requirement line') !== -1) {
+        throw new UnparsableRequirementError(error);
       }
     }
 

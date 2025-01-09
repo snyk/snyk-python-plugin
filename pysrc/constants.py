@@ -23,3 +23,10 @@ class DepsManager:
             return cls.SETUPTOOLS
 
         return cls.PIP
+
+DEFAULT_OPTIONS = {
+    "allow_missing":False,
+    "dev_deps":False,
+    "only_provenance":False,
+    "allow_empty":False
+}
