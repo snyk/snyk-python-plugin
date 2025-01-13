@@ -202,13 +202,13 @@ class Requirement(object):
                 req.hash_name, req.hash = get_hash_info(fragment)
                 req.subdirectory = fragment.get('subdirectory')
             req.path = groups['path']
-        elif line.startswith('./'):
-            if os.path.exists(line) and os.path.isfile(line) and line.lower().endswith(".whl"):
+        elif os.path.exists(line):
+            if os.path.isfile(line) and line.lower().endswith(".whl"):
                 match = re.match(WHL_FILE_REGEX, os.path.basename(line))
                 if match:
                     req.name = match.group("name")
-            elif os.path.exists(line) and os.path.isdir(line):
-                setup_file = open(line + "/setup.py", "r")
+            elif os.path.isdir(line):
+                setup_file = open(os.path.join(line, "setup.py"), "r")
                 setup_content = setup_file.read()
                 name_search = NAME_EQ_REGEX.search(setup_content)
                 if name_search:
