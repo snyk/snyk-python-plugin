@@ -16,7 +16,7 @@ import pkg_resources
 PYTHON_MARKER_REGEX = re.compile(r'python_version\s*('
                                  r'?P<operator>==|<=|>=|>|<)\s*[\'"]('
                                  r'?P<python_version>.+?)[\'"]')
-SYSTEM_MARKER_REGEX = re.compile(r'sys_platform\s*==\s*[\'"]([^\'"]+)[\'"]$')
+SYSTEM_MARKER_REGEX = re.compile(r'sys_platform\s*==\s*[\'"]([\w.-]+)[\'"]')
 DEPENDENCIES = 'dependencies'
 VERSION = 'version'
 NAME = 'name'
@@ -271,9 +271,10 @@ def matches_environment(requirement):
     sys_platform = sys.platform.lower()
     markers_text = get_markers_text(requirement)
     if markers_text and 'sys_platform' in markers_text:
-        match = SYSTEM_MARKER_REGEX.findall(markers_text)
-        if len(match) > 0:
-            return match[0].lower() == sys_platform
+        matches = SYSTEM_MARKER_REGEX.findall(markers_text)
+        lowercase_matches = [match.lower() for match in matches]
+        if len(lowercase_matches) > 0:
+            return sys_platform.lower() in lowercase_matches
     return True
 
 

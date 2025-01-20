@@ -62,6 +62,10 @@ class TestStringMethods(unittest.TestCase):
             req.line = "jinja2==3.1.4 ; sys_platform == 'darwin' or sys_platform == 'linux'"
             self.assertTrue(matches_environment(req))
 
+            mock_sys.platform = "darwin"
+            req.line = "jinja2==3.1.4 ; sys_platform == 'darwin' or sys_platform == 'linux'"
+            self.assertTrue(matches_environment(req))
+
             # BUG: Only == operator is supported in the moment
             # mock_sys.platform = "linux2"
             # req.line = "futures==3.2.0; sys_platform != 'linux2'"
