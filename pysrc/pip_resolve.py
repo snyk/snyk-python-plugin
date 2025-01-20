@@ -16,7 +16,7 @@ import pkg_resources
 PYTHON_MARKER_REGEX = re.compile(r'python_version\s*('
                                  r'?P<operator>==|<=|>=|>|<)\s*[\'"]('
                                  r'?P<python_version>.+?)[\'"]')
-SYSTEM_MARKER_REGEX = re.compile(r'sys_platform\s*==\s*[\'"](.+)[\'"]')
+SYSTEM_MARKER_REGEX = re.compile(r'sys_platform\s*==\s*[\'"]([^\'"]+)[\'"]$')
 DEPENDENCIES = 'dependencies'
 VERSION = 'version'
 NAME = 'name'
