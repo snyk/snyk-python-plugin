@@ -211,7 +211,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 's3transfer',
-              version: '0.10.4',
             },
             directDeps: ['awss'],
           },
@@ -584,7 +583,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 's3transfer',
-              version: '0.10.4',
             },
             directDeps: ['awss'],
           },
