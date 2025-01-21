@@ -273,7 +273,7 @@ def matches_environment(requirement):
     if markers_text and 'sys_platform' in markers_text:
         matches = SYSTEM_MARKER_REGEX.findall(markers_text)
         lowercase_matches = [match.lower() for match in matches]
-        if len(lowercase_matches) > 0:
+        if lowercase_matches:
             return sys_platform.lower() in lowercase_matches
     return True
 
