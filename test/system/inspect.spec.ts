@@ -157,7 +157,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'django-appconf',
-              version: '1.0.6',
             },
             directDeps: ['django-select2'],
           },
@@ -529,7 +528,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'django-appconf',
-              version: '1.0.6',
             },
             directDeps: ['django-select2'],
           },
