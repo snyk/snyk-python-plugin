@@ -891,6 +891,25 @@ describe('inspect', () => {
 
       compareTransitiveLines(result.dependencyGraph, expected);
     });
+
+    it('should return expected dependencies for poetry-v2-app-optional-dependencies', async () => {
+      const workspace = 'poetry-v2-app-optional-dependencies';
+      testUtils.chdirWorkspaces(workspace);
+
+      const result = await inspect('.', FILENAMES.poetry.lockfile);
+
+      const expected = [
+        {
+          pkg: {
+            name: 'opentelemetry-distro',
+            version: '0.35b0',
+          },
+          directDeps: ['opentelemetry-distro'],
+        },
+      ];
+
+      compareTransitiveLines(result.dependencyGraph, expected);
+    });
   });
 
   it('should return correct target file for poetry project when relative path to poetry lock file is passed', async () => {
