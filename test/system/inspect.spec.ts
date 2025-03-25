@@ -834,9 +834,64 @@ describe('inspect', () => {
 
       expect(result.dependencyGraph.equals(expected)).toBeTruthy();
     });
+    it('should return expected dependencies for poetry-v2-app', async () => {
+      const workspace = 'poetry-v2-app';
+      testUtils.chdirWorkspaces(workspace);
+
+      const result = await inspect('.', FILENAMES.poetry.lockfile);
+      expect(result).toMatchObject({
+        plugin: {
+          name: 'snyk-python-plugin',
+          runtime: expect.any(String), // any version of Python
+          targetFile: FILENAMES.poetry.manifest,
+        },
+        package: null, // no dep-tree
+        dependencyGraph: {}, // match any dep-graph (equality checked below)
+      });
+
+      const builder = new DepGraphBuilder(
+        { name: 'poetry' },
+        { name: 'poetry-fixtures-project', version: '0.1.0' }
+      );
+      const expected = builder
+        .addPkgNode({ name: 'jinja2', version: '3.1.5' }, 'jinja2', {
+          labels: { scope: 'prod' },
+        })
+        .connectDep(builder.rootNodeId, 'jinja2')
+        .addPkgNode({ name: 'markupsafe', version: '3.0.2' }, 'markupsafe', {
+          labels: { scope: 'prod', pkgIdProvenance: 'MarkupSafe@3.0.2' },
+        })
+        .connectDep('jinja2', 'markupsafe')
+        .addPkgNode({ name: 'isodd', version: '0.1.2' }, 'isodd', {
+          labels: { scope: 'prod', pkgIdProvenance: 'isOdd@0.1.2' },
+        })
+        .connectDep(builder.rootNodeId, 'isodd')
+        .build();
+
+      expect(result.dependencyGraph.equals(expected)).toBeTruthy();
+    });
 
     it('should return expected dependencies for poetry-optional-dependencies', async () => {
       const workspace = 'poetry-app-optional-dependencies';
+      testUtils.chdirWorkspaces(workspace);
+
+      const result = await inspect('.', FILENAMES.poetry.lockfile);
+
+      const expected = [
+        {
+          pkg: {
+            name: 'opentelemetry-distro',
+            version: '0.35b0',
+          },
+          directDeps: ['opentelemetry-distro'],
+        },
+      ];
+
+      compareTransitiveLines(result.dependencyGraph, expected);
+    });
+
+    it('should return expected dependencies for poetry-v2-app-optional-dependencies', async () => {
+      const workspace = 'poetry-v2-app-optional-dependencies';
       testUtils.chdirWorkspaces(workspace);
 
       const result = await inspect('.', FILENAMES.poetry.lockfile);
@@ -857,6 +912,16 @@ describe('inspect', () => {
 
   it('should return correct target file for poetry project when relative path to poetry lock file is passed', async () => {
     const dirname = 'test/fixtures/poetry-project';
+    const manifestFilePath = `${dirname}/poetry.lock`;
+
+    const result = await inspect('.', manifestFilePath);
+
+    const expectedTargetFile = `${dirname}/pyproject.toml`;
+    expect(result.plugin.targetFile).toEqual(expectedTargetFile);
+  });
+
+  it('should return correct target file for poetry v2 project when relative path to poetry lock file is passed', async () => {
+    const dirname = 'test/fixtures/poetry-v2-project';
     const manifestFilePath = `${dirname}/poetry.lock`;
 
     const result = await inspect('.', manifestFilePath);
