@@ -221,8 +221,10 @@ export async function inspectInstalledDeps(
   args?: string[],
   projectName?: string
 ): Promise<DepGraph> {
+  const tmp_path = process.env.SNYK_TMP_PATH;
   const tempDirObj = tmp.dirSync({
     unsafeCleanup: true,
+    ...(tmp_path ? { tmpdir: tmp_path } : {}),
   });
 
   dumpAllFilesInTempDir(tempDirObj.name);
