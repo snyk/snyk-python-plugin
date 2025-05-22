@@ -8,6 +8,7 @@ import { buildDepGraph, PartialDepTree } from './build-dep-graph';
 import { FILENAMES } from '../types';
 import {
   EmptyManifestError,
+  FailedToWriteTempFiles,
   RequiredPackagesMissingError,
   UnparsableRequirementError,
 } from '../errors';
@@ -222,12 +223,22 @@ export async function inspectInstalledDeps(
   projectName?: string
 ): Promise<DepGraph> {
   const tmp_path = process.env.SNYK_TMP_PATH;
-  const tempDirObj = tmp.dirSync({
-    unsafeCleanup: true,
-    ...(tmp_path ? { tmpdir: tmp_path } : {}),
-  });
+  let tempDirObj: tmp.DirResult;
 
-  dumpAllFilesInTempDir(tempDirObj.name);
+  try {
+    tempDirObj = tmp.dirSync({
+      unsafeCleanup: true,
+      ...(tmp_path ? { tmpdir: tmp_path } : {}),
+    });
+    dumpAllFilesInTempDir(tempDirObj.name);
+  } catch (e) {
+    throw new FailedToWriteTempFiles(
+      `Failed to write temporary files:\n` +
+        `${e}\n` +
+        `Try running again with SNYK_TMP_PATH=<some directory>, where <some directory> is a valid directory that you have permissions to write to.`
+    );
+  }
+
   try {
     const pythonEnv = getPythonEnv(targetFile);
 
