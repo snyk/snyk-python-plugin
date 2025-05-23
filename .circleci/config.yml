@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5.1.0
+  node: circleci/node@7.1.0
   prodsec: snyk/prodsec-orb@1
 
 defaults: &defaults
@@ -147,9 +147,9 @@ workflows:
           matrix:
             parameters:
               node_version: [
-                '14',
-                '16',
-                '18',
+                '24',
+                '22',
+                '20',
               ]
               python_version: [
                 '3.8',
