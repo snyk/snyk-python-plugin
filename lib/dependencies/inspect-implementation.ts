@@ -220,22 +220,22 @@ export async function inspectInstalledDeps(
   includeDevDeps: boolean,
   allowEmpty: boolean,
   args?: string[],
-  projectName?: string
+  projectName?: string,
+  tmpPath?: string
 ): Promise<DepGraph> {
-  const tmp_path = process.env.SNYK_TMP_PATH;
   let tempDirObj: tmp.DirResult;
 
   try {
     tempDirObj = tmp.dirSync({
       unsafeCleanup: true,
-      ...(tmp_path ? { tmpdir: tmp_path } : {}),
+      ...(tmpPath ? { tmpdir: tmpPath } : {}),
     });
     dumpAllFilesInTempDir(tempDirObj.name);
   } catch (e) {
     throw new FailedToWriteTempFiles(
       `Failed to write temporary files:\n` +
         `${e}\n` +
-        `Try running again with SNYK_TMP_PATH=<some directory>, where <some directory> is a valid directory that you have permissions to write to.`
+        `Try running again with --tmp-path=<some directory>, where <some directory> is a valid directory that you have permissions to write to.`
     );
   }
 

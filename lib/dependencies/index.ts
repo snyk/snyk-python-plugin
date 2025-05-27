@@ -12,6 +12,7 @@ export interface PythonInspectOptions {
   args?: string[];
   projectName?: string; // Allow providing a project name for the root node and package
   allowEmpty?: boolean; // Allow manifest without dependencies (mostly for SCM)
+  tmpPath?: string; // Path to the directory to write temporary files to
 }
 
 type Options = api.SingleSubprojectInspectOptions & PythonInspectOptions;
@@ -58,7 +59,8 @@ export async function getDependencies(
       includeDevDeps,
       options.allowEmpty,
       options.args,
-      options.projectName
+      options.projectName,
+      options.tmpPath
     ),
   ]);
   return { plugin, dependencyGraph };
