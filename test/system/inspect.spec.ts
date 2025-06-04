@@ -510,6 +510,18 @@ describe('inspect', () => {
       }
     );
 
+    it('should succeed on package name/local dir name clash', async () => {
+      const workspace = 'pip-app-local-dir';
+      testUtils.chdirWorkspaces(workspace);
+      testUtils.ensureVirtualenv(workspace);
+      tearDown = testUtils.activateVirtualenv(workspace);
+      testUtils.pipInstall();
+
+      const result = await inspect('.', FILENAMES.pip.manifest);
+
+      expect(result.dependencyGraph).not.toBe(undefined);
+    });
+
     it.each([
       {
         workspace: 'pip-app',
@@ -740,7 +752,7 @@ describe('inspect', () => {
       tearDown = testUtils.activateVirtualenv(workspace);
 
       await expect(inspect('.', FILENAMES.pip.manifest)).rejects.toThrow(
-        "Unparsable requirement line ([Errno 2] No such file or directory: './lib/nonexistent/setup.py')"
+        'Unparsable requirement line (Requirement line ./lib/nonexistent is a local path, but could not be parsed)'
       );
     });
 
