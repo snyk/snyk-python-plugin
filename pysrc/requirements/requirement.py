@@ -202,37 +202,45 @@ class Requirement(object):
                 req.hash_name, req.hash = get_hash_info(fragment)
                 req.subdirectory = fragment.get('subdirectory')
             req.path = groups['path']
-        elif os.path.exists(line):
-            if os.path.isfile(line) and line.lower().endswith(".whl"):
-                match = re.match(WHL_FILE_REGEX, os.path.basename(line))
-                if match:
-                    req.name = match.group("name")
-            elif os.path.isdir(line):
-                setup_file = open(os.path.join(line, "setup.py"), "r")
-                setup_content = setup_file.read()
-                name_search = NAME_EQ_REGEX.search(setup_content)
-                if name_search:
-                    req.name = name_search.group(1)
+        elif os.path.isfile(line) and line.lower().endswith(".whl"):
+            match = re.match(WHL_FILE_REGEX, os.path.basename(line))
+            if match:
+                req.name = match.group("name")
+            req.local_file = True
+        # Attempts to determine if the line refers to a local directory that could be
+        # an installable Python package
+        elif os.path.isdir(line) and os.path.isfile(os.path.join(line, "setup.py")):
+            setup_file = open(os.path.join(line, "setup.py"), "r")
+            setup_content = setup_file.read()
+            name_search = NAME_EQ_REGEX.search(setup_content)
+            if name_search:
+                req.name = name_search.group(1)
             req.local_file = True
         else:
-            # This is a requirement specifier.
-            # Delegate to pkg_resources and hope for the best
-            req.specifier = True
+            try:
+                # This is a requirement specifier.
+                # Delegate to pkg_resources and hope for the best
+                req.specifier = True
 
-            # an optional per-requirement param is not part of the req specifier
-            #   see https://pip.pypa.io/en/stable/reference/pip_install/#per-requirement-overrides
-            #   and https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode
-            line = PER_REQ_PARAM_REGEX.sub('', line)
+                # an optional per-requirement param is not part of the req specifier
+                #   see https://pip.pypa.io/en/stable/reference/pip_install/#per-requirement-overrides
+                #   and https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode
+                line = PER_REQ_PARAM_REGEX.sub('', line)
 
-            pkg_req = Req.parse(line)
-            req.name = pkg_req.unsafe_name
-            req.original_name = pkg_req.name
-            req.extras = list(pkg_req.extras)
-            req.specs = pkg_req.specs
+                pkg_req = Req.parse(line)
+                req.name = pkg_req.unsafe_name
+                req.original_name = pkg_req.name
+                req.extras = list(pkg_req.extras)
+                req.specs = pkg_req.specs
+            except Exception as e:
+                if os.path.exists(line):
+                    raise ValueError(f'Requirement line {line} is a local path, but could not be parsed')
+                else: 
+                    raise e
         if not req.original_name:
             req.original_name = req.name
         return req
-
+    
     @classmethod
     def parse(cls, line):
         """
