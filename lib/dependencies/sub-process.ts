@@ -39,7 +39,7 @@ export function execute(
   options?: ProcessOptions
 ): Promise<string> {
   const spawnOptions = makeSpawnOptions(options);
-  args = quoteAll(args, { ...spawnOptions, flagProtection: false });
+  args = quoteAll(args, { flagProtection: false });
   return new Promise((resolve, reject) => {
     let stdout = '';
     let stderr = '';
@@ -67,7 +67,7 @@ export function executeSync(
   options?: ProcessOptions
 ) {
   const spawnOptions = makeSpawnOptions(options);
-  args = quoteAll(args, { ...spawnOptions, flagProtection: false });
+  args = quoteAll(args, { flagProtection: false });
 
   return spawnSync(command, args, spawnOptions);
 }
