@@ -14,7 +14,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Usually the setup of virtual environments can run for a while
-jest.setTimeout(120000);
+jest.setTimeout(180000);
 
 interface Labels {
   pkgIdProvenance?: string;
