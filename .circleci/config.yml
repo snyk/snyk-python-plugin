@@ -49,6 +49,7 @@ jobs:
           steps:
           - run:
               name: Run tests
+              no_output_timeout: 30m
               command: |
                 BUILDKIT_PROGRESS=plain \
                 DOCKER_BUILDKIT=1 \
@@ -69,6 +70,7 @@ jobs:
           steps:
           - run:
               name: Run tests
+              no_output_timeout: 30m
               command: |
                 BUILDKIT_PROGRESS=plain \
                 DOCKER_BUILDKIT=1 \
