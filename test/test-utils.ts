@@ -176,7 +176,7 @@ function updateSetuptools() {
 
 function setupPyInstall() {
   updateSetuptools();
-  const proc = subProcess.executeSync('pip', ['install', '.']);
+  const proc = subProcess.executeSync('pip', ['install', '-e', '.']);
   if (proc.status !== 0) {
     console.log('' + proc.stderr);
     throw new Error(

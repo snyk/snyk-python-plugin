@@ -251,7 +251,7 @@ describe('inspect', () => {
             pkg: {
               name: 'jsonschema',
             },
-            directDeps: ['openapi-spec-validator'],
+            directDeps: ['jsonschema', 'openapi-spec-validator'],
           },
         ],
       },
@@ -632,7 +632,7 @@ describe('inspect', () => {
             pkg: {
               name: 'jsonschema',
             },
-            directDeps: ['openapi-spec-validator'],
+            directDeps: ['jsonschema', 'openapi-spec-validator'],
           },
         ],
       },
