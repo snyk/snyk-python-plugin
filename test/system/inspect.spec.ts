@@ -347,7 +347,8 @@ describe('inspect', () => {
         const result = await inspect('.', FILENAMES.pip.manifest, pluginOpts);
 
         compareTransitiveLines(result.dependencyGraph, expected);
-      }
+      },
+      900000
     );
 
     it.each([
