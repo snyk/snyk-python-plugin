@@ -14,7 +14,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Usually the setup of virtual environments can run for a while
-jest.setTimeout(120000);
+jest.setTimeout(180000);
 
 interface Labels {
   pkgIdProvenance?: string;
@@ -251,7 +251,7 @@ describe('inspect', () => {
             pkg: {
               name: 'jsonschema',
             },
-            directDeps: ['openapi-spec-validator'],
+            directDeps: ['jsonschema', 'openapi-spec-validator'],
           },
         ],
       },
@@ -347,7 +347,8 @@ describe('inspect', () => {
         const result = await inspect('.', FILENAMES.pip.manifest, pluginOpts);
 
         compareTransitiveLines(result.dependencyGraph, expected);
-      }
+      },
+      900000
     );
 
     it.each([
@@ -632,7 +633,7 @@ describe('inspect', () => {
             pkg: {
               name: 'jsonschema',
             },
-            directDeps: ['openapi-spec-validator'],
+            directDeps: ['jsonschema', 'openapi-spec-validator'],
           },
         ],
       },

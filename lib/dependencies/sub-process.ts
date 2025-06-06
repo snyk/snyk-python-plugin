@@ -1,5 +1,5 @@
-import { spawn, spawnSync, SpawnOptions } from 'child_process';
-import { quoteAll } from 'shescape';
+import { spawn, SpawnOptions, spawnSync } from 'child_process';
+import { quoteAll } from 'shescape/stateless';
 
 interface ProcessOptions {
   cwd?: string;
@@ -39,7 +39,7 @@ export function execute(
   options?: ProcessOptions
 ): Promise<string> {
   const spawnOptions = makeSpawnOptions(options);
-  args = quoteAll(args, spawnOptions);
+  args = quoteAll(args, { flagProtection: false });
   return new Promise((resolve, reject) => {
     let stdout = '';
     let stderr = '';
@@ -67,7 +67,7 @@ export function executeSync(
   options?: ProcessOptions
 ) {
   const spawnOptions = makeSpawnOptions(options);
-  args = quoteAll(args, spawnOptions);
+  args = quoteAll(args, { flagProtection: false });
 
   return spawnSync(command, args, spawnOptions);
 }

@@ -26,13 +26,13 @@
   "dependencies": {
     "@snyk/cli-interface": "^2.11.2",
     "@snyk/dep-graph": "^1.28.1",
-    "shescape": "1.6.1",
+    "shescape": "2.1.4",
     "snyk-poetry-lockfile-parser": "^1.9.0",
     "tmp": "0.2.3"
   },
   "devDependencies": {
     "@types/jest": "^28.1.3",
-    "@types/node": "^16.11.66",
+    "@types/node": "^20",
     "@types/tmp": "^0.1.0",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
@@ -46,6 +46,6 @@
     "sinon": "^2.3.2",
     "ts-jest": "^28.0.8",
     "ts-node": "^8.10.2",
-    "typescript": "^4.8.4"
+    "typescript": "^5.8.3"
   }
 }

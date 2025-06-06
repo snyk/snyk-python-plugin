@@ -8,3 +8,4 @@ testtools==\
     2.3.0 # this has a cycle (fixtures ==> testtools);
 ./packages/prometheus_client-0.6.0
 opentelemetry-distro[otlp] == 0.35b0
+jsonschema==4.23.0
