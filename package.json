@@ -28,7 +28,7 @@
     "@snyk/dep-graph": "^1.28.1",
     "shescape": "2.1.4",
     "snyk-poetry-lockfile-parser": "^1.9.0",
-    "tmp": "0.2.3"
+    "tmp": "0.2.4"
   },
   "devDependencies": {
     "@types/jest": "^28.1.3",
