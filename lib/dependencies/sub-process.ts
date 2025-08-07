@@ -1,16 +1,41 @@
 import { spawn, SpawnOptions, spawnSync } from 'child_process';
-import { quoteAll } from 'shescape/stateless';
+import { escapeAll, quoteAll } from 'shescape/stateless';
+import * as os from 'node:os';
 
 interface ProcessOptions {
   cwd?: string;
   env?: { [name: string]: string };
 }
 
-function makeSpawnOptions(options?: ProcessOptions) {
+function processArguments(
+  args: string[],
+  spawnOptions: SpawnOptions
+): string[] {
+  if (!args) {
+    return args;
+  }
+
+  // Best practices, also security-wise, is to not invoke processes in a shell, but as a stand-alone command.
+  // However, on Windows, we need to invoke the command in a shell, due to internal NodeJS problems with this approach
+  // see: https://nodejs.org/docs/latest-v24.x/api/child_process.html#spawning-bat-and-cmd-files-on-windows
+  const isWinLocal = /^win/.test(os.platform());
+  if (isWinLocal) {
+    spawnOptions.shell = true;
+    // Further, we distinguish between quoting and escaping arguments since quoteAll does not support quoting without
+    // supplying a shell, but escapeAll does.
+    // See this (very long) discussion for more details: https://github.com/ericcornelissen/shescape/issues/2009
+    return quoteAll(args, { ...spawnOptions, flagProtection: false });
+  } else {
+    return escapeAll(args, { ...spawnOptions, flagProtection: false });
+  }
+}
+
+function makeSpawnOptions(options?: ProcessOptions): SpawnOptions {
   const spawnOptions: SpawnOptions = {
-    shell: true,
+    shell: false,
     env: { ...process.env },
   };
+
   if (options && options.cwd) {
     spawnOptions.cwd = options.cwd;
   }
@@ -19,7 +44,7 @@ function makeSpawnOptions(options?: ProcessOptions) {
   }
 
   // Before spawning an external process, we look if we need to restore the system proxy configuration,
-  // which overides the cli internal proxy configuration.
+  // which overrides the cli internal proxy configuration.
   if (process.env.SNYK_SYSTEM_HTTP_PROXY !== undefined) {
     spawnOptions.env.HTTP_PROXY = process.env.SNYK_SYSTEM_HTTP_PROXY;
   }
@@ -39,17 +64,24 @@ export function execute(
   options?: ProcessOptions
 ): Promise<string> {
   const spawnOptions = makeSpawnOptions(options);
-  args = quoteAll(args, { flagProtection: false });
+  const processedArgs = processArguments(args, spawnOptions);
+
   return new Promise((resolve, reject) => {
     let stdout = '';
     let stderr = '';
 
-    const proc = spawn(command, args, spawnOptions);
+    const proc = spawn(command, processedArgs, spawnOptions);
     proc.stdout.on('data', (data) => {
       stdout = stdout + data;
     });
+
     proc.stderr.on('data', (data) => {
       stderr = stderr + data;
+    });
+
+    proc.on('error', (err) => {
+      stderr = err.message;
+      return reject({ stdout, stderr });
     });
 
     proc.on('close', (code) => {
@@ -67,7 +99,7 @@ export function executeSync(
   options?: ProcessOptions
 ) {
   const spawnOptions = makeSpawnOptions(options);
-  args = quoteAll(args, { flagProtection: false });
+  const processedArgs = processArguments(args, spawnOptions);
 
-  return spawnSync(command, args, spawnOptions);
+  return spawnSync(command, processedArgs, spawnOptions);
 }
