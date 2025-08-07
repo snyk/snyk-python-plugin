@@ -103,7 +103,7 @@ function createVenv(venvDir: string) {
     revert = deactivateVirtualenv();
   }
   try {
-    let proc = subProcess.executeSync('python3 -m venv', [venvDir]);
+    let proc = subProcess.executeSync('python3', ['-m', 'venv', venvDir]);
     if (proc.status !== 0) {
       console.error(proc.stdout.toString() + '\n' + proc.stderr.toString());
       throw new Error('Failed to create virtualenv in ' + venvDir);
