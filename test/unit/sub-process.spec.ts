@@ -1,4 +1,4 @@
-import { executeSync } from '../../lib/dependencies/sub-process';
+import { executeSync, execute } from '../../lib/dependencies/sub-process';
 
 describe('Test sub-process.ts', () => {
   it('test restoring proxy setting in executeSync()', async () => {
@@ -88,5 +88,45 @@ describe('Test sub-process.ts', () => {
       options
     );
     expect(output.stdout.toString().trim()).toEqual(expectedNoProxy);
+  });
+
+  describe('Security: Command injection protection', () => {
+    it('should prevent command injection in executeSync()', () => {
+      // Test that malicious command strings are treated as literal filenames (not executed)
+      const maliciousCommand = 'python3; echo injected';
+      const result = executeSync(maliciousCommand, ['--version']);
+
+      // Should fail with ENOENT because 'python3; echo injected' is not a valid executable
+      expect(result.status).not.toBe(0);
+      expect((result.error as any)?.code).toBe('ENOENT');
+    });
+
+    it('should prevent command injection in execute()', async () => {
+      // Test that malicious command strings are treated as literal filenames (not executed)
+      const maliciousCommand = 'python3; whoami; echo injected';
+
+      try {
+        await execute(maliciousCommand, ['--version']);
+        fail('Expected execute() to reject with an error');
+      } catch (error: any) {
+        // Should fail with ENOENT because the malicious command is treated as a literal filename
+        expect(error.code).toBe('ENOENT');
+        expect(error.syscall).toBe(`spawn ${maliciousCommand}`);
+      }
+    });
+
+    it('should execute legitimate commands normally', async () => {
+      // Verify that normal commands still work correctly
+      const result = await execute('python3', ['--version']);
+      expect(result).toMatch(/Python \d+\.\d+\.\d+/);
+    });
+
+    it('should handle arguments with special characters safely', async () => {
+      // Verify that special characters in arguments don't enable injection
+      const result = await execute('python3', ['--version', '; echo injected']);
+      // Should only show Python version, not execute the injected command
+      expect(result).toMatch(/Python \d+\.\d+\.\d+/);
+      expect(result).not.toMatch(/injected/);
+    });
   });
 });
