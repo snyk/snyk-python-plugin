@@ -150,7 +150,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'jaraco.collections',
-              version: '5.1.0',
             },
             directDeps: ['irc'],
           },
@@ -532,7 +531,6 @@ describe('inspect', () => {
           {
             pkg: {
               name: 'jaraco.collections',
-              version: '5.1.0',
             },
             directDeps: ['irc'],
           },
