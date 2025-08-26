@@ -1,0 +1,6 @@
+# Test fixture with packages that won't be installed
+# to verify JSON output is valid when allowMissing=true
+non-existing-package-snyk==1.0.0
+another-missing-package==2.0.0
+pip-system-certs==4.0
+wrapt==1.17.2

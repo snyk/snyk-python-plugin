@@ -504,7 +504,10 @@ def create_dependencies_tree_by_req_file_path(
             top_level_provenance_map,
         )
 
+        # Flush stderr before JSON output to prevent stream contamination
+        sys.stderr.flush()
         print(json.dumps(package_tree))
+        sys.stderr.flush()
 
 
 def main():
