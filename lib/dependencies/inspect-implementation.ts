@@ -13,6 +13,50 @@ import {
   UnparsableRequirementError,
 } from '../errors';
 
+export function parseJsonWithContaminationFiltering(
+  rawOutput: string
+): PartialDepTree {
+  // Remove debug logs from our output first
+  const debugLogPattern = /SNYK-DEBUG:.*$/gm;
+  const output = rawOutput.replace(debugLogPattern, '').trim();
+
+  // Strategy 1: Try parsing the output as-is (most common case)
+  try {
+    return JSON.parse(output) as PartialDepTree;
+  } catch (firstError) {
+    // Strategy 2: Look for JSON content within the output (handles prefix/suffix contamination)
+    const jsonMatch = output.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const result = JSON.parse(jsonMatch[0]) as PartialDepTree;
+
+        // Log what contamination we filtered out
+        const filteredContent = output.replace(jsonMatch[0], '');
+
+        if (filteredContent.length > 0) {
+          console.warn(
+            `[snyk-python-plugin] Filtered contamination from JSON output: ` +
+              `${filteredContent.length} characters removed. ` +
+              `Contamination content: ${JSON.stringify(
+                filteredContent.substring(0, 200)
+              )}${filteredContent.length > 200 ? '...' : ''}`
+          );
+        }
+
+        return result;
+      } catch (secondError) {
+        // If we still can't parse, fall through to error
+      }
+    }
+
+    // Both strategies failed - throw a descriptive error
+    throw new Error(
+      `Failed to parse JSON output after contamination filtering. ` +
+        `Original output (first 500 chars): ${output.slice(0, 500)}`
+    );
+  }
+}
+
 const returnedTargetFile = (originalTargetFile) => {
   const basename = path.basename(originalTargetFile);
 
@@ -262,7 +306,7 @@ export async function inspectInstalledDeps(
       }
     );
 
-    const result = JSON.parse(output) as PartialDepTree;
+    const result = parseJsonWithContaminationFiltering(output);
     return buildDepGraph(result, projectName);
   } catch (error) {
     if (typeof error === 'string') {
