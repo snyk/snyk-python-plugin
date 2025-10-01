@@ -234,7 +234,7 @@ class Requirement(object):
                 req.specs = pkg_req.specs
             except Exception as e:
                 if os.path.exists(line):
-                    raise ValueError(f'Requirement line {line} is a local path, but could not be parsed')
+                    raise ValueError('Requirement line {0} is a local path, but could not be parsed'.format(line))
                 else: 
                     raise e
         if not req.original_name:
