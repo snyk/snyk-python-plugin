@@ -1,13 +1,13 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@7.1.0
+  node: circleci/node@7.2.0
   prodsec: snyk/prodsec-orb@1
 
 defaults: &defaults
   resource_class: medium
   docker:
-    - image: cimg/node:19.6.1
+    - image: cimg/node:20.19.1
 
 jobs:
   security-scans:
@@ -45,7 +45,10 @@ jobs:
       - setup_remote_docker
       - when:
           condition:
-            equal: [ "3.12", <<parameters.python_version>>]
+            or:
+              - equal: [ "3.12", <<parameters.python_version>>]
+              - equal: [ "3.13", <<parameters.python_version>>]
+              - equal: [ "3.14", <<parameters.python_version>>]
           steps:
           - run:
               name: Run tests
@@ -159,6 +162,8 @@ workflows:
                 '3.10',
                 '3.11',
                 '3.12',
+                '3.13',
+                '3.14',
               ]
           filters:
             branches:
