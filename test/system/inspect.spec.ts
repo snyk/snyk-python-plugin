@@ -951,7 +951,7 @@ describe('inspect', () => {
     it('should return correct target file for pipenv project when relative path to pipfile lock file is passed', async () => {
       mockedExecuteSync.mockReturnValueOnce({
         status: 0,
-      } as SpawnSyncReturns<Buffer>);
+      } as SpawnSyncReturns<Buffer<ArrayBuffer>>);
       mockedExecute.mockResolvedValueOnce('Python 3.9.5');
       mockedExecute.mockResolvedValueOnce(
         '{"name": "pipenv-app", "version": "0.0.0", "dependencies": {"jinja2": {"name": "jinja2", "version": "3.0.1", "dependencies": {"MarkupSafe": {"name": "markupsafe", "version": "2.0.1"}}}}, "packageFormatVersion": "pip:0.0.1"}'
@@ -1176,7 +1176,7 @@ describe('inspect', () => {
     beforeEach(() => {
       mockedExecuteSync.mockReturnValueOnce({
         status: 0,
-      } as SpawnSyncReturns<Buffer>);
+      } as SpawnSyncReturns<Buffer<ArrayBuffer>>);
       mockedExecute.mockResolvedValueOnce('Python 3.9.5');
       mockedExecute.mockResolvedValueOnce(
         fs.readFileSync(
