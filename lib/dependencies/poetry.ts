@@ -39,8 +39,22 @@ export async function getPoetryDependencies(
       dependencyGraph,
     };
   } catch (error) {
-    throw new Error(
-      'Error processing poetry project. ' + (error.message || error)
-    );
+    let errorMessage: string;
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (
+      error &&
+      typeof error === 'object' &&
+      ('stderr' in error || 'stdout' in error)
+    ) {
+      errorMessage = `stderr: ${error.stderr}\nstdout: ${error.stdout}`;
+      if (errorMessage.includes('ENOENT') && errorMessage.includes(command)) {
+        errorMessage = `Could not find '${command}' on your PATH.\n${errorMessage}`;
+      }
+    } else {
+      errorMessage = JSON.stringify(error);
+    }
+
+    throw new Error('Error processing poetry project. ' + errorMessage);
   }
 }
