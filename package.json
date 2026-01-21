@@ -26,6 +26,7 @@
   "dependencies": {
     "@snyk/cli-interface": "^2.11.2",
     "@snyk/dep-graph": "^1.28.1",
+    "@snyk/error-catalog-nodejs-public": "^5.73.0",
     "shescape": "2.1.6",
     "snyk-poetry-lockfile-parser": "^1.9.1",
     "tmp": "0.2.3"

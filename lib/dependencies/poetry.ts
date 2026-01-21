@@ -4,6 +4,7 @@ import { SinglePackageResult } from '@snyk/cli-interface/legacy/plugin';
 import * as poetry from 'snyk-poetry-lockfile-parser';
 import { getMetaData } from './inspect-implementation';
 import { FILENAMES } from '../types';
+import { Snyk } from '@snyk/error-catalog-nodejs-public';
 
 export async function getPoetryDependencies(
   command: string,
@@ -55,6 +56,8 @@ export async function getPoetryDependencies(
       errorMessage = JSON.stringify(error);
     }
 
-    throw new Error('Error processing poetry project. ' + errorMessage);
+    throw new Snyk.RequirementsNotMetError(
+      'Error processing poetry project. ' + errorMessage
+    );
   }
 }
