@@ -11,7 +11,9 @@ export async function getPoetryDependencies(
   targetFile: string,
   includeDevDeps = false
 ): Promise<SinglePackageResult> {
-  const lockfilePath = path.join(root, targetFile);
+  const lockfilePath = path.isAbsolute(targetFile)
+    ? targetFile
+    : path.join(root, targetFile);
   const baseDir = path.dirname(lockfilePath);
   const manifestPath = path.join(baseDir, FILENAMES.poetry.manifest);
   const manifestExists = fs.existsSync(manifestPath);
