@@ -289,9 +289,9 @@ describe('inspect', () => {
         expected: [
           {
             pkg: {
-              name: 'zope-interface',
+              name: 'zope.interface',
             },
-            directDeps: ['twisted'],
+            directDeps: ['twisted', 'zope.interface'],
           },
           {
             pkg: {
@@ -670,9 +670,9 @@ describe('inspect', () => {
         expected: [
           {
             pkg: {
-              name: 'zope-interface',
+              name: 'zope.interface',
             },
-            directDeps: ['twisted'],
+            directDeps: ['twisted', 'zope.interface'],
           },
           {
             pkg: {

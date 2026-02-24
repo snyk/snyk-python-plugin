@@ -41,7 +41,22 @@ def construct_tree(index):
     :returns: tree of pkgs and their dependencies
     :rtype: dict
     """
-    return dict((p, [ReqPackage(r, index.get(r.key))
+    # Build a canonicalized lookup map to handle package name variations
+    # (e.g., zope-interface vs zope.interface)
+    canonical_map = {}
+    for key, dist in index.items():
+        canonical_key = canonicalize_package_name(key)
+        canonical_map[canonical_key] = dist
+    
+    def get_dist_for_requirement(req):
+        # Try exact match first
+        if req.key in index:
+            return index[req.key]
+        # Fall back to canonicalized lookup
+        canonical_req_key = canonicalize_package_name(req.key)
+        return canonical_map.get(canonical_req_key)
+    
+    return dict((p, [ReqPackage(r, get_dist_for_requirement(r))
                      for r in p.requires()])
                 for p in index.values())
 
