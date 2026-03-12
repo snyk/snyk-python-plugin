@@ -1,8 +1,4 @@
-import {
-  EmptyManifestError,
-  inspect,
-  RequiredPackagesMissingError,
-} from '../../lib';
+import { inspect } from '../../lib';
 import * as testUtils from '../test-utils';
 import { chdirWorkspaces, ensureVirtualenv } from '../test-utils';
 import * as depGraphLib from '@snyk/dep-graph';
@@ -12,6 +8,7 @@ import * as subProcess from '../../lib/dependencies/sub-process';
 import { SpawnSyncReturns } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import { OpenSourceEcosystems } from '@snyk/error-catalog-nodejs-public';
 
 // Usually the setup of virtual environments can run for a while
 jest.setTimeout(180000);
@@ -741,7 +738,7 @@ describe('inspect', () => {
 
       await expect(
         async () => await inspect('.', FILENAMES.pip.manifest)
-      ).rejects.toThrow('Required packages missing: markupsafe');
+      ).rejects.toThrow('Missing required packages');
     });
 
     it('should fail on nonexistent referenced local depedency', async () => {
@@ -751,7 +748,7 @@ describe('inspect', () => {
       tearDown = testUtils.activateVirtualenv(workspace);
 
       await expect(inspect('.', FILENAMES.pip.manifest)).rejects.toThrow(
-        'Unparsable requirement line (Requirement line ./lib/nonexistent is a local path, but could not be parsed)'
+        'Unable to parse manifest file'
       );
     });
 
@@ -1101,7 +1098,7 @@ describe('inspect', () => {
       testUtils.chdirWorkspaces('pipfile-empty');
       await expect(
         async () => await inspect('.', FILENAMES.pipenv.manifest)
-      ).rejects.toThrow('No dependencies detected in manifest');
+      ).rejects.toThrow('Empty manifest file');
     });
   });
 
@@ -1227,31 +1224,48 @@ describe('inspect', () => {
     });
 
     describe('manifest file is empty', () => {
-      it('should throw EmptyManifestError', async () => {
+      it('should throw PythonEmptyManifestError', async () => {
         mockedExecute.mockResolvedValueOnce('Python 3.9.5');
         mockedExecute.mockRejectedValueOnce(
           'No dependencies detected in manifest.'
         );
         const manifestFilePath = 'path/to/requirements.txt';
 
-        await expect(inspect('.', manifestFilePath)).rejects.toThrowError(
-          new EmptyManifestError('No dependencies detected in manifest.')
-        );
+        const err = await inspect('.', manifestFilePath).catch((e) => e);
+
+        expect(err).toBeInstanceOf(OpenSourceEcosystems.EmptyManifestError);
+        expect(err).toMatchObject({
+          message: 'Empty manifest file',
+          detail: 'No dependencies detected in manifest.',
+          metadata: {
+            errorCode: 'SNYK-OS-0012',
+          },
+          isErrorCatalogError: true,
+        });
       });
     });
 
     describe('required packages were not installed', () => {
-      it('should throw RequiredPackagesMissingError', async () => {
+      it('should throw PythonRequiredPackagesMissingError', async () => {
         mockedExecute.mockResolvedValueOnce('Python 3.9.5');
         mockedExecute.mockRejectedValueOnce('Required packages missing');
         const manifestFilePath = 'path/to/requirements.txt';
 
-        await expect(inspect('.', manifestFilePath)).rejects.toThrowError(
-          new RequiredPackagesMissingError(
-            'Required packages missing\n' +
-              'Please run `pip install -r path/to/requirements.txt`. If the issue persists try again with --skip-unresolved.'
-          )
+        const err = await inspect('.', manifestFilePath).catch((e) => e);
+
+        expect(err).toBeInstanceOf(
+          OpenSourceEcosystems.PythonRequiredPackagesMissingError
         );
+        expect(err).toMatchObject({
+          message: 'Missing required packages',
+          detail:
+            'Required packages missing\n' +
+            'Please run `pip install -r path/to/requirements.txt`. If the issue persists try again with --skip-unresolved.',
+          metadata: {
+            errorCode: 'SNYK-OS-PYTHON-0013',
+          },
+          isErrorCatalogError: true,
+        });
       });
     });
   });
