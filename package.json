@@ -16,9 +16,9 @@
     "prepare": "npm run build",
     "test": "npm run test:jest",
     "test:jest": "jest",
-    "test:pysrc2": "cd pysrc; python -m unittest test_pip_resolve_py2 test_pipfile",
-    "test:pysrc3": "cd pysrc; python -m unittest test_pip_resolve_py3 test_pipfile",
-    "test:pysrc3_12": "cd pysrc; python -m unittest test_pip_resolve_py3_12 test_pipfile",
+    "test:pysrc2": "cd pysrc; python -m unittest test_pip_resolve_py2 test_pipfile test_requirements",
+    "test:pysrc3": "cd pysrc; python -m unittest test_pip_resolve_py3 test_pipfile test_requirements",
+    "test:pysrc3_12": "cd pysrc; python -m unittest test_pip_resolve_py3_12 test_pipfile test_requirements",
     "lint": "npm run build-tests && npm run format:check && eslint --cache '{lib,test}/**/*.{js,ts}'"
   },
   "author": "snyk.io",
