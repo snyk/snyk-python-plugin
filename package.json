@@ -48,5 +48,10 @@
     "ts-jest": "^28.0.8",
     "ts-node": "^8.10.2",
     "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "@snyk/error-catalog-nodejs-public": {
+      "uuid": "11.1.1"
+    }
   }
 }
