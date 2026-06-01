@@ -28,8 +28,8 @@
     "@snyk/dep-graph": "^1.28.1",
     "@snyk/error-catalog-nodejs-public": "^5.77.0",
     "shescape": "2.1.6",
-    "snyk-poetry-lockfile-parser": "^1.9.1",
-    "tmp": "0.2.3"
+    "snyk-poetry-lockfile-parser": "1.9.2",
+    "tmp": "0.2.7"
   },
   "devDependencies": {
     "@types/jest": "^28.1.3",
