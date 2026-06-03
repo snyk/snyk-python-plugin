@@ -172,7 +172,7 @@ workflows:
 
       - release:
           name: Release
-          context: nodejs-lib-release
+          context: github-release
           requires:
             - Security Scans
           filters:
