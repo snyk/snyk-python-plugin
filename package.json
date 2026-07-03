@@ -1,12 +1,25 @@
 {
   "name": "snyk-python-plugin",
   "description": "Snyk CLI Python plugin",
-  "homepage": "https://github.com/snyk/snyk-python-plugin",
+  "homepage": "https://github.com/snyk/snyk-python-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/snyk/snyk-python-plugin/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/snyk/snyk-python-plugin"
+    "url": "https://github.com/snyk/snyk-python-plugin.git"
   },
   "main": "dist/index.js",
+  "files": [
+    "dist",
+    "pysrc"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
