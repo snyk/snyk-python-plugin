@@ -9,7 +9,8 @@ export async function getPoetryDependencies(
   command: string,
   root: string,
   targetFile: string,
-  includeDevDeps = false
+  includeDevDeps = false,
+  includeComponentMetadata = false
 ): Promise<SinglePackageResult> {
   const lockfilePath = path.isAbsolute(targetFile)
     ? targetFile
@@ -32,7 +33,8 @@ export async function getPoetryDependencies(
     const dependencyGraph = poetry.buildDepGraph(
       manifestContents,
       lockfileContents,
-      includeDevDeps
+      includeDevDeps,
+      includeComponentMetadata
     );
     const plugin = await getMetaData(command, [], root, targetFile);
     return {

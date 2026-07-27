@@ -42,6 +42,74 @@ describe('getPoetryDepencies', () => {
     expect(poetry.buildDepGraph).toHaveBeenCalledTimes(1);
   });
 
+  it('threads includeComponentMetadata=false through to buildDepGraph by default', async () => {
+    jest.spyOn(poetry, 'buildDepGraph').mockReturnValue(mockDepGraph as any);
+    jest.spyOn(inspectImpl, 'getMetaData').mockResolvedValue(mockPlugin as any);
+
+    await getPoetryDependencies(
+      'python',
+      '/some/bogus/root',
+      path.join(POETRY_APP_ROOT, FILENAMES.poetry.lockfile)
+    );
+
+    expect(poetry.buildDepGraph).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(String),
+      false,
+      false
+    );
+  });
+
+  it('threads includeComponentMetadata=true through to buildDepGraph', async () => {
+    jest.spyOn(poetry, 'buildDepGraph').mockReturnValue(mockDepGraph as any);
+    jest.spyOn(inspectImpl, 'getMetaData').mockResolvedValue(mockPlugin as any);
+
+    await getPoetryDependencies(
+      'python',
+      '/some/bogus/root',
+      path.join(POETRY_APP_ROOT, FILENAMES.poetry.lockfile),
+      false,
+      true
+    );
+
+    expect(poetry.buildDepGraph).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(String),
+      false,
+      true
+    );
+  });
+
+  it('emits hash labels on nodes only when includeComponentMetadata is set (real parser)', async () => {
+    // Do NOT mock buildDepGraph here: exercise the linked parser end-to-end.
+    jest.spyOn(inspectImpl, 'getMetaData').mockResolvedValue(mockPlugin as any);
+    const targetFile = path.join(POETRY_APP_ROOT, FILENAMES.poetry.lockfile);
+
+    const withoutFlag = await getPoetryDependencies(
+      'python',
+      '/some/bogus/root',
+      targetFile,
+      false,
+      false
+    );
+    const withFlag = await getPoetryDependencies(
+      'python',
+      '/some/bogus/root',
+      targetFile,
+      false,
+      true
+    );
+
+    const hashLabels = (result: typeof withFlag): string[] =>
+      result
+        .dependencyGraph!.toJSON()
+        .graph.nodes.map((n) => n.info?.labels?.['hash:sha-256'])
+        .filter((v): v is string => Boolean(v));
+
+    expect(hashLabels(withoutFlag)).toHaveLength(0);
+    expect(hashLabels(withFlag).length).toBeGreaterThan(0);
+  });
+
   it('should throw exception when manifest does not exist', async () => {
     expect.assertions(1);
     const root = 'rootPath';
