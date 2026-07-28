@@ -100,14 +100,24 @@ describe('getPoetryDepencies', () => {
       true
     );
 
-    const hashLabels = (result: typeof withFlag): string[] =>
+    const labelValues = (result: typeof withFlag, key: string): string[] =>
       result
         .dependencyGraph!.toJSON()
-        .graph.nodes.map((n) => n.info?.labels?.['hash:sha-256'])
+        .graph.nodes.map((n) => n.info?.labels?.[key])
         .filter((v): v is string => Boolean(v));
 
-    expect(hashLabels(withoutFlag)).toHaveLength(0);
-    expect(hashLabels(withFlag).length).toBeGreaterThan(0);
+    expect(labelValues(withoutFlag, 'hash:sha-256')).toHaveLength(0);
+    expect(labelValues(withoutFlag, 'distribution:url')).toHaveLength(0);
+
+    const hashes = labelValues(withFlag, 'hash:sha-256');
+    const urls = labelValues(withFlag, 'distribution:url');
+    expect(hashes.length).toBeGreaterThan(0);
+    // These fixture deps come from PyPI (no [package.source]), so each also gets a
+    // pypi.org project-page URL whose fragment names the file the hash describes.
+    expect(urls.length).toBeGreaterThan(0);
+    for (const url of urls) {
+      expect(url).toMatch(/^https:\/\/pypi\.org\/simple\/[^/]+\/#.+$/);
+    }
   });
 
   it('should throw exception when manifest does not exist', async () => {
