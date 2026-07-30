@@ -42,6 +42,84 @@ describe('getPoetryDepencies', () => {
     expect(poetry.buildDepGraph).toHaveBeenCalledTimes(1);
   });
 
+  it('threads includeComponentMetadata=false through to buildDepGraph by default', async () => {
+    jest.spyOn(poetry, 'buildDepGraph').mockReturnValue(mockDepGraph as any);
+    jest.spyOn(inspectImpl, 'getMetaData').mockResolvedValue(mockPlugin as any);
+
+    await getPoetryDependencies(
+      'python',
+      '/some/bogus/root',
+      path.join(POETRY_APP_ROOT, FILENAMES.poetry.lockfile)
+    );
+
+    expect(poetry.buildDepGraph).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(String),
+      false,
+      false
+    );
+  });
+
+  it('threads includeComponentMetadata=true through to buildDepGraph', async () => {
+    jest.spyOn(poetry, 'buildDepGraph').mockReturnValue(mockDepGraph as any);
+    jest.spyOn(inspectImpl, 'getMetaData').mockResolvedValue(mockPlugin as any);
+
+    await getPoetryDependencies(
+      'python',
+      '/some/bogus/root',
+      path.join(POETRY_APP_ROOT, FILENAMES.poetry.lockfile),
+      false,
+      true
+    );
+
+    expect(poetry.buildDepGraph).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(String),
+      false,
+      true
+    );
+  });
+
+  it('emits hash labels on nodes only when includeComponentMetadata is set (real parser)', async () => {
+    // Do NOT mock buildDepGraph here: exercise the linked parser end-to-end.
+    jest.spyOn(inspectImpl, 'getMetaData').mockResolvedValue(mockPlugin as any);
+    const targetFile = path.join(POETRY_APP_ROOT, FILENAMES.poetry.lockfile);
+
+    const withoutFlag = await getPoetryDependencies(
+      'python',
+      '/some/bogus/root',
+      targetFile,
+      false,
+      false
+    );
+    const withFlag = await getPoetryDependencies(
+      'python',
+      '/some/bogus/root',
+      targetFile,
+      false,
+      true
+    );
+
+    const labelValues = (result: typeof withFlag, key: string): string[] =>
+      result
+        .dependencyGraph!.toJSON()
+        .graph.nodes.map((n) => n.info?.labels?.[key])
+        .filter((v): v is string => Boolean(v));
+
+    expect(labelValues(withoutFlag, 'hash:sha-256')).toHaveLength(0);
+    expect(labelValues(withoutFlag, 'distribution:url')).toHaveLength(0);
+
+    const hashes = labelValues(withFlag, 'hash:sha-256');
+    const urls = labelValues(withFlag, 'distribution:url');
+    expect(hashes.length).toBeGreaterThan(0);
+    // These fixture deps come from PyPI (no [package.source]), so each also gets a
+    // pypi.org project-page URL whose fragment names the file the hash describes.
+    expect(urls.length).toBeGreaterThan(0);
+    for (const url of urls) {
+      expect(url).toMatch(/^https:\/\/pypi\.org\/simple\/[^/]+\/#.+$/);
+    }
+  });
+
   it('should throw exception when manifest does not exist', async () => {
     expect.assertions(1);
     const root = 'rootPath';
