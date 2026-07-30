@@ -29,7 +29,9 @@ export async function getDependencies(
   }
   let command = options.command || 'python';
   const includeDevDeps = !!(options.dev || false);
-  const includeComponentMetadata = !!(options.includeComponentMetadata || false);
+  const includeComponentMetadata = !!(
+    options.includeComponentMetadata || false
+  );
 
   // handle poetry projects by parsing manifest & lockfile and return a dep-graph
   if (path.basename(targetFile) === FILENAMES.poetry.lockfile) {
