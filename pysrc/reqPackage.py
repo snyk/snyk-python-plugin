@@ -15,6 +15,13 @@ class ReqPackage(Package):
     def __init__(self, obj, dist=None):
         super(ReqPackage, self).__init__(obj)
         self.dist = dist
+        
+        # Use the distribution's key and project_name if available,
+        # as the requirement string may use a different naming convention
+        # (e.g., requirement uses 'zope-interface' but package is 'zope.interface')
+        if dist:
+            self.key = dist.key
+            self.project_name = dist.project_name
 
     @property
     def version_spec(self):

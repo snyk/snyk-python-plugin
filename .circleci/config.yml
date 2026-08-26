@@ -1,13 +1,21 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@7.2.0
+  node: circleci/node@7.2.1
   prodsec: snyk/prodsec-orb@1
 
 defaults: &defaults
   resource_class: medium
   docker:
     - image: cimg/node:20.19.1
+
+commands:
+  install_deps:
+    description: Install dependencies
+    steps:
+      - run:
+          name: Install dependencies
+          command: npm install
 
 jobs:
   security-scans:
@@ -46,45 +54,44 @@ jobs:
       - when:
           condition:
             or:
-              - equal: [ "3.12", <<parameters.python_version>>]
-              - equal: [ "3.13", <<parameters.python_version>>]
-              - equal: [ "3.14", <<parameters.python_version>>]
+              - equal: ['3.12', <<parameters.python_version>>]
+              - equal: ['3.13', <<parameters.python_version>>]
+              - equal: ['3.14', <<parameters.python_version>>]
           steps:
-          - run:
-              name: Run tests
-              no_output_timeout: 30m
-              command: |
-                BUILDKIT_PROGRESS=plain \
-                DOCKER_BUILDKIT=1 \
-                docker build \
-                    --build-arg NODE_VERSION=<< parameters.node_version >> \
-                    --build-arg PYTHON_VERSION=<< parameters.python_version >> \
-                    --build-arg PY_TEST_CMD=test:pysrc3_12 \
-                    -t snyk-python-plugin:integration-tests-<< parameters.python_version >> \
-                    -f test/Dockerfile .
-                docker run --rm snyk-python-plugin:integration-tests-<< parameters.python_version >>
+            - run:
+                name: Run tests
+                no_output_timeout: 30m
+                command: |
+                  BUILDKIT_PROGRESS=plain \
+                  DOCKER_BUILDKIT=1 \
+                  docker build \
+                      --build-arg NODE_VERSION=<< parameters.node_version >> \
+                      --build-arg PYTHON_VERSION=<< parameters.python_version >> \
+                      --build-arg PY_TEST_CMD=test:pysrc3_12 \
+                      -t snyk-python-plugin:integration-tests-<< parameters.python_version >> \
+                      -f test/Dockerfile .
+                  docker run --rm snyk-python-plugin:integration-tests-<< parameters.python_version >>
       - when:
           condition:
             or:
-              - equal: [ "3.8", <<parameters.python_version>>]
-              - equal: [ "3.9", <<parameters.python_version>>]
-              - equal: [ "3.10", <<parameters.python_version>>]
-              - equal: [ "3.11", <<parameters.python_version>>]
+              - equal: ['3.8', <<parameters.python_version>>]
+              - equal: ['3.9', <<parameters.python_version>>]
+              - equal: ['3.10', <<parameters.python_version>>]
+              - equal: ['3.11', <<parameters.python_version>>]
           steps:
-          - run:
-              name: Run tests
-              no_output_timeout: 30m
-              command: |
-                BUILDKIT_PROGRESS=plain \
-                DOCKER_BUILDKIT=1 \
-                docker build \
-                    --build-arg NODE_VERSION=<< parameters.node_version >> \
-                    --build-arg PYTHON_VERSION=<< parameters.python_version >> \
-                    --build-arg PY_TEST_CMD=test:pysrc3 \
-                    -t snyk-python-plugin:integration-tests-<< parameters.python_version >> \
-                    -f test/Dockerfile .
-                docker run --rm snyk-python-plugin:integration-tests-<< parameters.python_version >>
-
+            - run:
+                name: Run tests
+                no_output_timeout: 30m
+                command: |
+                  BUILDKIT_PROGRESS=plain \
+                  DOCKER_BUILDKIT=1 \
+                  docker build \
+                      --build-arg NODE_VERSION=<< parameters.node_version >> \
+                      --build-arg PYTHON_VERSION=<< parameters.python_version >> \
+                      --build-arg PY_TEST_CMD=test:pysrc3 \
+                      -t snyk-python-plugin:integration-tests-<< parameters.python_version >> \
+                      -f test/Dockerfile .
+                  docker run --rm snyk-python-plugin:integration-tests-<< parameters.python_version >>
 
   build:
     <<: *defaults
@@ -99,26 +106,24 @@ jobs:
   release:
     <<: *defaults
     docker:
-      - image: node:18
+      - image: cimg/node:24.18
     steps:
       - checkout
-      - node/install-packages:
-          with-cache: false
-          override-ci-command: npm install
-      - run:
-          command: npm run build
+      - install_deps
       - run:
           name: Release
-          command: npx semantic-release@21
+          command: |
+            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            npx semantic-release@25.0.5
 
 workflows:
-  version: 2
   test_and_release:
     jobs:
       - prodsec/secrets-scan:
           name: Scan repository for secrets
           context:
             - snyk-bot-slack
+            - prodsec-orb-runtime
           channel: snyk-vuln-alerts-sca
           filters:
             branches:
@@ -129,6 +134,7 @@ workflows:
           name: Security Scans
           context:
             - open_source-managed
+            - prodsec-orb-runtime
 
       - lint:
           name: Lint
@@ -151,20 +157,9 @@ workflows:
             - Build
           matrix:
             parameters:
-              node_version: [
-                '24',
-                '22',
-                '20',
-              ]
-              python_version: [
-                '3.8',
-                '3.9',
-                '3.10',
-                '3.11',
-                '3.12',
-                '3.13',
-                '3.14',
-              ]
+              node_version: ['24', '22', '20']
+              python_version:
+                ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
           filters:
             branches:
               ignore:
@@ -172,7 +167,9 @@ workflows:
 
       - release:
           name: Release
-          context: nodejs-lib-release
+          context: 
+            - nodejs-install
+            - github-release
           requires:
             - Security Scans
           filters:

@@ -202,11 +202,15 @@ class Requirement(object):
                 req.hash_name, req.hash = get_hash_info(fragment)
                 req.subdirectory = fragment.get('subdirectory')
             req.path = groups['path']
-        elif os.path.isfile(line) and line.lower().endswith(".whl"):
+        elif line.lower().endswith(".whl"):
+            # Recognize .whl files by extension without checking file existence.
+            # File existence check would fail when working directory differs (e.g., with --all-projects).
+            # The parser's job is to extract package names; file validation happens at pip install time.
             match = re.match(WHL_FILE_REGEX, os.path.basename(line))
             if match:
                 req.name = match.group("name")
             req.local_file = True
+            req.path = line
         # Attempts to determine if the line refers to a local directory that could be
         # an installable Python package
         elif os.path.isdir(line) and os.path.isfile(os.path.join(line, "setup.py")):

@@ -6,12 +6,7 @@ import * as subProcess from './sub-process';
 import { DepGraph } from '@snyk/dep-graph';
 import { buildDepGraph, PartialDepTree } from './build-dep-graph';
 import { FILENAMES } from '../types';
-import {
-  EmptyManifestError,
-  FailedToWriteTempFiles,
-  RequiredPackagesMissingError,
-  UnparsableRequirementError,
-} from '../errors';
+import { OpenSourceEcosystems } from '@snyk/error-catalog-nodejs-public';
 
 export function parseJsonWithContaminationFiltering(
   rawOutput: string
@@ -276,10 +271,11 @@ export async function inspectInstalledDeps(
     });
     dumpAllFilesInTempDir(tempDirObj.name);
   } catch (e) {
-    throw new FailedToWriteTempFiles(
+    throw new OpenSourceEcosystems.PythonFailedToWriteTempFilesError(
       `Failed to write temporary files:\n` +
         `${e}\n` +
-        `Try running again with SNYK_TMP_PATH=<some directory>, where <some directory> is a valid directory that you have permissions to write to.`
+        `Try running again with SNYK_TMP_PATH=<some directory>, where <some directory> is a valid directory that you have permissions to write to.`,
+      { e }
     );
   }
 
@@ -314,7 +310,9 @@ export async function inspectInstalledDeps(
       const noDependenciesDetected = error.includes(emptyManifestMsg);
 
       if (noDependenciesDetected) {
-        throw new EmptyManifestError(emptyManifestMsg);
+        throw new OpenSourceEcosystems.EmptyManifestError(emptyManifestMsg, {
+          error,
+        });
       }
 
       if (error.indexOf('Required packages missing') !== -1) {
@@ -329,12 +327,19 @@ export async function inspectInstalledDeps(
           errMsg += '\nPlease run `pip install -r ' + targetFile + '`.';
         }
         errMsg += ' If the issue persists try again with --skip-unresolved.';
-
-        throw new RequiredPackagesMissingError(errMsg);
+        throw new OpenSourceEcosystems.PythonRequiredPackagesMissingError(
+          errMsg,
+          { error }
+        );
       }
 
       if (error.indexOf('Unparsable requirement line') !== -1) {
-        throw new UnparsableRequirementError(error);
+        throw new OpenSourceEcosystems.UnparseableManifestError(
+          'Unparsable requirement',
+          {
+            error,
+          }
+        );
       }
     }
 

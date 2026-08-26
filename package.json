@@ -1,12 +1,25 @@
 {
   "name": "snyk-python-plugin",
   "description": "Snyk CLI Python plugin",
-  "homepage": "https://github.com/snyk/snyk-python-plugin",
+  "homepage": "https://github.com/snyk/snyk-python-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/snyk/snyk-python-plugin/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/snyk/snyk-python-plugin"
+    "url": "https://github.com/snyk/snyk-python-plugin.git"
   },
   "main": "dist/index.js",
+  "files": [
+    "dist",
+    "pysrc"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
@@ -16,9 +29,9 @@
     "prepare": "npm run build",
     "test": "npm run test:jest",
     "test:jest": "jest",
-    "test:pysrc2": "cd pysrc; python -m unittest test_pip_resolve_py2 test_pipfile",
-    "test:pysrc3": "cd pysrc; python -m unittest test_pip_resolve_py3 test_pipfile",
-    "test:pysrc3_12": "cd pysrc; python -m unittest test_pip_resolve_py3_12 test_pipfile",
+    "test:pysrc2": "cd pysrc; python -m unittest test_pip_resolve_py2 test_pipfile test_requirements",
+    "test:pysrc3": "cd pysrc; python -m unittest test_pip_resolve_py3 test_pipfile test_requirements",
+    "test:pysrc3_12": "cd pysrc; python -m unittest test_pip_resolve_py3_12 test_pipfile test_requirements",
     "lint": "npm run build-tests && npm run format:check && eslint --cache '{lib,test}/**/*.{js,ts}'"
   },
   "author": "snyk.io",
@@ -26,9 +39,10 @@
   "dependencies": {
     "@snyk/cli-interface": "^2.11.2",
     "@snyk/dep-graph": "^1.28.1",
-    "shescape": "2.1.6",
-    "snyk-poetry-lockfile-parser": "^1.9.1",
-    "tmp": "0.2.3"
+    "@snyk/error-catalog-nodejs-public": "^5.77.0",
+    "shescape": "2.1.14",
+    "snyk-poetry-lockfile-parser": "1.10.1",
+    "tmp": "0.2.7"
   },
   "devDependencies": {
     "@types/jest": "^28.1.3",
