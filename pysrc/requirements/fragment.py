@@ -11,7 +11,7 @@ extras_require_search = re.compile(
 
 
 def parse_fragment(fragment_string):
-    """Takes a fragment string nd returns a dict of the components"""
+    """Takes a fragment string and returns a dict of the components"""
     fragment_string = fragment_string.lstrip('#')
 
     try:
