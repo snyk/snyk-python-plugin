@@ -12,6 +12,7 @@ export interface PythonInspectOptions {
   args?: string[];
   projectName?: string; // Allow providing a project name for the root node and package
   allowEmpty?: boolean; // Allow manifest without dependencies (mostly for SCM)
+  includeComponentMetadata?: boolean; // Emit hash:/distribution: labels on dep-graph nodes (poetry only)
 }
 
 type Options = api.SingleSubprojectInspectOptions & PythonInspectOptions;
@@ -28,10 +29,19 @@ export async function getDependencies(
   }
   let command = options.command || 'python';
   const includeDevDeps = !!(options.dev || false);
+  const includeComponentMetadata = !!(
+    options.includeComponentMetadata || false
+  );
 
   // handle poetry projects by parsing manifest & lockfile and return a dep-graph
   if (path.basename(targetFile) === FILENAMES.poetry.lockfile) {
-    return getPoetryDependencies(command, root, targetFile, includeDevDeps);
+    return getPoetryDependencies(
+      command,
+      root,
+      targetFile,
+      includeDevDeps,
+      includeComponentMetadata
+    );
   }
 
   let baseargs: string[] = [];

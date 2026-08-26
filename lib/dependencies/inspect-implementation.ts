@@ -6,12 +6,51 @@ import * as subProcess from './sub-process';
 import { DepGraph } from '@snyk/dep-graph';
 import { buildDepGraph, PartialDepTree } from './build-dep-graph';
 import { FILENAMES } from '../types';
-import {
-  EmptyManifestError,
-  FailedToWriteTempFiles,
-  RequiredPackagesMissingError,
-  UnparsableRequirementError,
-} from '../errors';
+import { OpenSourceEcosystems } from '@snyk/error-catalog-nodejs-public';
+
+export function parseJsonWithContaminationFiltering(
+  rawOutput: string
+): PartialDepTree {
+  // Remove debug logs from our output first
+  const debugLogPattern = /SNYK-DEBUG:.*$/gm;
+  const output = rawOutput.replace(debugLogPattern, '').trim();
+
+  // Strategy 1: Try parsing the output as-is (most common case)
+  try {
+    return JSON.parse(output) as PartialDepTree;
+  } catch (firstError) {
+    // Strategy 2: Look for JSON content within the output (handles prefix/suffix contamination)
+    const jsonMatch = output.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const result = JSON.parse(jsonMatch[0]) as PartialDepTree;
+
+        // Log what contamination we filtered out
+        const filteredContent = output.replace(jsonMatch[0], '');
+
+        if (filteredContent.length > 0) {
+          console.warn(
+            `[snyk-python-plugin] Filtered contamination from JSON output: ` +
+              `${filteredContent.length} characters removed. ` +
+              `Contamination content: ${JSON.stringify(
+                filteredContent.substring(0, 200)
+              )}${filteredContent.length > 200 ? '...' : ''}`
+          );
+        }
+
+        return result;
+      } catch (secondError) {
+        // If we still can't parse, fall through to error
+      }
+    }
+
+    // Both strategies failed - throw a descriptive error
+    throw new Error(
+      `Failed to parse JSON output after contamination filtering. ` +
+        `Original output (first 500 chars): ${output.slice(0, 500)}`
+    );
+  }
+}
 
 const returnedTargetFile = (originalTargetFile) => {
   const basename = path.basename(originalTargetFile);
@@ -232,10 +271,11 @@ export async function inspectInstalledDeps(
     });
     dumpAllFilesInTempDir(tempDirObj.name);
   } catch (e) {
-    throw new FailedToWriteTempFiles(
+    throw new OpenSourceEcosystems.PythonFailedToWriteTempFilesError(
       `Failed to write temporary files:\n` +
         `${e}\n` +
-        `Try running again with SNYK_TMP_PATH=<some directory>, where <some directory> is a valid directory that you have permissions to write to.`
+        `Try running again with SNYK_TMP_PATH=<some directory>, where <some directory> is a valid directory that you have permissions to write to.`,
+      { e }
     );
   }
 
@@ -262,7 +302,7 @@ export async function inspectInstalledDeps(
       }
     );
 
-    const result = JSON.parse(output) as PartialDepTree;
+    const result = parseJsonWithContaminationFiltering(output);
     return buildDepGraph(result, projectName);
   } catch (error) {
     if (typeof error === 'string') {
@@ -270,7 +310,9 @@ export async function inspectInstalledDeps(
       const noDependenciesDetected = error.includes(emptyManifestMsg);
 
       if (noDependenciesDetected) {
-        throw new EmptyManifestError(emptyManifestMsg);
+        throw new OpenSourceEcosystems.EmptyManifestError(emptyManifestMsg, {
+          error,
+        });
       }
 
       if (error.indexOf('Required packages missing') !== -1) {
@@ -285,12 +327,19 @@ export async function inspectInstalledDeps(
           errMsg += '\nPlease run `pip install -r ' + targetFile + '`.';
         }
         errMsg += ' If the issue persists try again with --skip-unresolved.';
-
-        throw new RequiredPackagesMissingError(errMsg);
+        throw new OpenSourceEcosystems.PythonRequiredPackagesMissingError(
+          errMsg,
+          { error }
+        );
       }
 
       if (error.indexOf('Unparsable requirement line') !== -1) {
-        throw new UnparsableRequirementError(error);
+        throw new OpenSourceEcosystems.UnparseableManifestError(
+          'Unparsable requirement',
+          {
+            error,
+          }
+        );
       }
     }
 

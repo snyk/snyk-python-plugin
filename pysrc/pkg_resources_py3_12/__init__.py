@@ -3102,6 +3102,30 @@ class DistInfoDistribution(Distribution):
             metadata = self.get_metadata(self.PKG_INFO)
             self._pkg_info = email.parser.Parser().parsestr(metadata)
             return self._pkg_info
+    
+    def _reload_version(self):
+        """
+        Reload version and project_name from METADATA file.
+        
+        For .dist-info directories, the directory name may use underscores
+        (e.g., zope_event-6.1.dist-info) even though the actual package name
+        uses dots (e.g., zope.event). We need to read the correct Name from
+        the METADATA file to avoid mismatches.
+        """
+        md_version = self._get_version()
+        if md_version:
+            self._version = md_version
+        
+        # Read the Name field from METADATA
+        try:
+            md_name = self._parsed_pkg_info.get('Name')
+            if md_name:
+                self.project_name = safe_name(md_name.strip())
+        except Exception:
+            # If we can't read metadata, keep the name from directory parsing
+            pass
+        
+        return self
 
     @property
     def _dep_map(self):
