@@ -311,6 +311,28 @@ describe('inspect', () => {
             },
             directDeps: ['opentelemetry-distro'],
           },
+          {
+            pkg: {
+              name: 'opentelemetry-exporter-otlp',
+              version: '1.14.0',
+            },
+            directDeps: ['opentelemetry-distro'],
+          },
+        ],
+      },
+      {
+        // gdown requires requests[socks]; pysocks only arrives via that
+        // nested extra
+        workspace: 'pip-app-nested-extras',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'pysocks',
+            },
+            directDeps: ['gdown'],
+          },
         ],
       },
       {
@@ -691,6 +713,28 @@ describe('inspect', () => {
               version: '0.35b0',
             },
             directDeps: ['opentelemetry-distro'],
+          },
+          {
+            pkg: {
+              name: 'opentelemetry-exporter-otlp',
+              version: '1.14.0',
+            },
+            directDeps: ['opentelemetry-distro'],
+          },
+        ],
+      },
+      {
+        // gdown requires requests[socks]; pysocks only arrives via that
+        // nested extra
+        workspace: 'pip-app-nested-extras',
+        uninstallPackages: [],
+        pluginOpts: {},
+        expected: [
+          {
+            pkg: {
+              name: 'pysocks',
+            },
+            directDeps: ['gdown'],
           },
         ],
       },
