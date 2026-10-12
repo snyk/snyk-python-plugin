@@ -8,15 +8,13 @@ import utils
 import requirements
 import pipfile
 import codecs
-from operator import le, lt, gt, ge, eq, ne
 from constants import DEFAULT_OPTIONS, DepsManager
+from requirements.requirement import PER_REQ_PARAM_REGEX
 
 import pkg_resources
 
-PYTHON_MARKER_REGEX = re.compile(r'python_version\s*('
-                                 r'?P<operator>==|<=|>=|>|<)\s*[\'"]('
-                                 r'?P<python_version>.+?)[\'"]')
-SYSTEM_MARKER_REGEX = re.compile(r'sys_platform\s*==\s*[\'"]([\w.-]+)[\'"]')
+# pip strips a comment only when '#' starts the line or follows whitespace
+COMMENT_REGEX = re.compile(r'(^|\s+)#.*$')
 DEPENDENCIES = 'dependencies'
 VERSION = 'version'
 NAME = 'name'
@@ -187,95 +185,60 @@ def create_tree_of_packages_dependencies(
     return dir_as_root
 
 
-def satisfies_python_requirement(parsed_operator, py_version):
-    """Check if a package required python versions matches the one of the system
-
-    Args:
-        parsed_operator (str): operator to compare by i.e. >, <=, ==
-        py_version (str): The python version that is required by the package
-
-    Returns:
-        bool: True if the version matches, False otherwise
+def get_marker_module():
+    """Returns the `packaging.markers` module of the pkg_resources copy that
+    pkg_resources.py selects for this interpreter.
     """
-    # TODO: use python semver library to compare versions
-    operator = {
-        ">": gt,
-        "==": eq,
-        "<": lt,
-        "<=": le,
-        ">=": ge,
-        '!=': ne,
-    }
-    operator_func = operator.get(parsed_operator)
-    system_py_version_tuple = (sys.version_info[0], sys.version_info[1])
-    py_version_tuple = tuple(py_version.split('.'))  # tuple of strings
-
-    # For wildcard versions like 3.9.*
-    if py_version_tuple[-1] == '*':
-        system_py_version_tuple = system_py_version_tuple[0]
-        py_version_tuple = int(py_version_tuple[0])  # tuple of integers
-
-    # For dev/alpha/beta/rc versions like 3.9.dev0
-    elif not py_version_tuple[-1].isdigit():
-        py_version_tuple = (int(py_version_tuple[0]), int(py_version_tuple[1]))
-
-    # For stable releases like 3.9.2
+    if sys.version_info[0] >= 3:
+        if sys.version_info[1] >= 12:
+            from pip._vendor.packaging import markers
+        else:
+            from pkg_resources_py3.extern.packaging import markers
     else:
-        py_version_tuple = tuple(int(x) for x in py_version_tuple)
-
-    result = operator_func(system_py_version_tuple, py_version_tuple)
-
-    return result
+        from pkg_resources_py2.extern.packaging import markers
+    return markers
 
 
 def get_markers_text(requirement):
+    """Returns the PEP 508 environment marker of a requirement, or None."""
     if isinstance(requirement, pipfile.PipfileRequirement):
         return requirement.markers
-    return requirement.line
+    if getattr(requirement, 'specifier', False):
+        # parsed from the line together with the rest of the specifier
+        return getattr(requirement, 'markers', None)
+
+    # URL and path lines keep the marker in the raw line. pip only splits
+    # a URL on "; " because ";" can be part of the URL itself.
+    line = PER_REQ_PARAM_REGEX.sub('', requirement.line or '')
+    line = COMMENT_REGEX.sub('', line)
+    separator = '; ' if '://' in line else ';'
+    if separator not in line:
+        return None
+    return line.split(separator, 1)[1].strip() or None
 
 
-def matches_python_version(requirement):
-    """Filter out requirements that should not be installed
-    in this Python version.
-    See: https://www.python.org/dev/peps/pep-0508/#environment-markers
+def matches_markers(requirement):
+    """Filter out requirements whose environment marker is false for this
+    interpreter, the same way pip does when installing them.
+    See: https://peps.python.org/pep-0508/#environment-markers
+
+    The script runs in the project's interpreter, so the default marker
+    environment is the one pip installed into. `extra` is empty, as no
+    extra can be requested for a top-level requirement. A marker that
+    can't be evaluated keeps the requirement, so it is still checked.
     """
     markers_text = get_markers_text(requirement)
-    if not (markers_text and re.match(".*;.*python_version", markers_text)):
+    if not markers_text:
         return True
 
-    cond_text = markers_text.split(";", 1)[1]
-
-    # Gloss over the 'and' case and return true on the first matching python version
-
-    for sub_exp in re.split(r"\s*(?:and|or)\s*", cond_text):
-        match = PYTHON_MARKER_REGEX.search(sub_exp)
-
-        if match:
-            match_dict = match.groupdict()
-
-            if len(match_dict) == 2 and satisfies_python_requirement(
-                    match_dict['operator'],
-                    match_dict['python_version']
-            ):
-                return True
-
-    return False
-
-
-def matches_environment(requirement):
-    """Filter out requirements that should not be installed
-    in this environment. Only sys_platform is inspected right now.
-    This should be expanded to include other environment markers.
-    See: https://www.python.org/dev/peps/pep-0508/#environment-markers
-    """
-    sys_platform = sys.platform.lower()
-    markers_text = get_markers_text(requirement)
-    if markers_text and 'sys_platform' in markers_text:
-        matches = SYSTEM_MARKER_REGEX.findall(markers_text)
-        lowercase_matches = [match.lower() for match in matches]
-        if lowercase_matches:
-            return sys_platform.lower() in lowercase_matches
-    return True
+    try:
+        marker = get_marker_module().Marker(markers_text)
+        return bool(marker.evaluate({'extra': ''}))
+    except Exception as e:
+        sys.stderr.write(
+            "Couldn't evaluate environment marker '{}' of {}, treating it "
+            "as required: {}\n".format(markers_text, requirement.name, e))
+        return True
 
 
 def is_testable(requirement):
@@ -399,9 +362,8 @@ def filter_requirements(req_list):
         list: if requirements were found in the requirements file.
         empty list: if no requirements were found in the requirements file.
     """
-    req_list = filter(matches_environment, req_list)
+    req_list = filter(matches_markers, req_list)
     req_list = filter(is_testable, req_list)
-    req_list = filter(matches_python_version, req_list)
     req_list = [r for r in req_list if r.name]
 
     for req in req_list:

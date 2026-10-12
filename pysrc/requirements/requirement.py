@@ -66,6 +66,8 @@ class Requirement(object):
     * ``specs`` - a list of specs for this requirement
       (eg. "mymodule>1.5,<1.6" => [('>', '1.5'), ('<', '1.6')])
     * ``provenance`` - a tuple of (file_name, start_line, end_line), line numbers are 1-based
+    * ``markers`` - the PEP 508 environment marker of a requirement specifier
+      (eg. "mymodule; python_version < '3.8'" => "python_version < \"3.8\"")
     """
 
     def __init__(self, line):
@@ -86,6 +88,9 @@ class Requirement(object):
         self.specs = []
         self.provenance = None
         self.original_name = None
+        # PEP 508 environment marker text, set when the line is a requirement
+        # specifier (URL and path lines carry it in `line` instead)
+        self.markers = None
 
     def __repr__(self):
         return '<Requirement: "{0}">'.format(self.line)
@@ -236,6 +241,7 @@ class Requirement(object):
                 req.original_name = pkg_req.name
                 req.extras = list(pkg_req.extras)
                 req.specs = pkg_req.specs
+                req.markers = str(pkg_req.marker) if pkg_req.marker else None
             except Exception as e:
                 if os.path.exists(line):
                     raise ValueError('Requirement line {0} is a local path, but could not be parsed'.format(line))
