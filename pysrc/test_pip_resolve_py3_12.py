@@ -9,6 +9,7 @@ from pip_resolve import (
 from collections import namedtuple
 
 import unittest
+from test_markers import TestRequirementMarkers, TestPipfileMarkers  # noqa: F401
 
 from unittest.mock import patch
 

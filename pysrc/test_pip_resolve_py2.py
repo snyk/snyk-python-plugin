@@ -8,6 +8,7 @@ from pip_resolve import satisfies_python_requirement, \
 from collections import namedtuple
 
 import unittest
+from test_markers import TestRequirementMarkers, TestPipfileMarkers  # noqa: F401
 
 try:
     from mock import patch

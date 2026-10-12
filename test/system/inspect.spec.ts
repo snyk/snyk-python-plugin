@@ -519,6 +519,23 @@ describe('inspect', () => {
       expect(result.dependencyGraph).not.toBe(undefined);
     });
 
+    it('should skip top-level requirements whose environment markers are false', async () => {
+      // uv export lists PyPy-only packages; pip skips them on CPython, so they
+      // must not be reported as missing
+      const workspace = 'pip-app-uv-export-env-markers';
+      testUtils.chdirWorkspaces(workspace);
+      testUtils.ensureVirtualenv(workspace);
+      tearDown = testUtils.activateVirtualenv(workspace);
+      testUtils.pipInstall();
+
+      const result = await inspect('.', FILENAMES.pip.manifest);
+
+      const pkgNames = result.dependencyGraph.getPkgs().map((pkg) => pkg.name);
+      expect(pkgNames).toContain('six');
+      expect(pkgNames).not.toContain('cffi');
+      expect(pkgNames).not.toContain('pycparser');
+    });
+
     it.each([
       {
         workspace: 'pip-app',
