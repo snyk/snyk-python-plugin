@@ -3146,7 +3146,7 @@ class DistInfoDistribution(Distribution):
 
         def reqs_for_extra(extra):
             for req in reqs:
-                if not req.marker or req.marker.evaluate({'extra': extra}):
+                if not req.marker or _evaluate_extra_marker(req.marker, extra):
                     yield req
 
         common = types.MappingProxyType(dict.fromkeys(reqs_for_extra(None)))
@@ -3157,6 +3157,41 @@ class DistInfoDistribution(Distribution):
             dm[s_extra] = [r for r in reqs_for_extra(extra) if r not in common]
 
         return dm
+
+
+_EXTRA_MARKER_RE = re.compile(
+    r"""\bextra\s*(==|!=)\s*(['"])(.*?)\2"""
+    r"""|(['"])(.*?)\4\s*(==|!=)\s*\bextra\b"""
+)
+
+
+def _evaluate_extra_marker(marker, extra):
+    """Evaluate `marker` for the given extra.
+
+    packaging < 26 (vendored in pip <= 25.x) compares an extra named like a
+    version, e.g. `extra == "v1"`, as a version and raises InvalidVersion
+    (or TypeError for extra=None on packaging 21.x). In that case compare
+    extras as normalised names (PEP 685) instead.
+    """
+    try:
+        return marker.evaluate({'extra': extra})
+    except (packaging.version.InvalidVersion, TypeError):
+        pass
+
+    current = packaging.utils.canonicalize_name(extra or '')
+
+    def replace(match):
+        if match.group(1):
+            op, value = match.group(1), match.group(3)
+        else:
+            op, value = match.group(6), match.group(5)
+        equal = packaging.utils.canonicalize_name(value) == current
+        if equal == (op == '=='):
+            return 'python_version >= "0"'
+        return 'python_version < "0"'
+
+    rewritten = _EXTRA_MARKER_RE.sub(replace, str(marker))
+    return packaging.markers.Marker(rewritten).evaluate()
 
 
 _distributionImpl = {

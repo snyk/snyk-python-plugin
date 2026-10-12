@@ -42,6 +42,8 @@ FAKE_DISTS = {
         'Provides-Extra: brotli',
         'Requires-Dist: brotli-pkg ; extra == "brotli" and python_version >= "3"',
         'Requires-Dist: never-pkg ; extra == "brotli" and python_version < "3"',
+        'Provides-Extra: socks',
+        'Requires-Dist: not-installed-pkg ; extra == "socks"',
     ]),
     'h2-pkg': ('4.0.0', ['Requires-Dist: hpack-pkg']),
     'hpack-pkg': ('4.0.0', []),
@@ -55,6 +57,13 @@ FAKE_DISTS = {
         'Requires-Dist: legacy-pkg ; extra == "v1"',
     ]),
     'legacy-pkg': ('0.1.0', []),
+    # Extras whose declared spelling differs only in separators (PEP 685).
+    'sep-pkg': ('1.0.0', [
+        'Provides-Extra: some_extra',
+        'Requires-Dist: base-pkg ; extra == "some_extra"',
+        'Provides-Extra: dot.ted',
+        'Requires-Dist: legacy-pkg ; extra == "dot.ted"',
+    ]),
     # Installed in the venv but not required by anything.
     'unrelated-tool': ('9.9.9', []),
 }
@@ -164,9 +173,24 @@ class TestExtras(unittest.TestCase):
         tree = self.resolve('agent-pkg[does-not-exist,litellm]\n')
         self.assertEqual(children(tree, 'agent-pkg'), ['base-pkg', 'llm-pkg'])
 
+    def test_extra_whose_dependency_is_not_installed(self):
+        # e.g. installed with --no-deps: skip the missing extra dependency
+        # rather than failing a scan that used to work
+        tree = self.resolve('http-pkg[http2,socks]\n')
+        self.assertEqual(children(tree, 'http-pkg'), ['base-pkg', 'h2-pkg'])
+
+    def test_extra_in_egg_fragment(self):
+        tree = self.resolve('./vendor/agent-pkg#egg=agent-pkg[litellm]\n')
+        self.assertEqual(children(tree), ['agent-pkg'])
+        self.assertEqual(children(tree, 'agent-pkg'), ['base-pkg', 'llm-pkg'])
+
     def test_names_and_extras_are_normalised(self):
         tree = self.resolve('Agent_Pkg[LiteLLM]\n')
         self.assertEqual(children(tree, 'agent-pkg'), ['base-pkg', 'llm-pkg'])
+
+    def test_extra_separators_are_normalised(self):
+        tree = self.resolve('sep-pkg[Some-Extra,dot_ted]\n')
+        self.assertEqual(children(tree, 'sep-pkg'), ['base-pkg', 'legacy-pkg'])
 
     def test_extra_named_like_a_version(self):
         # OSM-3990: evaluating `extra == "v1"` raised on Python < 3.12, and

@@ -1,7 +1,6 @@
 import re
 import sys
 import pip_resolve
-import pkg_resources
 
 from reqPackage import ReqPackage
 from distPackage import DistPackage
@@ -57,8 +56,17 @@ def _declared_extras(dist, extras):
     """
     if not extras:
         return ()
-    available = set(dist.extras)
-    return tuple(sorted(e for e in extras if pkg_resources.safe_extra(e) in available))
+    # Compare names the way pip does (PEP 685): case-insensitive, with runs
+    # of '-', '_' and '.' treated as equal; pass on the declared spelling.
+    declared = dict((_normalise_extra(e), e) for e in dist.extras)
+    return tuple(sorted(set(
+        declared[_normalise_extra(e)] for e in extras
+        if _normalise_extra(e) in declared
+    )))
+
+
+def _normalise_extra(extra):
+    return re.sub(r'[-_.]+', '-', extra).lower()
 
 
 def resolve_requested_extras(index, root_requirements):
@@ -132,8 +140,19 @@ def construct_tree(index, requested_extras=None):
         return canonical_map.get(canonical_req_key)
 
     def requires(p):
-        extras = requested_extras.get(canonicalize_package_name(p.key))
-        return p.requires(_declared_extras(p, extras))
+        base = p.requires()
+        extras = _declared_extras(
+            p, requested_extras.get(canonicalize_package_name(p.key)))
+        if not extras:
+            return base
+        # Only follow an extra's requirements when they are installed: pip
+        # may have been run with --no-deps, or the extra not installed at
+        # all, and that should not fail a scan that worked before.
+        reqs = list(base)
+        for r in p.requires(extras)[len(base):]:
+            if r not in reqs and get_dist_for_requirement(r) is not None:
+                reqs.append(r)
+        return reqs
 
     return dict((p, [ReqPackage(r, get_dist_for_requirement(r))
                      for r in requires(p)])
