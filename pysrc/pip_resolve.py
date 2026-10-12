@@ -9,12 +9,19 @@ import requirements
 import pipfile
 import codecs
 from constants import DEFAULT_OPTIONS, DepsManager
-from requirements.requirement import PER_REQ_PARAM_REGEX
 
 import pkg_resources
 
 # pip strips a comment only when '#' starts the line or follows whitespace
 COMMENT_REGEX = re.compile(r'(^|\s+)#.*$')
+# per-requirement options such as `--hash=sha256:...` or `--hash sha256:...`
+OPTION_REGEX = re.compile(r'\s+--[a-z][a-z-]*(?:=\S+|\s+(?!-)\S+)?')
+URL_REGEX = re.compile(r'^[a-zA-Z][a-zA-Z0-9+.-]*://')
+URL_MARKER_SEPARATOR_REGEX = re.compile(r'\s;|;\s')
+EXTRA_MARKER_REGEX = re.compile(
+    r"""\bextra\s*(==|!=)\s*(['"])(.*?)\2"""
+    r"""|(['"])(.*?)\4\s*(==|!=)\s*\bextra\b"""
+)
 DEPENDENCIES = 'dependencies'
 VERSION = 'version'
 NAME = 'name'
@@ -186,14 +193,19 @@ def create_tree_of_packages_dependencies(
 
 
 def get_marker_module():
-    """Returns the `packaging.markers` module of the pkg_resources copy that
+    """Returns the `packaging.markers` module to evaluate markers with.
+
+    pip's own copy comes first, as pip used it to decide what to install.
+    Otherwise use the copy of the vendored pkg_resources that
     pkg_resources.py selects for this interpreter.
     """
+    try:
+        from pip._vendor.packaging import markers
+        return markers
+    except Exception:
+        pass
     if sys.version_info[0] >= 3:
-        if sys.version_info[1] >= 12:
-            from pip._vendor.packaging import markers
-        else:
-            from pkg_resources_py3.extern.packaging import markers
+        from pkg_resources_py3.extern.packaging import markers
     else:
         from pkg_resources_py2.extern.packaging import markers
     return markers
@@ -203,18 +215,50 @@ def get_markers_text(requirement):
     """Returns the PEP 508 environment marker of a requirement, or None."""
     if isinstance(requirement, pipfile.PipfileRequirement):
         return requirement.markers
+    line = requirement.line or ''
     if getattr(requirement, 'specifier', False):
-        # parsed from the line together with the rest of the specifier
-        return getattr(requirement, 'markers', None)
+        # parsed from the line together with the rest of the specifier,
+        # except `name @ url;marker`, where the parser keeps it in the URL
+        markers = getattr(requirement, 'markers', None)
+        if markers or '@' not in line:
+            return markers
 
-    # URL and path lines keep the marker in the raw line. pip only splits
-    # a URL on "; " because ";" can be part of the URL itself.
-    line = PER_REQ_PARAM_REGEX.sub('', requirement.line or '')
+    # URL and path lines keep the marker in the raw line
+    line = OPTION_REGEX.sub('', line)
     line = COMMENT_REGEX.sub('', line)
-    separator = '; ' if '://' in line else ';'
-    if separator not in line:
+    if URL_REGEX.match(line):
+        # ";" can be part of a URL, so like pip only split on a ";" next to
+        # whitespace, or (as pip <= 25 did) on one after the #fragment
+        match = URL_MARKER_SEPARATOR_REGEX.search(line)
+        if match:
+            index = line.index(';', match.start())
+        elif ';' in line.partition('#')[2]:
+            index = line.index(';', line.index('#'))
+        else:
+            return None
+    elif ';' in line:
+        index = line.index(';')
+    else:
         return None
-    return line.split(separator, 1)[1].strip() or None
+    return line[index + 1:].strip() or None
+
+
+def resolve_extra_markers(markers_text):
+    """Replaces `extra` comparisons with constant markers, as `extra` is
+    always empty for a top-level requirement. packaging < 26 compares an
+    extra named like a version (e.g. `extra == "v1"`) as a version and
+    raises, and packaging 21 gets `extra != "v1"` wrong.
+    """
+    def replace(match):
+        if match.group(1):
+            op, value = match.group(1), match.group(3)
+        else:
+            op, value = match.group(6), match.group(5)
+        is_empty = value.strip() == ''
+        return 'python_version >= "0"' if is_empty == (op == '==') \
+            else 'python_version < "0"'
+
+    return EXTRA_MARKER_REGEX.sub(replace, markers_text)
 
 
 def matches_markers(requirement):
@@ -232,12 +276,15 @@ def matches_markers(requirement):
         return True
 
     try:
-        marker = get_marker_module().Marker(markers_text)
+        marker = get_marker_module().Marker(resolve_extra_markers(markers_text))
         return bool(marker.evaluate({'extra': ''}))
     except Exception as e:
-        sys.stderr.write(
-            "Couldn't evaluate environment marker '{}' of {}, treating it "
-            "as required: {}\n".format(markers_text, requirement.name, e))
+        try:
+            sys.stderr.write(
+                "Couldn't evaluate environment marker '%s' of %s, treating "
+                "it as required: %s\n" % (markers_text, requirement.name, e))
+        except Exception:
+            pass
         return True
 
 

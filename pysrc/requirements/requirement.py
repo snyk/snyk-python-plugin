@@ -241,7 +241,11 @@ class Requirement(object):
                 req.original_name = pkg_req.name
                 req.extras = list(pkg_req.extras)
                 req.specs = pkg_req.specs
-                req.markers = str(pkg_req.marker) if pkg_req.marker else None
+                try:
+                    req.markers = str(pkg_req.marker) if pkg_req.marker else None
+                except UnicodeError:
+                    # Python 2 with a non-ASCII marker: keep the requirement
+                    req.markers = None
             except Exception as e:
                 if os.path.exists(line):
                     raise ValueError('Requirement line {0} is a local path, but could not be parsed'.format(line))

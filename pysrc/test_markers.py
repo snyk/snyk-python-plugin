@@ -146,6 +146,15 @@ class TestRequirementMarkers(unittest.TestCase):
             "attrs==23.1.0 ; extra == 'test'",
         ]), ['six'])
 
+    def test_extra_named_like_a_version(self):
+        # packaging < 26 compares these as versions and raises
+        self.assertEqual(kept([
+            "six==1.16.0 ; extra != 'v1'",
+            "attrs==23.1.0 ; extra == 'v1'",
+            "idna==3.4 ; extra == \"1.0\" or os_name == 'not-an-os'",
+            "click==8.1.0 ; 'v1' != extra and os_name == '%s'" % os.name,
+        ]), ['six', 'click'])
+
     def test_no_marker_is_kept(self):
         self.assertEqual(kept(["six==1.16.0", "attrs==23.1.0"]), ['six', 'attrs'])
 
@@ -161,6 +170,25 @@ class TestRequirementMarkers(unittest.TestCase):
             "https://example.com/foo-1.0.tar.gz#egg=foo ; implementation_name == 'not-an-impl'",
             "bar @ https://example.com/bar-1.0.tar.gz ; implementation_name == 'not-an-impl'",
             "https://example.com/baz-1.0.tar.gz#egg=baz ; os_name == '%s'" % os.name,
+        ]), ['baz'])
+
+    def test_direct_reference_with_unspaced_marker(self):
+        line = "qux @ https://example.com/qux-1.0.tar.gz;python_version<'3'"
+        try:
+            Requirement.parse(line)
+        except Exception:
+            self.skipTest('this packaging version rejects the line')
+        self.assertEqual(kept([line, "six==1.16.0"]), ['six'])
+
+    def test_url_lines_marker_separators_and_options(self):
+        self.assertEqual(kept([
+            # space-form option after the marker
+            "https://example.com/foo-1.0.tar.gz#egg=foo ; python_version < '3' --hash sha256:abc",
+            # no space around ";" after the fragment, as pip <= 25 accepted
+            "https://example.com/bar-1.0.tar.gz#egg=bar;python_version < '3'",
+            "https://example.com/qux-1.0.tar.gz#egg=qux ;python_version < '3'",
+            # ";" inside the URL is not a marker separator
+            "https://example.com/baz;v=1/baz-1.0.tar.gz#egg=baz",
         ]), ['baz'])
 
     def test_malformed_marker_is_kept_without_crashing(self):
