@@ -57,6 +57,7 @@ jobs:
               - equal: ['3.12', <<parameters.python_version>>]
               - equal: ['3.13', <<parameters.python_version>>]
               - equal: ['3.14', <<parameters.python_version>>]
+              - equal: ['3.15', <<parameters.python_version>>]
           steps:
             - run:
                 name: Run tests
@@ -159,7 +160,7 @@ workflows:
             parameters:
               node_version: ['24', '22', '20']
               python_version:
-                ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+                ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14', '3.15']
           filters:
             branches:
               ignore:
