@@ -17,22 +17,32 @@ try:
 except ImportError:
     from io import StringIO
 
-try:
-    from mock import patch
-except ImportError:
-    from unittest.mock import patch
-
 import pip_resolve
 from pipfile import PipfileRequirement
 from requirements.requirement import Requirement
 
-IMPLEMENTATION_NAME = getattr(sys, 'implementation', None)
-IMPLEMENTATION_NAME = (
-    IMPLEMENTATION_NAME.name if IMPLEMENTATION_NAME else 'cpython')
+# the environment the markers are evaluated against, e.g. on Python 2
+# implementation_name is '' as sys.implementation doesn't exist
+ENVIRONMENT = pip_resolve.get_marker_module().default_environment()
+IMPLEMENTATION_NAME = ENVIRONMENT['implementation_name']
 MACHINE = platform.machine()
 SYSTEM = platform.system()
 FULL_VERSION = platform.python_version()
 PY_VERSION = '.'.join(platform.python_version_tuple()[:2])
+# version markers that are true and false on any interpreter
+TRUE_VERSION = "python_version >= '%s'" % PY_VERSION
+FALSE_VERSION = "python_version < '%s'" % PY_VERSION
+
+
+class captured_stderr(object):
+    """Swaps sys.stderr for a StringIO, without needing mock on Python 2."""
+
+    def __enter__(self):
+        self.original, sys.stderr = sys.stderr, StringIO()
+        return sys.stderr
+
+    def __exit__(self, *exc_info):
+        sys.stderr = self.original
 
 
 def kept(lines):
@@ -86,7 +96,7 @@ class TestRequirementMarkers(unittest.TestCase):
         self.assertEqual(kept([
             "six==1.16.0 ; python_full_version == '%s'" % FULL_VERSION,
             "attrs==23.1.0 ; python_full_version != '%s'" % FULL_VERSION,
-            "idna==3.4 ; python_full_version < '3.0.1'",
+            "idna==3.4 ; python_full_version < '%s'" % FULL_VERSION,
         ]), ['six'])
 
     def test_not_equal(self):
@@ -105,12 +115,12 @@ class TestRequirementMarkers(unittest.TestCase):
         self.assertEqual(kept([
             # false: the parenthesised group is false
             "attrs==23.1.0 ; (implementation_name == 'not-an-impl' "
-            "or os_name == 'not-an-os') and python_version >= '3'",
+            "or os_name == 'not-an-os') and %s" % TRUE_VERSION,
             # true: the parenthesised group is true
             "six==1.16.0 ; implementation_name == 'not-an-impl' "
-            "or (python_version >= '3' and sys_platform == '%s')" % sys.platform,
+            "or (%s and sys_platform == '%s')" % (TRUE_VERSION, sys.platform),
             # false: the first clause matching must not short-circuit 'and'
-            "idna==3.4 ; python_version >= '3' and python_version < '3.0'",
+            "idna==3.4 ; %s and %s" % (TRUE_VERSION, FALSE_VERSION),
         ]), ['six'])
 
     def test_reversed_operands(self):
@@ -126,8 +136,8 @@ class TestRequirementMarkers(unittest.TestCase):
         self.assertEqual(kept(["six==1.16.0 ; python_version > '3.9'"]), expected)
         self.assertEqual(kept([
             "six==1.16.0 ; python_version == '%s'" % PY_VERSION,
-            "attrs==23.1.0 ; python_version < '3.0'",
-            "idna==3.4 ; python_version >= '3'",
+            "attrs==23.1.0 ; " + FALSE_VERSION,
+            "idna==3.4 ; " + TRUE_VERSION,
         ]), ['six', 'idna'])
 
     def test_sys_platform(self):
@@ -155,6 +165,33 @@ class TestRequirementMarkers(unittest.TestCase):
             "click==8.1.0 ; 'v1' != extra and os_name == '%s'" % os.name,
         ]), ['six', 'click'])
 
+    def test_reversed_extra_after_another_quoted_value(self):
+        # only the value directly before `== extra` is compared with extra
+        self.assertEqual(kept([
+            "attrs==23.1.0 ; 'not-a-platform' == sys_platform or 'x' == extra",
+            "six==1.16.0 ; '%s' == sys_platform or 'x' == extra" % sys.platform,
+            "idna==3.4 ; os_name == 'not-an-os' or '' == extra",
+            "click==8.1.0 ; os_name == 'not-an-os' or \"v1\" != extra",
+        ]), ['six', 'idna', 'click'])
+
+    def test_resolve_extra_markers_output(self):
+        true, false = 'python_version >= "0"', 'python_version < "0"'
+        cases = [
+            ("extra == 'test'", false),
+            ("extra != 'v1'", true),
+            ("'' == extra", true),
+            ("'darwin' == sys_platform or 'x' == extra",
+             "'darwin' == sys_platform or " + false),
+            ("os_name == 'a' or '' == extra", "os_name == 'a' or " + true),
+            ("extra == \"it's\" and 'b' != extra", false + " and " + true),
+        ]
+        marker_module = pip_resolve.get_marker_module()
+        for markers_text, expected in cases:
+            resolved = pip_resolve.resolve_extra_markers(markers_text)
+            self.assertEqual(resolved, expected)
+            # the rewritten marker must still parse
+            marker_module.Marker(resolved)
+
     def test_no_marker_is_kept(self):
         self.assertEqual(kept(["six==1.16.0", "attrs==23.1.0"]), ['six', 'attrs'])
 
@@ -173,7 +210,7 @@ class TestRequirementMarkers(unittest.TestCase):
         ]), ['baz'])
 
     def test_direct_reference_with_unspaced_marker(self):
-        line = "qux @ https://example.com/qux-1.0.tar.gz;python_version<'3'"
+        line = "qux @ https://example.com/qux-1.0.tar.gz;python_version<'%s'" % PY_VERSION
         try:
             Requirement.parse(line)
         except Exception:
@@ -183,17 +220,16 @@ class TestRequirementMarkers(unittest.TestCase):
     def test_url_lines_marker_separators_and_options(self):
         self.assertEqual(kept([
             # space-form option after the marker
-            "https://example.com/foo-1.0.tar.gz#egg=foo ; python_version < '3' --hash sha256:abc",
+            "https://example.com/foo-1.0.tar.gz#egg=foo ; %s --hash sha256:abc" % FALSE_VERSION,
             # no space around ";" after the fragment, as pip <= 25 accepted
-            "https://example.com/bar-1.0.tar.gz#egg=bar;python_version < '3'",
-            "https://example.com/qux-1.0.tar.gz#egg=qux ;python_version < '3'",
+            "https://example.com/bar-1.0.tar.gz#egg=bar;" + FALSE_VERSION,
+            "https://example.com/qux-1.0.tar.gz#egg=qux ;" + FALSE_VERSION,
             # ";" inside the URL is not a marker separator
             "https://example.com/baz;v=1/baz-1.0.tar.gz#egg=baz",
         ]), ['baz'])
 
     def test_malformed_marker_is_kept_without_crashing(self):
-        stderr = StringIO()
-        with patch.object(sys, 'stderr', stderr):
+        with captured_stderr() as stderr:
             result = kept([
                 "https://example.com/foo-1.0.tar.gz#egg=foo ; python_version >>> '3'",
             ])
@@ -206,20 +242,29 @@ class TestPipfileMarkers(unittest.TestCase):
     def test_pipfile_markers_are_evaluated(self):
         self.assertEqual(kept_pipfile([
             pipfile_req('cffi', "implementation_name == 'not-an-impl'"),
-            pipfile_req('attrs', "python_version < '3.0'"),
+            pipfile_req('attrs', FALSE_VERSION),
             pipfile_req('idna', "platform_machine == 'not-a-machine'"),
-            pipfile_req('six', "python_version >= '3' and os_name == '%s'" % os.name),
+            pipfile_req('six', "%s and os_name == '%s'" % (TRUE_VERSION, os.name)),
             pipfile_req('click', None),
         ]), ['six', 'click'])
 
     def test_malformed_pipfile_marker_is_kept_without_crashing(self):
-        stderr = StringIO()
-        with patch.object(sys, 'stderr', stderr):
+        with captured_stderr() as stderr:
             result = kept_pipfile([
                 pipfile_req('stdeb', "sys_platform == 'linux' ; python_version != '3.4"),
             ])
         self.assertEqual(result, ['stdeb'])
         self.assertIn('stdeb', stderr.getvalue())
+
+    def test_semicolon_separated_pipfile_marker_is_kept(self):
+        # ";" isn't PEP 508 marker syntax and pipenv fails to lock with it,
+        # so the requirement is kept and checked rather than guessed at
+        with captured_stderr() as stderr:
+            result = kept_pipfile([
+                pipfile_req('waitress', "sys_platform == 'linux' ; python_version != '3.4'"),
+            ])
+        self.assertEqual(result, ['waitress'])
+        self.assertIn('waitress', stderr.getvalue())
 
 
 if __name__ == '__main__':

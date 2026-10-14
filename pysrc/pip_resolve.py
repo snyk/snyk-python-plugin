@@ -18,9 +18,11 @@ COMMENT_REGEX = re.compile(r'(^|\s+)#.*$')
 OPTION_REGEX = re.compile(r'\s+--[a-z][a-z-]*(?:=\S+|\s+(?!-)\S+)?')
 URL_REGEX = re.compile(r'^[a-zA-Z][a-zA-Z0-9+.-]*://')
 URL_MARKER_SEPARATOR_REGEX = re.compile(r'\s;|;\s')
+# a quoted value never spans another quote of its own kind, so the reversed
+# form only matches the value directly before `== extra`
 EXTRA_MARKER_REGEX = re.compile(
-    r"""\bextra\s*(==|!=)\s*(['"])(.*?)\2"""
-    r"""|(['"])(.*?)\4\s*(==|!=)\s*\bextra\b"""
+    r"""\bextra\s*(==|!=)\s*(['"])((?:(?!\2).)*)\2"""
+    r"""|(['"])((?:(?!\4).)*)\4\s*(==|!=)\s*\bextra\b"""
 )
 DEPENDENCIES = 'dependencies'
 VERSION = 'version'
