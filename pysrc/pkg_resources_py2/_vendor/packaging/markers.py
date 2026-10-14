@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function
 import operator
 import os
 import platform
+import re
 import sys
 
 from pkg_resources_py2.extern.pyparsing import ParseException, ParseResults, stringStart, stringEnd
@@ -211,6 +212,26 @@ def _get_env(environment, name):
     return value
 
 
+def _is_extra(node):
+    return isinstance(node, Variable) and node.value == "extra"
+
+
+def _eval_extra_op(lhs, op, rhs):
+    """Compare `extra` markers as normalised names rather than versions.
+
+    Backport of packaging>=22. pkg_resources evaluates a package's base
+    requirements with extra=None, and an extra named like a version (e.g.
+    `extra == "v1"`) was parsed as a version specifier, which raised.
+    """
+    lhs = re.sub(r"[-_.]+", "-", lhs or "").lower()
+    rhs = re.sub(r"[-_.]+", "-", rhs or "").lower()
+    if op.serialize() == "==":
+        return lhs == rhs
+    if op.serialize() == "!=":
+        return lhs != rhs
+    return _eval_op(lhs, op, rhs)
+
+
 def _evaluate_markers(markers, environment):
     groups = [[]]
 
@@ -229,7 +250,10 @@ def _evaluate_markers(markers, environment):
                 lhs_value = lhs.value
                 rhs_value = _get_env(environment, rhs.value)
 
-            groups[-1].append(_eval_op(lhs_value, op, rhs_value))
+            if _is_extra(lhs) or _is_extra(rhs):
+                groups[-1].append(_eval_extra_op(lhs_value, op, rhs_value))
+            else:
+                groups[-1].append(_eval_op(lhs_value, op, rhs_value))
         else:
             assert marker in ["and", "or"]
             if marker == "or":
