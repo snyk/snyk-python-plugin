@@ -33,14 +33,97 @@ def build_dist_index(pkgs):
     return dict((p.key, DistPackage(p)) for p in pkgs)
 
 
-def construct_tree(index):
+def _requirement_extras(requirement):
+    """Returns the extras requested by a manifest requirement.
+
+    Requirements parsed from requirements.txt / setup.py carry an `extras`
+    list. Pipfile requirements may instead carry them in the name, e.g.
+    'opentelemetry-distro[otlp]'.
+    """
+    extras = list(getattr(requirement, 'extras', None) or [])
+    name = getattr(requirement, 'name', None) or ''
+    match = re.search(r'\[([^]]*)]$', name)
+    if match:
+        extras.extend(e.strip() for e in match.group(1).split(',') if e.strip())
+    return extras
+
+
+def _declared_extras(dist, extras):
+    """Filters `extras` down to the ones that `dist` actually declares.
+
+    `Distribution.requires(extras=...)` raises UnknownExtra for an extra the
+    package does not provide; pip only warns in that case, so we skip it.
+    """
+    if not extras:
+        return ()
+    # Compare names the way pip does (PEP 685): case-insensitive, with runs
+    # of '-', '_' and '.' treated as equal; pass on the declared spelling.
+    declared = dict((_normalise_extra(e), e) for e in dist.extras)
+    return tuple(sorted(set(
+        declared[_normalise_extra(e)] for e in extras
+        if _normalise_extra(e) in declared
+    )))
+
+
+def _normalise_extra(extra):
+    return re.sub(r'[-_.]+', '-', extra).lower()
+
+
+def resolve_requested_extras(index, root_requirements):
+    """Works out which extras are requested for each installed package.
+
+    Walks the installed packages reachable from the manifest's requirements and
+    follows every edge with the extras requested on it, so that extras
+    requested inside a dependency's own metadata (e.g. `httpx[http2]`) are
+    honoured as well as top-level ones (e.g. `smolagents[litellm]`). When the
+    same package is reached with different extras, the union is used, which
+    mirrors what pip installs into the environment.
+
+    :param dict index: dist index ie. index of pkgs by their keys
+    :param list root_requirements: requirements from the manifest file
+    :returns: canonical package name -> set of requested extras
+    :rtype: dict
+    """
+    canonical_index = dict(
+        (canonicalize_package_name(key), dist) for key, dist in index.items()
+    )
+    requested = {}
+    queue = []
+
+    def request(name, extras):
+        key = canonicalize_package_name(remove_optional_dependencies(name))
+        if key not in canonical_index:
+            return
+        new_extras = set(extras) - requested.get(key, set())
+        if key not in requested or new_extras:
+            requested.setdefault(key, set()).update(new_extras)
+            queue.append(key)
+
+    for requirement in root_requirements:
+        if getattr(requirement, 'name', None):
+            request(requirement.name, _requirement_extras(requirement))
+
+    while queue:
+        key = queue.pop()
+        dist = canonical_index[key]
+        for child in dist.requires(_declared_extras(dist, requested[key])):
+            request(child.key, child.extras)
+
+    return dict((key, extras) for key, extras in requested.items() if extras)
+
+
+def construct_tree(index, requested_extras=None):
     """Construct tree representation of the pkgs from the index.
     The keys of the dict representing the tree will be objects of type
     DistPackage and the values will be list of ReqPackage objects.
     :param dict index: dist index ie. index of pkgs by their keys
+    :param dict requested_extras: optional map of canonical package name to
+        the extras requested for it (see `resolve_requested_extras`)
     :returns: tree of pkgs and their dependencies
     :rtype: dict
     """
+    requested_extras = requested_extras or {}
+
     # Build a canonicalized lookup map to handle package name variations
     # (e.g., zope-interface vs zope.interface)
     canonical_map = {}
@@ -55,9 +138,24 @@ def construct_tree(index):
         # Fall back to canonicalized lookup
         canonical_req_key = canonicalize_package_name(req.key)
         return canonical_map.get(canonical_req_key)
-    
+
+    def requires(p):
+        base = p.requires()
+        extras = _declared_extras(
+            p, requested_extras.get(canonicalize_package_name(p.key)))
+        if not extras:
+            return base
+        # Only follow an extra's requirements when they are installed: pip
+        # may have been run with --no-deps, or the extra not installed at
+        # all, and that should not fail a scan that worked before.
+        reqs = list(base)
+        for r in p.requires(extras)[len(base):]:
+            if r not in reqs and get_dist_for_requirement(r) is not None:
+                reqs.append(r)
+        return reqs
+
     return dict((p, [ReqPackage(r, get_dist_for_requirement(r))
-                     for r in p.requires()])
+                     for r in requires(p)])
                 for p in index.values())
 
 
@@ -157,24 +255,6 @@ def extract_dependencies(dependency_dict):
     return dependencies
 
 
-def construct_tree_map(index):
-    """Construct tree representation of the pkgs from the index.
-
-    The keys of the dict representing the tree will be strings and the values
-    will be list of ReqPackage objects.
-
-    Args:
-        index: dist index i.e. index of pkgs by their keys
-
-    Returns:
-        dict: tree of pkgs and their dependencies
-    """
-    return dict(
-        (p.key, [ReqPackage(r, index.get(r.key)) for r in p.requires()])
-        for p in index.values()
-    )
-
-
 def establish_optional_dependencies(
         venv_deps,
         required_deps,
@@ -196,6 +276,12 @@ def establish_optional_dependencies(
         list[str]: if optional dependencies were found.
         empty list: if no optional dependencies were found.
     """
+    # For requirements.txt, extras are resolved by following them through the
+    # dependency tree (see `resolve_requested_extras`), so the orphan-root
+    # heuristic below is not needed and would attach unrelated venv packages.
+    if deps_manager is DepsManager.PIP:
+        return []
+
     has_optional_dependencies = check_optional_dependencies(
         required_deps, deps_manager
     )
@@ -203,7 +289,11 @@ def establish_optional_dependencies(
     if not has_optional_dependencies:
         return []
 
-    dependency_map = construct_tree_map(venv_deps)
+    # Use the extras-aware tree, so packages already reached through an extra
+    # are not also attached as top-level dependencies.
+    dependency_map = dict(
+        (dist.key, requirements) for dist, requirements in dist_tree.items()
+    )
 
     # Identify the root nodes
     root_candidates = set(dependency_map.keys())

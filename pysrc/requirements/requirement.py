@@ -202,8 +202,7 @@ class Requirement(object):
             if groups['fragment']:
                 fragment = parse_fragment(groups['fragment'])
                 egg = fragment.get('egg')
-                name, extras = parse_extras_require(egg)
-                req.name = fragment.get('egg')
+                req.name, req.extras = parse_extras_require(egg)
                 req.hash_name, req.hash = get_hash_info(fragment)
                 req.subdirectory = fragment.get('subdirectory')
             req.path = groups['path']

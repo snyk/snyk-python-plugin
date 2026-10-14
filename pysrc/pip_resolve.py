@@ -468,11 +468,15 @@ def create_dependencies_tree_by_req_file_path(
     # get all installed packages distribution object
     dist_index = utils.build_dist_index(pkgs)
 
-    # get all installed distributions tree
-    dist_tree = utils.construct_tree(dist_index)
-
     # create a list of dependencies from the dependencies file
     required = get_requirements_list(requirements_file_path, options)
+
+    # work out which extras (e.g. `pkg[extra]`) are requested for each package,
+    # both in the manifest and inside the dependencies' own metadata
+    requested_extras = utils.resolve_requested_extras(dist_index, required)
+
+    # get all installed distributions tree
+    dist_tree = utils.construct_tree(dist_index, requested_extras)
 
     # Handle optional dependencies/arbitrary dependencies
     optional_dependencies = utils.establish_optional_dependencies(
