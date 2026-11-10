@@ -25,9 +25,9 @@ Snyk helps you find, fix and monitor for known vulnerabilities in your dependenc
 
 | Node |  Supported |
 |------|------------|
-| 20   | ✅          |
 | 22   | ✅          |
 | 24   | ✅          |
+| 26   | ✅          |
 
 ## Supported Pip & Python versions (requirements.txt)
 
@@ -57,7 +57,7 @@ their corresponding positions in the original manifest file.
 ### Developing and Testing
 
 Prerequisites:
-- Node.js 10+
+- Node.js 22
 - Python 2.7 or 3.6+
 - Installed outside of any virtualenv:
     - [pip](https://pip.pypa.io/en/stable/installing/)
