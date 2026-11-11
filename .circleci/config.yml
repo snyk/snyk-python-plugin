@@ -7,7 +7,7 @@ orbs:
 defaults: &defaults
   resource_class: medium
   docker:
-    - image: cimg/node:22
+    - image: cimg/node:24  # npm 11+ (Node 24) is needed for OIDC trusted publishing
 
 commands:
   install_deps:
@@ -107,7 +107,7 @@ jobs:
   release:
     <<: *defaults
     docker:
-      - image: cimg/node:22
+      - image: cimg/node:24  # npm 11+ (Node 24) is needed for OIDC trusted publishing
     steps:
       - checkout
       - install_deps
