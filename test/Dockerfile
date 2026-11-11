@@ -1,5 +1,7 @@
 ARG NODE_VERSION
-FROM node:${NODE_VERSION}
+# Pin the Debian release: node:26 defaults to trixie, whose GCC 14 fails to build
+# the old C extensions in the Python 3.13+ fixtures (e.g. posix_ipc 1.0.0).
+FROM node:${NODE_VERSION}-bookworm
 
 ARG PYTHON_VERSION
 ARG PY_TEST_CMD
