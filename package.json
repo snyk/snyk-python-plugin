@@ -37,7 +37,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@snyk/cli-interface": "^2.11.2",
+    "@snyk/cli-interface": "^2.16.0",
     "@snyk/dep-graph": "^1.28.1",
     "@snyk/error-catalog-nodejs-public": "^5.77.0",
     "shescape": "2.1.15",
