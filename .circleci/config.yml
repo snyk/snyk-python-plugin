@@ -15,7 +15,7 @@ commands:
     steps:
       - run:
           name: Install dependencies
-          command: npm install
+          command: npm ci
 
 jobs:
   security-scans:
@@ -25,7 +25,7 @@ jobs:
       - checkout
       - node/install-packages:
           with-cache: false
-          override-ci-command: npm install
+          override-ci-command: npm ci
       - prodsec/security_scans:
           mode: auto
           open-source-additional-arguments: --exclude=test
@@ -37,7 +37,7 @@ jobs:
       - checkout
       - node/install-packages:
           with-cache: false
-          override-ci-command: npm install
+          override-ci-command: npm ci
       - run:
           command: npm run lint
 
@@ -100,7 +100,7 @@ jobs:
       - checkout
       - node/install-packages:
           with-cache: false
-          override-ci-command: npm install
+          override-ci-command: npm ci
       - run:
           command: npm run build
 

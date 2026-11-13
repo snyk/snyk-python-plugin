@@ -10,7 +10,6 @@ npm-debug.log
 .venvs/
 dist/
 build-with-tests/
-package-lock.json
 
 .nyc_output
 
