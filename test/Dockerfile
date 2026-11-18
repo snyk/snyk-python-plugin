@@ -28,7 +28,7 @@ RUN python --version
 
 COPY --chown=${DEVUSER}:${DEVUSER} . ./
 
-RUN npm install
+RUN npm ci
 
 ENV PATH="/home/${DEVUSER}/.local/bin:${PATH}"
 RUN python -m pip install --user --quiet -r dev-requirements.txt --disable-pip-version-check
