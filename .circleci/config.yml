@@ -23,9 +23,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - node/install-packages:
-          with-cache: false
-          override-ci-command: npm ci
+      - node/install-packages
       - prodsec/security_scans:
           mode: auto
           open-source-additional-arguments: --exclude=test
@@ -35,9 +33,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - node/install-packages:
-          with-cache: false
-          override-ci-command: npm ci
+      - node/install-packages
       - run:
           command: npm run lint
 
@@ -98,9 +94,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - node/install-packages:
-          with-cache: false
-          override-ci-command: npm ci
+      - node/install-packages
       - run:
           command: npm run build
 
